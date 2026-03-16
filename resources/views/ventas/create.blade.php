@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="es"
+      x-data="posApp()"
+      x-init="init()"
+      :class="{ 'dark': darkMode }">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Nueva Venta · POS</title>
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        [x-cloak] { display: none !important; }
+        .line-clamp-2 { display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+        ::-webkit-scrollbar { width:4px;height:4px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:#cbd5e1;border-radius:4px; }
+        .dark ::-webkit-scrollbar-thumb { background:#334155; }
+        ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
+
+        @keyframes cart-bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-4px)} 40%,80%{transform:translateX(4px)} }
+        @keyframes slide-in-right { from{transform:translateX(110%);opacity:0} to{transform:translateX(0);opacity:1} }
+        @keyframes fade-up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+        .animate-cart-bounce   { animation: cart-bounce 0.3s ease; }
+        .animate-shake         { animation: shake 0.35s ease; }
+        .animate-slide-in-right{ animation: slide-in-right 0.3s ease; }
+        .animate-fade-up       { animation: fade-up 0.2s ease; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 h-screen overflow-hidden font-sans antialiased">
+
+{{-- ── Sidebar POS ── --}}
+<x-sidebar-pos :role="auth()->user()->role->nombre" />
+
+{{-- ── Main wrapper (respects sidebar width) ── --}}
+<div class="flex flex-col h-screen transition-all duration-300"
+     :class="sidebarCollapsed ? 'md:ml-16' : 'md:ml-64'"
+     @pos-sidebar-changed.window="sidebarCollapsed = $event.detail.collapsed">
+
+    {{-- ============================
+         TOPBAR (h-12)
+    ============================== --}}
+    <header class="h-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2 px-3 shrink-0 shadow-sm z-20">
+
+        {{-- Back button --}}
+        <a href="{{ route('ventas.index') }}"
+           class="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+            <i class="fas fa-arrow-left text-sm"></i>
+        </a>
+
+        {{-- Order Tabs --}}
+        <div class="flex items-center gap-1 flex-1 overflow-x-auto min-w-0">
+            <template x-for="(ord, idx) in ordenes" :key="ord.id">
+                <button @click="cambiarOrden(idx)"
+                        :class="ordenActiva === idx
+                            ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                            : 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
+                        class="relative flex items-center gap-1.5 border rounded-lg px-2.5 py-1 text-xs font-semibold transition whitespace-nowrap shrink-0">
+                    <span x-text="'Orden #' + ord.id"></span>
+                    <span x-show="ord.carrito.length > 0" x-cloak
+                          class="bg-white/30 text-inherit text-[9px] rounded-full px-1.5 min-w-4 text-center leading-4 font-bold"
+                          x-text="ord.carrito.length"></span>
+                    <button x-show="ordenes.length > 1" @click.stop="cerrarOrden(idx)" x-cloak
+                            class="ml-0.5 opacity-60 hover:opacity-100 transition">
+                        <i class="fas fa-times text-[9px]"></i>
+                    </button>
+                </button>
+            </template>
+            <button @click="nuevaOrden()"
+                    :disabled="ordenes.length >= 5"
+                    title="Nueva orden (F3)"
+                    class="w-7 h-7 shrink-0 flex items-center justify-center rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-gray-200 dark:border-gray-600 transition disabled:opacity-30">
+                <i class="fas fa-plus text-xs"></i>
+            </button>
+        </div>
+
+        {{-- Right side: clock, dark mode, user --}}
+        <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs text-gray-400 dark:text-gray-500 font-mono hidden lg:block" x-text="hora"></span>
+
+            <button @click="toggleDarkMode()"
+                    class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                    :title="darkMode ? 'Modo claro' : 'Modo oscuro'">
+                <i class="fas text-sm" :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon'"></i>
+            </button>
+
+            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            </div>
+            <span class="text-sm text-gray-600 dark:text-gray-300 hidden xl:block truncate max-w-30">{{ auth()->user()->name }}</span>
+        </div>
+    </header>
+
+    {{-- ============================
+         3-COLUMN BODY
+    ============================== --}}
+    <div class="flex flex-1 overflow-hidden">
+
+        {{-- ═══════════════════════════════════════
+             COL 1 — Products (30%)
+        ═══════════════════════════════════════ --}}
+        <div class="w-[30%] min-w-60 flex flex-col border-r border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
+
+            {{-- Search --}}
+            <div class="p-3 border-b border-gray-100 dark:border-gray-700 shrink-0">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm pointer-events-none"></i>
+                    <input type="text"
+                           x-model="busqueda"
+                           x-ref="searchInput"
+                           @keydown.enter.prevent="buscarProductoDirecto()"
+                           placeholder="Buscar... (F2)"
+                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-9 pr-8 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white dark:placeholder-gray-400 transition">
+                    <button x-show="busqueda" @click="busqueda=''" x-cloak
+                            class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Category pills --}}
+            <div class="px-3 py-2 border-b border-gray-100 dark:border-gray-700 overflow-x-auto shrink-0">
+                <div class="flex gap-1.5 min-w-max">
+                    <button @click="categoriaActiva = null"
+                            :class="categoriaActiva === null
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'"
+                            class="px-3 py-1 rounded-full text-xs font-semibold border transition whitespace-nowrap">
+                        Todos
+                    </button>
+                    @foreach($categorias as $cat)
+                        <button @click="categoriaActiva = {{ $cat->id }}"
+                                :class="categoriaActiva === {{ $cat->id }}
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'"
+                                class="px-3 py-1 rounded-full text-xs font-semibold border transition whitespace-nowrap">
+                            {{ $cat->nombre }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Products grid (scrollable) --}}
+            <div class="flex-1 overflow-y-auto p-3">
+
+                {{-- With stock --}}
+                <div class="grid grid-cols-3 gap-2">
+                    <template x-for="producto in productosConStock" :key="producto.id">
+                        <div @click="agregarAlCarrito(producto)"
+                             class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all group select-none">
+                            <div class="aspect-square bg-gray-50 dark:bg-gray-800 relative overflow-hidden flex items-center justify-center">
+                                <template x-if="producto.imagen">
+                                    <img :src="producto.imagen" :alt="producto.nombre" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!producto.imagen">
+                                    <i class="fas fa-box text-gray-300 dark:text-gray-600 text-2xl group-hover:text-gray-400 transition"></i>
+                                </template>
+                                <span x-show="producto.tipo_inventario === 'serie'" x-cloak
+                                      class="absolute top-1 right-1 bg-purple-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold leading-tight">IMEI</span>
+                                <span x-show="producto.tiene_variantes" x-cloak
+                                      class="absolute top-1 left-1 bg-indigo-500/90 text-white text-[9px] px-1.5 py-0.5 rounded leading-tight">VAR</span>
+                            </div>
+                            <div class="p-2">
+                                <p class="text-[11px] text-gray-700 dark:text-gray-200 font-medium line-clamp-2 leading-tight mb-1" x-text="producto.nombre"></p>
+                                <div class="flex items-center justify-between gap-1">
+                                    <p class="text-sm font-bold text-blue-600 dark:text-blue-400" x-text="'S/ ' + producto.precio_venta.toFixed(2)"></p>
+                                    <span x-show="orden.almacenId && producto.tipo_inventario !== 'serie'" x-cloak
+                                          class="text-[9px] font-semibold text-gray-400 dark:text-gray-500 shrink-0"
+                                          x-text="stockEnAlmacen(producto) + ' u.'"></span>
+                                    <span x-show="orden.almacenId && producto.tipo_inventario === 'serie'" x-cloak
+                                          class="text-[9px] font-semibold text-purple-400 shrink-0"
+                                          x-text="stockEnAlmacen(producto) + ' IMEI'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Without stock --}}
+                <template x-if="productosSinStock.length > 0">
+                    <div class="mt-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+                            <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Sin stock</span>
+                            <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 opacity-40 pointer-events-none">
+                            <template x-for="producto in productosSinStock" :key="producto.id">
+                                <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden">
+                                    <div class="aspect-square bg-gray-50 dark:bg-gray-800 relative overflow-hidden flex items-center justify-center">
+                                        <template x-if="producto.imagen">
+                                            <img :src="producto.imagen" :alt="producto.nombre" class="w-full h-full object-cover grayscale">
+                                        </template>
+                                        <template x-if="!producto.imagen">
+                                            <i class="fas fa-box text-gray-300 text-2xl"></i>
+                                        </template>
+                                        <span class="absolute bottom-1 left-1 bg-red-500/80 text-white text-[9px] px-1.5 py-0.5 rounded leading-tight">Sin stock</span>
+                                    </div>
+                                    <div class="p-2">
+                                        <p class="text-[11px] text-gray-500 font-medium line-clamp-2 leading-tight mb-1" x-text="producto.nombre"></p>
+                                        <p class="text-xs font-bold text-gray-400" x-text="'S/ ' + producto.precio_venta.toFixed(2)"></p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- Empty state --}}
+                <div x-show="productosConStock.length === 0 && productosSinStock.length === 0" x-cloak
+                     class="flex flex-col items-center justify-center py-16 select-none">
+                    <i class="fas fa-box-open text-4xl text-gray-200 dark:text-gray-700 mb-3"></i>
+                    <p class="text-sm font-medium text-gray-400">No hay productos</p>
+                    <p class="text-xs mt-1 text-gray-400">Prueba con otra búsqueda</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- ═══════════════════════════════════════
+             COL 2 — Cart (40%)
+        ═══════════════════════════════════════ --}}
+        <div class="w-[40%] min-w-75 flex flex-col border-r border-gray-200 dark:border-gray-700 overflow-hidden">
+
+            {{-- Cart header --}}
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-sm font-bold text-gray-700 dark:text-gray-200">Carrito</h2>
+                    <span x-show="orden.carrito.length > 0" x-cloak
+                          class="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold"
+                          x-text="orden.carrito.reduce((s, i) => s + i.cantidad, 0) + ' ítems'"></span>
+                </div>
+                <button @click="vaciarCarrito()"
+                        x-show="orden.carrito.length > 0" x-cloak
+                        class="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition flex items-center gap-1">
+                    <i class="fas fa-trash-alt text-xs"></i> Vaciar
+                </button>
+            </div>
+
+            {{-- Almacén selector --}}
+            <div class="px-4 py-2.5 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+                <select x-model="orden.almacenId"
+                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <option value="">— Seleccionar almacén —</option>
+                    @foreach($almacenes as $alm)
+                        <option value="{{ $alm->id }}">{{ $alm->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Cart items (scrollable) --}}
+            <div class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+                <template x-if="orden.carrito.length === 0">
+                    <div class="flex flex-col items-center justify-center h-full select-none">
+                        <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mb-3">
+                            <i class="fas fa-shopping-cart text-2xl text-gray-300 dark:text-gray-600"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-400">Carrito vacío</p>
+                        <p class="text-xs mt-1 text-gray-400">Selecciona productos ←</p>
+                    </div>
+                </template>
+
+                <div class="p-3 space-y-2">
+                    <template x-for="(item, index) in orden.carrito" :key="index">
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm hover:border-blue-200 dark:hover:border-blue-700/50 transition animate-fade-up">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex items-start gap-1.5 flex-1 pr-2 min-w-0">
+                                    <span class="shrink-0 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-[10px] font-bold rounded px-1 py-0.5 mt-0.5 leading-none" x-text="'#' + (index + 1)"></span>
+                                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight line-clamp-2" x-text="item.nombre"></p>
+                                </div>
+                                <button @click="eliminarDelCarrito(index)"
+                                        class="text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition shrink-0 mt-0.5">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </div>
+                            {{-- IMEIs --}}
+                            <template x-if="item.imeis && item.imeis.length">
+                                <div class="mb-2 flex flex-wrap gap-1">
+                                    <template x-for="imei in item.imeis">
+                                        <span class="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono" x-text="imei.codigo_imei || imei"></span>
+                                    </template>
+                                </div>
+                            </template>
+                            {{-- Qty + Price --}}
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                    <button @click="decrementarCantidad(index)"
+                                            class="w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                        <i class="fas fa-minus text-xs"></i>
+                                    </button>
+                                    <span class="w-8 text-center text-sm font-bold text-gray-800 dark:text-gray-100" x-text="item.cantidad"></span>
+                                    <button @click="incrementarCantidad(index)"
+                                            class="w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </button>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[11px] text-gray-400" x-text="'S/ ' + item.precio_unitario.toFixed(2) + ' c/u'"></p>
+                                    <p class="text-base font-bold text-gray-800 dark:text-gray-100" x-text="'S/ ' + (item.cantidad * item.precio_unitario).toFixed(2)"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            {{-- Notes --}}
+            <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
+                <button @click="orden.showNota = !orden.showNota"
+                        :class="orden.observaciones ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'"
+                        class="text-xs flex items-center gap-1.5 transition font-medium">
+                    <i class="fas fa-sticky-note"></i>
+                    <span x-text="orden.observaciones ? 'Nota guardada ✓' : 'Agregar nota'"></span>
+                </button>
+                <div x-show="orden.showNota" x-cloak class="mt-2">
+                    <textarea x-model="orden.observaciones" rows="2"
+                              placeholder="Observaciones de la venta..."
+                              class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 resize-none placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+            </div>
+        </div>
+
+        {{-- ═══════════════════════════════════════
+             COL 3 — Checkout (30%)
+        ═══════════════════════════════════════ --}}
+        <div class="w-[30%] min-w-65 flex flex-col overflow-hidden bg-white dark:bg-gray-800">
+
+            {{-- Scrollable area --}}
+            <div class="flex-1 overflow-y-auto">
+
+                {{-- Client --}}
+                <div class="px-4 pt-4 pb-3 border-b border-gray-100 dark:border-gray-700">
+                    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Cliente</p>
+                    <div class="flex gap-2">
+                        <div class="flex-1 relative" @click.outside="mostrarDropdownCliente = false">
+                            {{-- Selected chip --}}
+                            <div x-show="orden.clienteId" x-cloak
+                                 class="w-full border border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-lg py-2 pl-3 pr-8 text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2 relative">
+                                <i class="fas fa-user-check text-xs text-blue-500 shrink-0"></i>
+                                <span class="truncate flex-1 font-medium" x-text="orden.clienteNombre"></span>
+                                <button @click="limpiarCliente()" class="absolute right-2 top-2 text-blue-400 hover:text-red-400 transition">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </div>
+                            {{-- Search input --}}
+                            <div x-show="!orden.clienteId" class="relative">
+                                <i class="fas fa-user absolute left-2.5 top-2.5 text-xs text-gray-400 pointer-events-none"></i>
+                                <input type="text"
+                                       x-model="clienteQuery"
+                                       @focus="mostrarDropdownCliente = true; buscarCliente()"
+                                       @input="buscarCliente()"
+                                       @keydown.escape="mostrarDropdownCliente = false"
+                                       placeholder="Buscar cliente..."
+                                       class="w-full border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 rounded-lg py-2 pl-8 pr-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400">
+                            </div>
+                            {{-- Dropdown --}}
+                            <div x-show="mostrarDropdownCliente" x-cloak
+                                 class="absolute top-full left-0 right-0 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-2xl mt-1 z-40 overflow-hidden">
+                                <div class="max-h-48 overflow-y-auto">
+                                    <button @click="seleccionarCliente(null)"
+                                            class="w-full text-left px-3 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-400 border-b border-gray-100 dark:border-gray-600 transition flex items-center gap-2">
+                                        <i class="fas fa-user-slash text-xs"></i> Consumidor final
+                                    </button>
+                                    <template x-for="c in clienteResultados" :key="c.id">
+                                        <button @click="seleccionarCliente(c)"
+                                                class="w-full text-left px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-600 transition border-b border-gray-100/50 dark:border-gray-600/50">
+                                            <p class="text-sm text-gray-800 dark:text-gray-100 font-medium truncate" x-text="c.nombre"></p>
+                                            <p class="text-xs text-gray-400 font-mono mt-0.5" x-text="c.tipo_documento + ' · ' + c.numero_documento"></p>
+                                        </button>
+                                    </template>
+                                    <div x-show="clienteResultados.length === 0 && clienteQuery.length >= 2" x-cloak
+                                         class="px-3 py-5 text-center text-gray-400 text-xs">
+                                        <i class="fas fa-search-minus block text-lg mb-1"></i>
+                                        Sin resultados para "<span x-text="clienteQuery"></span>"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button @click="abrirModalCliente()" title="Nuevo cliente"
+                                class="border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-blue-600 hover:border-blue-400 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 transition">
+                            <i class="fas fa-user-plus text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Comprobante --}}
+                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Comprobante</p>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button @click="orden.tipoComprobante = 'boleta'"
+                                :class="orden.tipoComprobante === 'boleta' ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                class="border rounded-xl py-2 text-xs font-semibold transition flex flex-col items-center gap-1">
+                            <i class="fas fa-receipt"></i> Boleta
+                        </button>
+                        <button @click="orden.tipoComprobante = 'factura'"
+                                :class="orden.tipoComprobante === 'factura' ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                class="border rounded-xl py-2 text-xs font-semibold transition flex flex-col items-center gap-1">
+                            <i class="fas fa-file-invoice"></i> Factura
+                        </button>
+                        <button @click="orden.tipoComprobante = 'cotizacion'"
+                                :class="orden.tipoComprobante === 'cotizacion' ? 'bg-amber-500 border-amber-500 text-white' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                class="border rounded-xl py-2 text-xs font-semibold transition flex flex-col items-center gap-1">
+                            <i class="fas fa-file-alt"></i> Cotización
+                        </button>
+                    </div>
+                    <p x-show="orden.tipoComprobante === 'cotizacion'" x-cloak class="text-xs text-amber-500 mt-1.5 flex items-center gap-1">
+                        <i class="fas fa-info-circle"></i> No descuenta stock
+                    </p>
+                    <p x-show="orden.tipoComprobante === 'factura' && !orden.clienteId" x-cloak class="text-xs text-orange-400 mt-1.5 flex items-center gap-1">
+                        <i class="fas fa-exclamation-triangle"></i> Requiere cliente con RUC
+                    </p>
+                </div>
+
+                {{-- Envío a provincia (factura only) --}}
+                <div x-show="orden.tipoComprobante === 'factura'" x-cloak class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                    <label class="flex items-center gap-3 cursor-pointer select-none">
+                        <div class="relative shrink-0">
+                            <input type="checkbox" x-model="orden.envioProvincia" class="sr-only">
+                            <div :class="orden.envioProvincia ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'"
+                                 class="w-9 h-5 rounded-full transition-colors"></div>
+                            <div :class="orden.envioProvincia ? 'translate-x-4' : 'translate-x-0.5'"
+                                 class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+                        </div>
+                        <span class="text-xs text-gray-600 dark:text-gray-300 font-medium">Incluir guía de remisión</span>
+                    </label>
+                    <div x-show="orden.envioProvincia" x-cloak class="mt-3 space-y-2">
+                        <input type="text" x-model="orden.guiaRemision" placeholder="N° Guía de remisión"
+                               class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" x-model="orden.transportista" placeholder="Transportista"
+                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
+                            <input type="text" x-model="orden.placaVehiculo" placeholder="Placa"
+                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 placeholder-gray-400 uppercase">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Format selector --}}
+                <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Formato impresión</p>
+                    <div class="flex gap-2">
+                        <button @click="setFormato('ticket')"
+                                :class="formatoImpresion === 'ticket' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
+                                class="flex-1 py-2 border rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-receipt"></i> Ticket 80mm
+                        </button>
+                        <button @click="setFormato('a4')"
+                                :class="formatoImpresion === 'a4' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
+                                class="flex-1 py-2 border rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-file-alt"></i> A4
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Payment methods (hidden for cotizacion) --}}
+                <div x-show="orden.tipoComprobante !== 'cotizacion'" x-cloak class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Método de pago</p>
+                        <button @click="agregarPago()" :disabled="orden.pagos.length >= 4"
+                                class="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 disabled:opacity-30 transition">
+                            <i class="fas fa-plus text-[10px]"></i> Agregar
+                        </button>
+                    </div>
+
+                    {{-- Quick method buttons --}}
+                    <div class="grid grid-cols-4 gap-1.5 mb-3">
+                        <button @click="seleccionarMetodoPago('efectivo')"
+                                :class="orden.pagos.length === 1 && orden.pagos[0].metodo === 'efectivo' ? 'bg-green-50 border-green-400 text-green-700 dark:bg-green-900/20 dark:border-green-600 dark:text-green-400' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                class="flex flex-col items-center gap-0.5 py-2 rounded-xl border transition text-xs font-semibold">
+                            <i class="fas fa-money-bill-wave text-green-500 text-sm"></i>
+                            <span>Efectivo</span>
+                        </button>
+                        <button @click="seleccionarMetodoPago('yape')"
+                                :class="orden.pagos.length === 1 && orden.pagos[0].metodo === 'yape' ? 'bg-purple-50 border-purple-400 text-purple-700 dark:bg-purple-900/20 dark:border-purple-600 dark:text-purple-400' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                class="flex flex-col items-center gap-0.5 py-2 rounded-xl border transition text-xs font-semibold">
+                            <i class="fas fa-mobile-alt text-purple-500 text-sm"></i>
+                            <span>Yape</span>
+                        </button>
+                        <button @click="seleccionarMetodoPago('plin')"
+                                :class="orden.pagos.length === 1 && orden.pagos[0].metodo === 'plin' ? 'bg-teal-50 border-teal-400 text-teal-700 dark:bg-teal-900/20 dark:border-teal-600 dark:text-teal-400' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                class="flex flex-col items-center gap-0.5 py-2 rounded-xl border transition text-xs font-semibold">
+                            <i class="fas fa-mobile-alt text-teal-500 text-sm"></i>
+                            <span>Plin</span>
+                        </button>
+                        <button @click="seleccionarMetodoPago('transferencia')"
+                                :class="orden.pagos.length === 1 && orden.pagos[0].metodo === 'transferencia' ? 'bg-blue-50 border-blue-400 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-400' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                class="flex flex-col items-center gap-0.5 py-2 rounded-xl border transition text-xs font-semibold">
+                            <i class="fas fa-university text-blue-500 text-sm"></i>
+                            <span>Transf.</span>
+                        </button>
+                    </div>
+
+                    {{-- Payment rows --}}
+                    <div class="space-y-2">
+                        <template x-for="(pago, pi) in orden.pagos" :key="pi">
+                            <div class="flex items-center gap-2">
+                                <select x-model="pago.metodo"
+                                        class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                                    <option value="efectivo">💵 Efectivo</option>
+                                    <option value="yape">📱 Yape</option>
+                                    <option value="plin">📱 Plin</option>
+                                    <option value="transferencia">🏦 Transferencia</option>
+                                </select>
+                                <input type="number" x-model.number="pago.monto" step="0.50" min="0"
+                                       :placeholder="pi === 0 && orden.pagos.length === 1 ? total.toFixed(2) : '0.00'"
+                                       class="w-24 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-right font-mono text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                                <button x-show="orden.pagos.length > 1" @click="quitarPago(pi)" x-cloak
+                                        class="text-gray-400 hover:text-red-500 transition">
+                                    <i class="fas fa-times text-sm"></i>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    {{-- Quick amounts for efectivo --}}
+                    <div x-show="orden.pagos.length === 1 && orden.pagos[0].metodo === 'efectivo'" x-cloak class="mt-2.5">
+                        <p class="text-[10px] text-gray-400 mb-1.5 uppercase font-semibold tracking-wide">Pago rápido</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button @click="orden.pagos[0].monto = parseFloat(total.toFixed(2))"
+                                    class="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition">
+                                Exacto
+                            </button>
+                            <template x-for="amt in [10, 20, 50, 100, 200]" :key="amt">
+                                <button x-show="amt >= Math.floor(total)" @click="orden.pagos[0].monto = amt"
+                                        class="px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                                        x-text="'S/ ' + amt"></button>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- QR / transfer info --}}
+                    <div x-show="orden.pagos.some(p => ['yape','plin','transferencia'].includes(p.metodo)) && Object.keys(pagosConfig).length" x-cloak class="mt-3 space-y-2">
+                        <template x-for="(pago, pi) in orden.pagos" :key="'info'+pi">
+                            <div>
+                                <div x-show="['yape','plin'].includes(pago.metodo) && pagosConfig[pago.metodo]"
+                                     class="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 flex items-center gap-3">
+                                    <template x-if="pagosConfig[pago.metodo]?.qr_url">
+                                        <img :src="pagosConfig[pago.metodo].qr_url" class="w-16 h-16 rounded-lg bg-white p-0.5 shrink-0" alt="QR">
+                                    </template>
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-800 dark:text-gray-100 capitalize" x-text="pago.metodo"></p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" x-text="pagosConfig[pago.metodo]?.titular || ''"></p>
+                                        <p class="text-sm font-bold text-green-600 dark:text-green-400 mt-0.5" x-text="pagosConfig[pago.metodo]?.numero || ''"></p>
+                                    </div>
+                                </div>
+                                <div x-show="pago.metodo === 'transferencia' && pagosConfig['transferencia']"
+                                     class="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 text-xs space-y-0.5">
+                                    <p class="font-bold text-gray-800 dark:text-gray-100 mb-1">Transferencia Bancaria</p>
+                                    <template x-if="pagosConfig['transferencia']?.banco">
+                                        <p class="text-gray-500 dark:text-gray-400">Banco: <span class="text-gray-700 dark:text-gray-200 font-semibold" x-text="pagosConfig['transferencia'].banco"></span></p>
+                                    </template>
+                                    <template x-if="pagosConfig['transferencia']?.numero">
+                                        <p class="text-gray-500 dark:text-gray-400">N° Cta: <span class="text-gray-700 dark:text-gray-200 font-mono font-semibold" x-text="pagosConfig['transferencia'].numero"></span></p>
+                                    </template>
+                                    <template x-if="pagosConfig['transferencia']?.titular">
+                                        <p class="text-gray-500 dark:text-gray-400">A nombre de: <span class="text-gray-700 dark:text-gray-200 font-semibold" x-text="pagosConfig['transferencia'].titular"></span></p>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+            </div>{{-- end scrollable area --}}
+
+            {{-- Fixed bottom: summary + COBRAR --}}
+            <div class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 shrink-0">
+                <div class="space-y-1 mb-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500 dark:text-gray-400">Subtotal</span>
+                        <span class="text-gray-700 dark:text-gray-300 font-medium" x-text="'S/ ' + subtotal.toFixed(2)"></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500 dark:text-gray-400">IGV (18%)</span>
+                        <span class="text-gray-700 dark:text-gray-300 font-medium" x-text="'S/ ' + igv.toFixed(2)"></span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <span class="text-base font-bold text-gray-800 dark:text-gray-100">TOTAL</span>
+                        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400" x-text="'S/ ' + total.toFixed(2)"></span>
+                    </div>
+                    <div x-show="vuelto > 0" x-cloak class="flex justify-between items-center">
+                        <span class="text-sm text-green-600 dark:text-green-400 font-semibold">Vuelto</span>
+                        <span class="text-lg font-bold text-green-600 dark:text-green-400" x-text="'S/ ' + vuelto.toFixed(2)"></span>
+                    </div>
+                    <div x-show="falta > 0 && totalPagado > 0" x-cloak class="flex justify-between items-center">
+                        <span class="text-sm text-red-500 font-semibold">Falta</span>
+                        <span class="text-lg font-bold text-red-500" x-text="'S/ ' + falta.toFixed(2)"></span>
+                    </div>
+                </div>
+
+                <button @click="procesarPago()"
+                        :disabled="orden.carrito.length === 0 || !orden.almacenId || guardando"
+                        :class="orden.tipoComprobante === 'cotizacion' ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200 dark:shadow-amber-900/30' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200 dark:shadow-blue-900/30'"
+                        class="w-full disabled:opacity-40 disabled:cursor-not-allowed text-white py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg">
+                    <template x-if="orden.tipoComprobante === 'cotizacion'">
+                        <span x-show="!guardando"><i class="fas fa-file-contract mr-1"></i>Guardar Cotización <kbd class="text-sm opacity-70 font-normal">F4</kbd></span>
+                    </template>
+                    <template x-if="orden.tipoComprobante !== 'cotizacion'">
+                        <span x-show="!guardando"><i class="fas fa-cash-register mr-1"></i>Cobrar <kbd class="text-sm opacity-70 font-normal">F4</kbd></span>
+                    </template>
+                    <span x-show="guardando" x-cloak><i class="fas fa-spinner fa-spin mr-1"></i> Procesando...</span>
+                </button>
+            </div>
+        </div>
+
+    </div>{{-- end 3-column body --}}
+</div>{{-- end main wrapper --}}
+
+{{-- ============================
+     TOASTS
+============================== --}}
+<div class="fixed top-4 right-4 z-100 space-y-2 pointer-events-none" x-cloak>
+    <template x-for="t in toasts" :key="t.id">
+        <div class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl text-sm font-medium animate-slide-in-right max-w-xs"
+             :class="{
+                 'bg-green-600 text-white': t.tipo === 'success',
+                 'bg-red-600 text-white':   t.tipo === 'error',
+                 'bg-blue-600 text-white':  t.tipo === 'info',
+                 'bg-amber-500 text-white': t.tipo === 'warning',
+             }">
+            <i class="fas shrink-0"
+               :class="{
+                   'fa-check-circle':        t.tipo === 'success',
+                   'fa-exclamation-circle':  t.tipo === 'error',
+                   'fa-info-circle':         t.tipo === 'info',
+                   'fa-exclamation-triangle':t.tipo === 'warning',
+               }"></i>
+            <span x-text="t.mensaje"></span>
+        </div>
+    </template>
+</div>
+
+{{-- ============================
+     MODAL: CONFIRMACIÓN DE PAGO
+============================== --}}
+<div x-show="showPago" x-cloak class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showPago = false"></div>
+    <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-sm shadow-2xl animate-fade-up">
+
+        <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100"
+                x-text="orden.tipoComprobante === 'cotizacion' ? 'Guardar Cotización' : 'Confirmar Venta'"></h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5"
+               x-text="orden.tipoComprobante === 'cotizacion' ? 'No se descontará stock ni se registrará pago' : 'Revisa los datos antes de confirmar'"></p>
+        </div>
+
+        <div class="p-5 space-y-4">
+            {{-- Summary --}}
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 space-y-2">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500 dark:text-gray-400">Comprobante</span>
+                    <span class="font-semibold text-gray-700 dark:text-gray-200 capitalize" x-text="orden.tipoComprobante"></span>
+                </div>
+                <div x-show="orden.tipoComprobante !== 'cotizacion'" class="flex justify-between text-sm">
+                    <span class="text-gray-500 dark:text-gray-400">Formato</span>
+                    <span class="font-semibold text-gray-700 dark:text-gray-200" x-text="formatoImpresion === 'ticket' ? 'Ticket 80mm' : 'A4'"></span>
+                </div>
+                <div x-show="orden.tipoComprobante !== 'cotizacion'" class="flex justify-between text-sm">
+                    <span class="text-gray-500 dark:text-gray-400">Método</span>
+                    <span class="font-semibold text-gray-700 dark:text-gray-200 capitalize"
+                          x-text="orden.pagos.length > 1 ? 'Mixto (' + orden.pagos.length + ' métodos)' : orden.pagos[0]?.metodo"></span>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-600">
+                    <span class="text-base font-bold text-gray-800 dark:text-gray-100">Total</span>
+                    <span class="text-2xl font-bold"
+                          :class="orden.tipoComprobante === 'cotizacion' ? 'text-amber-500' : 'text-blue-600 dark:text-blue-400'"
+                          x-text="'S/ ' + total.toFixed(2)"></span>
+                </div>
+                <div x-show="vuelto > 0 && orden.tipoComprobante !== 'cotizacion'" x-cloak class="flex justify-between text-sm">
+                    <span class="text-green-600 font-semibold">Vuelto a entregar</span>
+                    <span class="font-bold text-green-600" x-text="'S/ ' + vuelto.toFixed(2)"></span>
+                </div>
+            </div>
+            <div x-show="orden.tipoComprobante === 'cotizacion'" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3 text-sm text-amber-700 dark:text-amber-300 flex items-start gap-2">
+                <i class="fas fa-info-circle mt-0.5 shrink-0"></i>
+                <span>Esta cotización quedará guardada. Podrás convertirla a boleta o factura cuando el cliente confirme.</span>
+            </div>
+        </div>
+
+        <div class="flex gap-3 p-5 border-t border-gray-100 dark:border-gray-700">
+            <button @click="showPago = false"
+                    class="flex-1 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl py-3 font-semibold text-sm transition">
+                Cancelar
+            </button>
+            <button @click="confirmarPago()"
+                    :disabled="!puedePagar || guardando"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl py-3 font-bold text-sm transition flex items-center justify-center gap-2">
+                <template x-if="orden.tipoComprobante === 'cotizacion'">
+                    <span><i class="fas fa-file-alt mr-1"></i>Guardar Cotización</span>
+                </template>
+                <template x-if="orden.tipoComprobante !== 'cotizacion'">
+                    <span><i class="fas fa-check mr-1"></i>Confirmar Venta</span>
+                </template>
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ============================
+     MODAL: CLIENTE RÁPIDO
+============================== --}}
+<div x-show="showModalCliente" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showModalCliente = false"></div>
+    <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-md shadow-2xl animate-fade-up">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <i class="fas fa-user-plus text-blue-500"></i> Nuevo Cliente
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Consulta DNI/RUC o ingresa manualmente</p>
+        </div>
+        <div class="p-5 space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Tipo documento</label>
+                    <select x-model="nuevoCliente.tipo_documento"
+                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                        <option value="DNI">DNI</option>
+                        <option value="RUC">RUC</option>
+                        <option value="CE">Carnet Ext.</option>
+                        <option value="PASAPORTE">Pasaporte</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">N° Documento</label>
+                    <div class="flex gap-1.5 items-stretch">
+                        <input type="text" x-model="nuevoCliente.numero_documento"
+                               :maxlength="nuevoCliente.tipo_documento === 'RUC' ? 11 : 8"
+                               class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 font-mono">
+                        <button @click="consultarDocumento()" :disabled="buscandoCliente"
+                                class="px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition disabled:opacity-50 shrink-0 flex items-center justify-center">
+                            <i class="fas" :class="buscandoCliente ? 'fa-spinner fa-spin' : 'fa-search'"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Nombre / Razón social</label>
+                <input type="text" x-model="nuevoCliente.nombre"
+                       class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Teléfono</label>
+                    <input type="text" x-model="nuevoCliente.telefono"
+                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Dirección</label>
+                    <input type="text" x-model="nuevoCliente.direccion"
+                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div x-show="errorCliente" x-cloak class="px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-600 dark:text-red-400 flex items-center gap-2">
+                <i class="fas fa-exclamation-circle shrink-0"></i>
+                <span x-text="errorCliente"></span>
+            </div>
+        </div>
+        <div class="flex gap-3 p-5 border-t border-gray-100 dark:border-gray-700">
+            <button @click="showModalCliente = false"
+                    class="flex-1 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl py-3 font-semibold text-sm transition">
+                Cancelar
+            </button>
+            <button @click="guardarCliente()"
+                    :disabled="!nuevoCliente.nombre || !nuevoCliente.numero_documento || guardandoCliente"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl py-3 font-bold text-sm transition">
+                <i class="fas" :class="guardandoCliente ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+                <span class="ml-1">Guardar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ============================
+     MODAL: VARIANTE
+============================== --}}
+<div x-show="mostrarModalVariante" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="mostrarModalVariante = false"></div>
+    <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl animate-fade-up">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <i class="fas fa-swatchbook text-indigo-500"></i>
+                Seleccionar Variante
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5" x-text="productoActual?.nombre"></p>
+        </div>
+        <div class="p-5 max-h-[60vh] overflow-y-auto">
+            <div class="grid grid-cols-2 gap-2.5">
+                <template x-for="v in productoActual?.variantes" :key="v.id">
+                    <button @click="seleccionarVariante(v)"
+                            :disabled="stockVarianteEnAlmacen(v) === 0 && productoActual?.tipo_inventario !== 'serie'"
+                            class="text-left border rounded-xl p-3 transition group disabled:opacity-40 disabled:cursor-not-allowed"
+                            :class="stockVarianteEnAlmacen(v) > 0 || productoActual?.tipo_inventario === 'serie'
+                                ? 'border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                                : 'border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30'">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <template x-if="v.color_hex">
+                                <div class="w-5 h-5 rounded-full shrink-0 ring-1 ring-gray-200 dark:ring-gray-600" :style="'background:' + v.color_hex"></div>
+                            </template>
+                            <span class="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate" x-text="v.nombre_completo"></span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-mono text-gray-400 dark:text-gray-500" x-text="v.sku"></span>
+                            <span :class="stockVarianteEnAlmacen(v) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'"
+                                  x-text="productoActual?.tipo_inventario === 'serie'
+                                      ? (orden.almacenId && v.stock_por_almacen?.[orden.almacenId] !== undefined
+                                          ? v.stock_por_almacen[orden.almacenId] + ' IMEI aquí'
+                                          : v.stock_actual + ' IMEI total')
+                                      : (stockVarianteEnAlmacen(v) > 0
+                                          ? stockVarianteEnAlmacen(v) + ' en stock'
+                                          : 'Sin stock')"></span>
+                        </div>
+                        <div x-show="v.sobreprecio > 0" class="text-xs text-indigo-600 dark:text-indigo-400 mt-1 font-semibold" x-text="'+S/ ' + v.sobreprecio.toFixed(2)"></div>
+                    </button>
+                </template>
+            </div>
+        </div>
+        <div class="p-4 border-t border-gray-100 dark:border-gray-700">
+            <button @click="mostrarModalVariante = false"
+                    class="w-full border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl py-2.5 font-semibold text-sm transition">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ============================
+     MODAL: IMEI
+============================== --}}
+<div x-show="mostrarModalIMEI" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="_limpiarModalIMEI()"></div>
+    <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl animate-fade-up">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <i class="fas fa-barcode text-purple-500"></i> Seleccionar IMEI/Serie
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5" x-text="(productoActual?.nombre || '') + (varianteActual?.nombre_completo ? ' — ' + varianteActual.nombre_completo : '')"></p>
+        </div>
+        <div class="p-5 space-y-4">
+            {{-- Manual entry --}}
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Ingresar IMEI/Serie manualmente</label>
+                <div class="flex gap-2">
+                    <input type="text" x-model="imeiActual"
+                           @keydown.enter.prevent="agregarIMEIManual()"
+                           placeholder="15 dígitos..."
+                           maxlength="15"
+                           class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm font-mono text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 placeholder-gray-400">
+                    <button @click="agregarIMEIManual()"
+                            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-semibold transition">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Selected IMEIs --}}
+            <div x-show="imeisTemp.length > 0" x-cloak>
+                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Seleccionados (<span x-text="imeisTemp.length"></span>)</p>
+                <div class="flex flex-wrap gap-1.5">
+                    <template x-for="imei in imeisTemp" :key="imei.codigo_imei">
+                        <span class="flex items-center gap-1.5 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 text-xs px-2.5 py-1 rounded-lg font-mono">
+                            <span x-text="imei.codigo_imei"></span>
+                            <button @click="quitarImeiManual(imei.codigo_imei)" class="text-purple-400 hover:text-red-500 transition">
+                                <i class="fas fa-times text-[10px]"></i>
+                            </button>
+                        </span>
+                    </template>
+                </div>
+            </div>
+
+            {{-- Available IMEIs from DB --}}
+            <div>
+                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+                    Disponibles en almacén
+                    <span x-show="cargandoImeis" x-cloak><i class="fas fa-spinner fa-spin ml-1"></i></span>
+                </p>
+                <div x-show="!cargandoImeis && imeisDisponibles.length === 0" x-cloak
+                     class="text-xs text-gray-400 text-center py-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                    <i class="fas fa-inbox block text-2xl mb-1 text-gray-300 dark:text-gray-600"></i>
+                    No hay unidades disponibles en el almacén
+                </div>
+                <div class="max-h-36 overflow-y-auto space-y-1">
+                    <template x-for="imei in imeisDisponibles" :key="imei.id">
+                        <button @click="toggleImei(imei)"
+                                :class="isImeiSeleccionado(imei) ? 'bg-purple-50 dark:bg-purple-900/30 border-purple-400 dark:border-purple-600 text-purple-700 dark:text-purple-300' : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-300 dark:hover:border-purple-700'"
+                                class="w-full text-left flex items-center justify-between px-3 py-2 border rounded-lg text-sm font-mono transition">
+                            <span x-text="imei.codigo_imei"></span>
+                            <i class="fas" :class="isImeiSeleccionado(imei) ? 'fa-check-circle text-purple-500' : 'fa-circle text-gray-200 dark:text-gray-600'"></i>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-2 p-5 border-t border-gray-100 dark:border-gray-700">
+            <button @click="_limpiarModalIMEI()"
+                    class="border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl py-2.5 px-4 font-semibold text-sm transition">
+                Cancelar
+            </button>
+            <button @click="confirmarYSeguir()" :disabled="imeisTemp.length === 0"
+                    class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-xl py-2.5 font-bold text-sm transition">
+                <i class="fas fa-plus mr-1"></i>
+                Agregar y continuar
+            </button>
+            <button @click="confirmarIMEIs()" :disabled="imeisTemp.length === 0"
+                    class="flex-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white rounded-xl py-2.5 font-bold text-sm transition">
+                <i class="fas fa-check mr-1"></i>
+                Agregar (<span x-text="imeisTemp.length"></span>)
+            </button>
+        </div>
+    </div>
+</div>
+
+@php
+$clientesJson = $clientes->map(fn($c) => [
+    'id'               => $c->id,
+    'nombre'           => $c->nombre,
+    'tipo_documento'   => $c->tipo_documento   ?? 'DNI',
+    'numero_documento' => $c->numero_documento ?? '',
+])->values();
+@endphp
+
+<script>
+function crearOrden(id) {
+    return {
+        id,
+        almacenId:       '{{ $almacenPredeterminado ?? "" }}',
+        clienteId:       '',
+        clienteNombre:   '',
+        observaciones:   '',
+        showNota:        false,
+        tipoComprobante: 'boleta',
+        envioProvincia:  false,
+        guiaRemision:    '',
+        transportista:   '',
+        placaVehiculo:   '',
+        carrito:         [],
+        pagos:           [{ metodo: 'efectivo', monto: 0 }],
+    };
+}
+
+function posApp() {
+    return {
+        // ── UI State ──
+        darkMode:        JSON.parse(localStorage.getItem('pos_dark') ?? 'false'),
+        sidebarCollapsed:JSON.parse(localStorage.getItem('pos_sidebar_collapsed') ?? 'false'),
+        formatoImpresion:localStorage.getItem('pos_formato')                      ?? 'ticket',
+        hora:            new Date().toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit', second:'2-digit' }),
+
+        // ── Toasts ──
+        toasts:   [],
+        _toastId: 0,
+
+        // ── POS State ──
+        busqueda:        '',
+        categoriaActiva: null,
+        guardando:       false,
+        showPago:        false,
+        pagosConfig:     @json($pagosConfig),
+
+        // ── Orders (tabs) ──
+        ordenes:    [crearOrden(1)],
+        ordenActiva: 0,
+        _nextId:    2,
+
+        // ── Product modals ──
+        mostrarModalIMEI:     false,
+        mostrarModalVariante: false,
+        productoActual:       null,
+        varianteActual:       null,
+        imeiActual:           '',
+        imeisTemp:            [],
+        imeisDisponibles:     [],
+        cargandoImeis:        false,
+        cartItemEditIndex:    null,  // null = nuevo ítem, number = agregar IMEIs a ítem existente
+
+        // ── Client modal ──
+        showModalCliente: false,
+        nuevoCliente:     { tipo_documento: 'DNI', numero_documento: '', nombre: '', direccion: '', telefono: '' },
+        buscandoCliente:  false,
+        guardandoCliente: false,
+        errorCliente:     '',
+
+        // ── Catalogue ──
+        productos: @json($productos),
+
+        // ── Clients (dynamic search) ──
+        clientes:               @json($clientesJson),
+        clienteQuery:           '',
+        clienteResultados:      [],
+        mostrarDropdownCliente: false,
+
+        // ── Computed: active order ──
+        get orden() { return this.ordenes[this.ordenActiva]; },
+
+        // ── Computed: financials ──
+        get subtotal()    { return this.orden.carrito.reduce((s, i) => s + i.cantidad * i.precio_unitario, 0); },
+        get igv()         { return this.subtotal * 0.18; },
+        get total()       { return this.subtotal + this.igv; },
+        get totalPagado() { return this.orden.pagos.reduce((s, p) => s + (parseFloat(p.monto) || 0), 0); },
+        get vuelto()      { return Math.max(0, this.totalPagado - this.total); },
+        get falta()       { return Math.max(0, this.total - this.totalPagado); },
+        get puedePagar()  {
+            if (this.orden.tipoComprobante === 'cotizacion') return true;
+            if (this.orden.pagos.length === 1 && this.orden.pagos[0].monto === 0) return true;
+            return this.totalPagado >= this.total;
+        },
+
+        // ── Computed: filtered products ──
+        get _productosFiltrados() {
+            return this.productos.filter(p => {
+                if (this.categoriaActiva !== null && p.categoria_id !== this.categoriaActiva) return false;
+                if (this.busqueda.trim()) {
+                    const s = this.busqueda.toLowerCase();
+                    return p.nombre.toLowerCase().includes(s) ||
+                           (p.codigo && p.codigo.toLowerCase().includes(s)) ||
+                           (p.codigo_barras && String(p.codigo_barras).includes(s));
+                }
+                return true;
+            });
+        },
+        // Stock del producto en el almacén seleccionado (0 si no hay almacén elegido = global)
+        stockEnAlmacen(p) {
+            if (!this.orden.almacenId) return p.stock_actual;
+            return parseInt(p.stock_por_almacen?.[this.orden.almacenId] ?? 0);
+        },
+        // Stock de una variante en el almacén seleccionado
+        stockVarianteEnAlmacen(v) {
+            if (!this.orden.almacenId || !v.stock_por_almacen || Object.keys(v.stock_por_almacen).length === 0) {
+                return v.stock_actual;  // sin datos por almacén → usar total
+            }
+            return parseInt(v.stock_por_almacen[this.orden.almacenId] ?? 0);
+        },
+        get productosConStock()  {
+            return this._productosFiltrados.filter(p =>
+                p.tipo_inventario === 'serie'
+                    ? (this.orden.almacenId ? this.stockEnAlmacen(p) > 0 : true)
+                    : this.stockEnAlmacen(p) > 0
+            );
+        },
+        get productosSinStock()  {
+            return this._productosFiltrados.filter(p =>
+                p.tipo_inventario !== 'serie' && this.stockEnAlmacen(p) === 0
+            );
+        },
+
+        // ══════════════════════════════════════
+        // INIT
+        // ══════════════════════════════════════
+        init() {
+            this.iniciarReloj();
+            document.addEventListener('keydown', e => {
+                // F2: focus search
+                if (e.key === 'F2') { e.preventDefault(); this.$refs.searchInput?.focus(); }
+                // F3: new order
+                if (e.key === 'F3') { e.preventDefault(); this.nuevaOrden(); }
+                // F4 / F8: open payment
+                if (e.key === 'F4' || e.key === 'F8') {
+                    e.preventDefault();
+                    if (this.orden.carrito.length > 0 && !this.guardando) this.procesarPago();
+                }
+                // F9: close caja
+                if (e.key === 'F9') { e.preventDefault(); window.location.href = '{{ route("caja.actual") }}'; }
+                // Ctrl+E: efectivo
+                if (e.ctrlKey && e.key === 'e') { e.preventDefault(); this.seleccionarMetodoPago('efectivo'); }
+                // Ctrl+Y: Yape
+                if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this.seleccionarMetodoPago('yape'); }
+                // Ctrl+P: Plin
+                if (e.ctrlKey && e.key === 'p') { e.preventDefault(); this.seleccionarMetodoPago('plin'); }
+            });
+            this.$watch('showPago', v => {
+                if (v && this.orden.pagos.length === 1) {
+                    this.orden.pagos[0].monto = parseFloat(this.total.toFixed(2));
+                }
+            });
+        },
+
+        // ── Clock ──
+        iniciarReloj() {
+            setInterval(() => {
+                this.hora = new Date().toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+            }, 1000);
+        },
+
+        // ── Dark mode ──
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            localStorage.setItem('pos_dark', this.darkMode);
+        },
+
+        // ── Format selector ──
+        setFormato(f) {
+            this.formatoImpresion = f;
+            localStorage.setItem('pos_formato', f);
+        },
+
+        // ── Payment method quick select ──
+        seleccionarMetodoPago(metodo) {
+            if (this.orden.pagos.length === 1) {
+                this.orden.pagos[0].metodo = metodo;
+            } else {
+                this.orden.pagos = [{ metodo, monto: 0 }];
+            }
+        },
+
+        // ── Toasts ──
+        toast(tipo, mensaje, duracion = 3500) {
+            const id = ++this._toastId;
+            this.toasts.push({ id, tipo, mensaje });
+            setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, duracion);
+        },
+
+        // ══════════════════════════════════════
+        // ORDER MANAGEMENT
+        // ══════════════════════════════════════
+        nuevaOrden()  { if (this.ordenes.length >= 5) { this.toast('warning', 'Máximo 5 órdenes'); return; } this.ordenes.push(crearOrden(this._nextId++)); this.ordenActiva = this.ordenes.length - 1; },
+        cambiarOrden(idx) { this.ordenActiva = idx; },
+        cerrarOrden(idx)  {
+            if (this.ordenes.length <= 1) return;
+            this.ordenes.splice(idx, 1);
+            this.ordenActiva = Math.min(this.ordenActiva, this.ordenes.length - 1);
+        },
+
+        // ── Quick search (Enter key) ──
+        buscarProductoDirecto() {
+            if (!this.busqueda.trim()) return;
+            const found = this.productosConStock[0];
+            if (found) { this.agregarAlCarrito(found); this.busqueda = ''; }
+        },
+
+        // ══════════════════════════════════════
+        // CART
+        // ══════════════════════════════════════
+        agregarAlCarrito(producto) {
+            if (!this.orden.almacenId) { this.toast('warning', 'Selecciona un almacén primero'); return; }
+            if (producto.tiene_variantes && producto.variantes?.length > 0) {
+                this.productoActual = producto;
+                this.varianteActual = null;
+                this.mostrarModalVariante = true;
+                return;
+            }
+            const stockAlmacen = this.stockEnAlmacen(producto);
+            if (stockAlmacen === 0 && producto.tipo_inventario !== 'serie') {
+                this.toast('warning', 'Sin stock en este almacén');
+                return;
+            }
+            if (producto.tipo_inventario === 'serie') {
+                this.productoActual = producto;
+                this.abrirModalIMEI();
+                return;
+            }
+            const existente = this.orden.carrito.find(i => i.producto_id === producto.id && !i.variante_id);
+            if (existente) {
+                if (existente.cantidad < stockAlmacen) {
+                    existente.cantidad++;
+                    this.toast('success', producto.nombre + ' ×' + existente.cantidad);
+                } else {
+                    this.toast('warning', 'Stock máximo alcanzado');
+                }
+            } else {
+                this.orden.carrito.push({
+                    producto_id: producto.id, variante_id: null,
+                    nombre: producto.nombre,
+                    precio_unitario: producto.incluye_igv
+                        ? Math.round((producto.precio_venta / 1.18) * 100) / 100
+                        : producto.precio_venta,
+                    cantidad: 1, stock_disponible: stockAlmacen,
+                    tipo_inventario: producto.tipo_inventario, imeis: []
+                });
+                this.toast('success', producto.nombre + ' agregado');
+            }
+        },
+
+        seleccionarVariante(v) {
+            this.varianteActual = v;
+            this.mostrarModalVariante = false;
+            const precioFinal    = parseFloat(this.productoActual.precio_venta) + parseFloat(v.sobreprecio || 0);
+            const nombreCompleto = this.productoActual.nombre + (v.nombre_completo ? ' — ' + v.nombre_completo : '');
+            const stockDisponible = this.stockVarianteEnAlmacen(v);
+            if (this.productoActual.tipo_inventario === 'serie') {
+                this.abrirModalIMEI();
+                return;
+            }
+            if (stockDisponible === 0) { this.toast('warning', 'Esta variante no tiene stock en este almacén'); return; }
+            const existente = this.orden.carrito.find(i => i.producto_id === this.productoActual.id && i.variante_id === v.id);
+            if (existente) {
+                if (existente.cantidad < stockDisponible) existente.cantidad++;
+                else { this.toast('warning', 'Stock máximo alcanzado'); }
+            } else {
+                this.orden.carrito.push({
+                    producto_id: this.productoActual.id, variante_id: v.id,
+                    nombre: nombreCompleto,
+                    precio_unitario: this.productoActual.incluye_igv
+                        ? Math.round((precioFinal / 1.18) * 100) / 100
+                        : precioFinal,
+                    cantidad: 1, stock_disponible: stockDisponible,
+                    tipo_inventario: this.productoActual.tipo_inventario, imeis: []
+                });
+                this.toast('success', nombreCompleto + ' agregado');
+            }
+            this.productoActual = null; this.varianteActual = null;
+        },
+
+        vaciarCarrito() { this.orden.carrito = []; },
+        incrementarCantidad(index) {
+            const item = this.orden.carrito[index];
+            if (item.tipo_inventario === 'serie') {
+                // Para IMEI: abrir modal para registrar el nuevo IMEI
+                const producto = this.productos.find(p => p.id === item.producto_id);
+                if (!producto) return;
+                this.productoActual   = producto;
+                this.varianteActual   = producto.variantes?.find(v => v.id === item.variante_id) ?? null;
+                this.cartItemEditIndex = index;
+                this.abrirModalIMEI();
+                return;
+            }
+            if (item.cantidad >= item.stock_disponible) { this.toast('warning', 'Stock máximo alcanzado'); return; }
+            item.cantidad++;
+        },
+        decrementarCantidad(index) {
+            const item = this.orden.carrito[index];
+            if (item.cantidad > 1) {
+                item.cantidad--;
+                if (item.tipo_inventario === 'serie' && item.imeis?.length > item.cantidad) {
+                    item.imeis.splice(item.cantidad);  // quita el último IMEI
+                }
+            } else {
+                this.eliminarDelCarrito(index);
+            }
+        },
+        eliminarDelCarrito(index) {
+            const nombre = this.orden.carrito[index].nombre;
+            this.orden.carrito.splice(index, 1);
+            this.toast('info', nombre + ' eliminado');
+        },
+
+        // ══════════════════════════════════════
+        // PAYMENTS
+        // ══════════════════════════════════════
+        agregarPago() { if (this.orden.pagos.length >= 4) return; this.orden.pagos.push({ metodo: 'efectivo', monto: 0 }); },
+        quitarPago(idx) { this.orden.pagos.splice(idx, 1); },
+
+        procesarPago() {
+            if (this.orden.carrito.length === 0) { this.toast('warning', 'Agrega productos al carrito'); return; }
+            if (!this.orden.almacenId) { this.toast('warning', 'Selecciona un almacén'); return; }
+            if (!this.puedePagar && this.orden.tipoComprobante !== 'cotizacion') {
+                this.toast('warning', 'El monto ingresado es insuficiente'); return;
+            }
+            this.showPago = true;
+        },
+
+        async confirmarPago() {
+            if (!this.puedePagar) return;
+            this.guardando = true;
+            this.showPago  = false;
+
+            let metodoPago  = this.orden.pagos[0].metodo;
+            let pagosDetalle = null;
+            if (this.orden.pagos.length > 1) {
+                metodoPago   = 'mixto';
+                pagosDetalle = this.orden.pagos.map(p => ({ metodo: p.metodo, monto: parseFloat(p.monto) || 0 }));
+            } else if (this.orden.tipoComprobante === 'cotizacion') {
+                metodoPago = null;
+            }
+
+            try {
+                const res = await fetch('{{ route("ventas.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept':       'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        almacen_id:       this.orden.almacenId,
+                        cliente_id:       this.orden.clienteId || null,
+                        observaciones:    this.orden.observaciones || null,
+                        tipo_comprobante: this.orden.tipoComprobante,
+                        guia_remision:    this.orden.envioProvincia ? this.orden.guiaRemision : null,
+                        transportista:    this.orden.envioProvincia ? this.orden.transportista : null,
+                        placa_vehiculo:   this.orden.envioProvincia ? this.orden.placaVehiculo : null,
+                        metodo_pago:      metodoPago,
+                        pagos_detalle:    pagosDetalle,
+                        formato_impresion: this.formatoImpresion,
+                        detalles: this.orden.carrito.map(i => ({
+                            producto_id:      i.producto_id,
+                            variante_id:      i.variante_id || null,
+                            cantidad:         i.cantidad,
+                            precio_unitario:  i.precio_unitario,
+                            imeis:            i.imeis || []
+                        }))
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    window.location.href = '/ventas/' + data.venta_id + '?nuevo=1';
+                } else {
+                    this.toast('error', data.error || data.message || 'Error al procesar la venta');
+                    this.guardando = false;
+                    this.showPago  = true;
+                }
+            } catch(e) {
+                console.error(e);
+                this.toast('error', 'Error de conexión. Intenta de nuevo.');
+                this.guardando = false;
+                this.showPago  = true;
+            }
+        },
+
+        // ══════════════════════════════════════
+        // IMEI MODAL
+        // ══════════════════════════════════════
+        async abrirModalIMEI() {
+            this.imeisTemp       = [];
+            this.imeiActual      = '';
+            this.imeisDisponibles= [];
+            this.cargandoImeis   = true;
+            this.mostrarModalIMEI= true;
+            try {
+                const params = new URLSearchParams({ producto_id: this.productoActual.id, almacen_id: this.orden.almacenId });
+                if (this.varianteActual?.id) params.append('variante_id', this.varianteActual.id);
+                const res = await fetch('{{ route("ventas.imeis-disponibles") }}?' + params.toString());
+                let todos = await res.json();
+                // Si estamos editando un ítem existente, excluir los IMEIs que ya tiene
+                if (this.cartItemEditIndex !== null) {
+                    const yaEnCarrito = (this.orden.carrito[this.cartItemEditIndex]?.imeis || []).map(i => i.codigo_imei);
+                    todos = todos.filter(i => !yaEnCarrito.includes(i.codigo_imei));
+                }
+                this.imeisDisponibles = todos;
+            } catch(e) {
+                console.error('Error al cargar IMEIs', e);
+                this.imeisDisponibles = [];
+            } finally {
+                this.cargandoImeis = false;
+            }
+        },
+        toggleImei(imei) {
+            const idx = this.imeisTemp.findIndex(i => i.id === imei.id);
+            if (idx >= 0) this.imeisTemp.splice(idx, 1);
+            else this.imeisTemp.push({ id: imei.id, codigo_imei: imei.codigo_imei });
+        },
+        isImeiSeleccionado(imei) { return this.imeisTemp.some(i => i.id === imei.id); },
+        agregarIMEIManual() {
+            if (!this.imeiActual) return;
+            if (!/^\d{15}$/.test(this.imeiActual)) { this.toast('warning', 'El IMEI debe tener 15 dígitos'); return; }
+            if (this.imeisTemp.some(i => i.codigo_imei === this.imeiActual)) { this.toast('warning', 'IMEI ya ingresado'); return; }
+            this.imeisTemp.push({ id: null, codigo_imei: this.imeiActual });
+            this.imeiActual = '';
+        },
+        quitarImeiManual(codigo_imei) { this.imeisTemp = this.imeisTemp.filter(i => i.codigo_imei !== codigo_imei); },
+        _empujarIMEIsAlCarrito() {
+            if (this.cartItemEditIndex !== null) {
+                // Modo edición: agregar nuevos IMEIs al ítem ya existente
+                const item = this.orden.carrito[this.cartItemEditIndex];
+                const nuevos = this.imeisTemp.map(i => ({ codigo_imei: i.codigo_imei }));
+                item.imeis.push(...nuevos);
+                item.cantidad        = item.imeis.length;
+                item.stock_disponible = item.imeis.length;
+                this.toast('success', this.imeisTemp.length + ' IMEI(s) agregado(s)');
+                return;
+            }
+            // Modo nuevo: crear ítem en el carrito
+            const v = this.varianteActual;
+            const precioFinal    = parseFloat(this.productoActual.precio_venta) + (v ? parseFloat(v.sobreprecio || 0) : 0);
+            const nombreCompleto = this.productoActual.nombre + (v?.nombre_completo ? ' — ' + v.nombre_completo : '');
+            this.orden.carrito.push({
+                producto_id: this.productoActual.id, variante_id: v ? v.id : null,
+                nombre: nombreCompleto,
+                precio_unitario: this.productoActual.incluye_igv
+                    ? Math.round((precioFinal / 1.18) * 100) / 100
+                    : precioFinal,
+                cantidad: this.imeisTemp.length, stock_disponible: this.imeisTemp.length,
+                tipo_inventario: 'serie', imeis: this.imeisTemp.map(i => ({ codigo_imei: i.codigo_imei }))
+            });
+            this.toast('success', this.imeisTemp.length + ' unidad(es) agregada(s)');
+        },
+        _limpiarModalIMEI() {
+            this.mostrarModalIMEI  = false;
+            this.productoActual    = null;
+            this.varianteActual    = null;
+            this.cartItemEditIndex = null;
+            this.imeiActual        = '';
+            this.imeisTemp         = [];
+            this.imeisDisponibles  = [];
+        },
+        confirmarIMEIs() {
+            if (!this.imeisTemp.length) return;
+            this._empujarIMEIsAlCarrito();
+            this._limpiarModalIMEI();
+        },
+        async confirmarYSeguir() {
+            if (!this.imeisTemp.length) return;
+            this._empujarIMEIsAlCarrito();
+            // Guardar contexto y reabrir para el mismo producto/variante/ítem
+            const productoGuardado   = this.productoActual;
+            const varianteGuardada   = this.varianteActual;
+            const editIndexGuardado  = this.cartItemEditIndex;
+            this.imeisTemp = []; this.imeiActual = '';
+            this.productoActual    = productoGuardado;
+            this.varianteActual    = varianteGuardada;
+            this.cartItemEditIndex = editIndexGuardado;
+            await this.abrirModalIMEI();
+        },
+
+        // ══════════════════════════════════════
+        // CLIENT SEARCH
+        // ══════════════════════════════════════
+        buscarCliente() {
+            const q = this.clienteQuery.toLowerCase().trim();
+            if (!q) {
+                this.clienteResultados = this.clientes.slice(0, 10);
+            } else {
+                this.clienteResultados = this.clientes.filter(c =>
+                    c.nombre.toLowerCase().includes(q) || c.numero_documento.includes(q)
+                ).slice(0, 10);
+            }
+        },
+        seleccionarCliente(c) {
+            if (!c) {
+                this.orden.clienteId     = '';
+                this.orden.clienteNombre = '';
+            } else {
+                this.orden.clienteId     = String(c.id);
+                this.orden.clienteNombre = c.nombre;
+            }
+            this.clienteQuery           = '';
+            this.mostrarDropdownCliente = false;
+        },
+        limpiarCliente() {
+            this.orden.clienteId        = '';
+            this.orden.clienteNombre    = '';
+            this.clienteQuery           = '';
+            this.mostrarDropdownCliente = false;
+        },
+
+        // ══════════════════════════════════════
+        // CLIENT QUICK CREATE
+        // ══════════════════════════════════════
+        abrirModalCliente() {
+            this.nuevoCliente = { tipo_documento: 'DNI', numero_documento: '', nombre: '', direccion: '', telefono: '' };
+            this.errorCliente = '';
+            this.showModalCliente = true;
+        },
+        async consultarDocumento() {
+            if (!this.nuevoCliente.numero_documento) return;
+            this.buscandoCliente = true;
+            this.errorCliente    = '';
+            try {
+                const res = await fetch('{{ route("clientes.consultar-documento") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept':       'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ tipo: this.nuevoCliente.tipo_documento, numero: this.nuevoCliente.numero_documento })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    this.errorCliente = data.error || 'No se encontró información';
+                } else if (data.nombre || data.razon_social) {
+                    this.nuevoCliente.nombre    = data.nombre || data.razon_social || '';
+                    this.nuevoCliente.direccion = data.direccion || '';
+                } else {
+                    this.errorCliente = 'No se encontró información para este documento';
+                }
+            } catch(e) {
+                this.errorCliente = 'Error al consultar SUNAT';
+            } finally {
+                this.buscandoCliente = false;
+            }
+        },
+        async guardarCliente() {
+            if (!this.nuevoCliente.nombre || !this.nuevoCliente.numero_documento) return;
+            this.guardandoCliente = true;
+            this.errorCliente     = '';
+            try {
+                const res = await fetch('{{ route("clientes.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept':       'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        tipo_documento:   this.nuevoCliente.tipo_documento,
+                        numero_documento: this.nuevoCliente.numero_documento,
+                        nombre:           this.nuevoCliente.nombre,
+                        direccion:        this.nuevoCliente.direccion || null,
+                        telefono:         this.nuevoCliente.telefono  || null,
+                        estado:           'activo'
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.id) {
+                    this.clientes.unshift({
+                        id: data.id, nombre: data.nombre,
+                        tipo_documento: this.nuevoCliente.tipo_documento,
+                        numero_documento: this.nuevoCliente.numero_documento,
+                    });
+                    this.orden.clienteId     = String(data.id);
+                    this.orden.clienteNombre = data.nombre;
+                    this.showModalCliente    = false;
+                    this.toast('success', 'Cliente guardado correctamente');
+                } else {
+                    this.errorCliente = data.message || (data.errors ? Object.values(data.errors).flat().join('. ') : 'Error al guardar');
+                }
+            } catch(e) {
+                this.errorCliente = 'Error de conexión';
+            } finally {
+                this.guardandoCliente = false;
+            }
+        }
+    }
+}
+</script>
+</body>
+</html>
