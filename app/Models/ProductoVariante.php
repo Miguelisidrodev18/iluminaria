@@ -15,7 +15,7 @@ class ProductoVariante extends Model
     protected $fillable = [
         'producto_id',
         'color_id',
-        'capacidad',
+        'especificacion',   // Antes "capacidad" — ahora genérico: potencia, versión, etc.
         'sku',
         'sobreprecio',
         'stock_actual',
@@ -42,11 +42,6 @@ class ProductoVariante extends Model
     public function color()
     {
         return $this->belongsTo(Color::class);
-    }
-
-    public function imeis()
-    {
-        return $this->hasMany(Imei::class, 'variante_id');
     }
 
     public function detallesCompra()
@@ -89,15 +84,15 @@ class ProductoVariante extends Model
         if ($this->color) {
             $partes[] = $this->color->nombre;
         }
-        if ($this->capacidad) {
-            $partes[] = $this->capacidad;
+        if ($this->especificacion) {
+            $partes[] = $this->especificacion;
         }
         return implode(' / ', $partes) ?: 'Variante base';
     }
 
     public function getDescripcionCorta(): string
     {
-        $nombre = $this->producto?->nombre ?? 'Producto';
+        $nombre   = $this->producto?->nombre ?? 'Producto';
         $variante = $this->nombre_completo;
         return $variante !== 'Variante base' ? "{$nombre} — {$variante}" : $nombre;
     }
@@ -112,7 +107,6 @@ class ProductoVariante extends Model
     public function incrementarStock(int $cantidad): void
     {
         $this->increment('stock_actual', $cantidad);
-        // Sincronizar con el producto base
         $this->sincronizarStockProductoBase();
     }
 
@@ -143,32 +137,27 @@ class ProductoVariante extends Model
 
     /**
      * Genera un SKU único para la variante.
-     * Formato: [CODIGO_BASE]-[COL]-[CAP]
-     * Ej: PROD-00001-AZU-128G
+     * Formato: [CODIGO_BASE]-[COL]-[SPEC]
+     * Ej: KYR-00001-BLA-18W  /  KYR-00001-3000K
      */
-    public static function generarSku(Producto $producto, ?Color $color, ?string $capacidad): string
+    public static function generarSku(Producto $producto, ?Color $color, ?string $especificacion): string
     {
-        $base = strtoupper($producto->codigo ?? 'PROD');
-
+        $base   = strtoupper($producto->codigo ?? 'PROD');
         $sufijos = [];
 
         if ($color) {
-            // Tomar primeras 3 letras del color
             $sufijos[] = strtoupper(substr(preg_replace('/\s+/', '', $color->nombre), 0, 3));
         }
 
-        if ($capacidad) {
-            // Limpiar y abreviar la capacidad: "128 GB" → "128G"
-            $cap = strtoupper(preg_replace('/\s+/', '', $capacidad));
-            $cap = str_replace(['GB', 'TB', 'MB'], ['G', 'T', 'M'], $cap);
-            $sufijos[] = $cap;
+        if ($especificacion) {
+            $spec = strtoupper(preg_replace('/\s+/', '', $especificacion));
+            $sufijos[] = $spec;
         }
 
-        $sku = $base . (count($sufijos) ? '-' . implode('-', $sufijos) : '');
-
-        // Asegurar unicidad
+        $sku      = $base . (count($sufijos) ? '-' . implode('-', $sufijos) : '');
         $original = $sku;
         $contador = 1;
+
         while (static::where('sku', $sku)->exists()) {
             $sku = $original . '-' . $contador;
             $contador++;

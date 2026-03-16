@@ -9,6 +9,10 @@ use App\Models\Catalogo\Marca;
 use App\Models\Catalogo\Modelo;
 use App\Models\Catalogo\UnidadMedida;
 use App\Models\Catalogo\Color;
+use App\Models\Luminaria\ProductoEspecificacion;
+use App\Models\Luminaria\ProductoDimension;
+use App\Models\Luminaria\ProductoMaterial;
+use App\Models\Luminaria\ProductoClasificacion;
 
 
 class Producto extends Model
@@ -21,13 +25,15 @@ class Producto extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'codigo', 'nombre', 'descripcion', 'categoria_id',
+        'codigo', 'codigo_kyrios', 'codigo_fabrica',
+        'nombre', 'descripcion', 'categoria_id',
         'marca_id', 'modelo_id', 'color_id', 'unidad_medida_id',
         'tipo_inventario', 'dias_garantia', 'tipo_garantia',
         'stock_actual', 'stock_minimo', 'stock_maximo', 'ubicacion',
         'costo_promedio', 'ultimo_costo_compra', 'fecha_ultima_compra',
-        'estado', 'imagen', 'creado_por', 'modificado_por',
-        'codigo_barras'
+        'estado', 'imagen', 'ficha_tecnica_url', 'observaciones',
+        'procedencia', 'linea',
+        'creado_por', 'modificado_por', 'codigo_barras',
     ];
 
     /**
@@ -337,19 +343,35 @@ class Producto extends Model
         return $this->hasMany(ProductoVariante::class)->where('estado', 'activo');
     }
 
-    /**
-     * ¿Este producto tiene variantes definidas?
-     */
     public function tieneVariantes(): bool
     {
         return $this->variantes()->exists();
     }
 
-    /**
-     * Stock total sumado de todas las variantes activas
-     */
     public function getStockVariantesAttribute(): int
     {
         return $this->variantesActivas()->sum('stock_actual');
+    }
+
+    // ─── Relaciones del catálogo técnico de luminarias ────────────────────────
+
+    public function especificacion()
+    {
+        return $this->hasOne(ProductoEspecificacion::class);
+    }
+
+    public function dimensiones()
+    {
+        return $this->hasOne(ProductoDimension::class);
+    }
+
+    public function materiales()
+    {
+        return $this->hasOne(ProductoMaterial::class);
+    }
+
+    public function clasificacion()
+    {
+        return $this->hasOne(ProductoClasificacion::class);
     }
 }
