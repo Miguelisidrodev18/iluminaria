@@ -18,9 +18,9 @@
 
         <div class="max-w-5xl mx-auto">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="bg-blue-900 px-6 py-4">
+                <div class="px-6 py-4" style="background-color:#2B2E2C;">
                     <h2 class="text-xl font-bold text-white">
-                        <i class="fas fa-box mr-2"></i>
+                        <i class="fas fa-lightbulb mr-2" style="color:#F7D600;"></i>
                         Información del Producto
                     </h2>
                 </div>
@@ -42,79 +42,7 @@
                         </div>
                     @endif
 
-                    <!-- SECCIÓN 1: TIPO DE INVENTARIO -->
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                            <i class="fas fa-mobile-alt mr-2 text-blue-900"></i>
-                            Tipo de Inventario
-                        </h3>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <!-- CANTIDAD -->
-                            <label class="cursor-pointer">
-                                <input type="radio" 
-                                        name="tipo_inventario" 
-                                        value="cantidad" 
-                                        id="tipo_cantidad"
-                                        class="peer hidden" 
-                                        {{ old('tipo_inventario', 'cantidad') == 'cantidad' ? 'checked' : '' }}
-                                        required>
-                                <div class="border-2 border-gray-300 rounded-lg p-6 text-center hover:border-green-500 peer-checked:border-green-500 peer-checked:bg-green-50 transition-all">
-                                    <i class="fas fa-boxes text-5xl text-green-600 mb-3"></i>
-                                    <p class="text-lg font-semibold text-gray-900">Stock por Cantidad</p>
-                                    <p class="text-sm text-gray-500 mt-2">Accesorios, repuestos, consumibles</p>
-                                </div>
-                            </label>
-
-                            <!-- SERIE/IMEI -->
-                            <label class="cursor-pointer">
-                                <input type="radio" 
-                                        name="tipo_inventario" 
-                                        value="serie" 
-                                        id="tipo_serie"
-                                        class="peer hidden" 
-                                        {{ old('tipo_inventario') == 'serie' ? 'checked' : '' }}>
-                                <div class="border-2 border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all">
-                                    <i class="fas fa-mobile-alt text-5xl text-blue-600 mb-3"></i>
-                                    <p class="text-lg font-semibold text-gray-900">Stock por Serie/IMEI</p>
-                                    <p class="text-sm text-gray-500 mt-2">Celulares, equipos con número único</p>
-                                </div>
-                            </label>
-                        </div>
-
-                        @error('tipo_inventario')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- SECCIÓN 1.1: GARANTÍA (SOLO PARA TIPO SERIE) -->
-                    <div id="garantiaSection" class="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200" style="display: none;">
-                        <h4 class="font-semibold text-blue-900 mb-3">
-                            <i class="fas fa-shield-alt mr-2"></i>
-                            Configuración de Garantía
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="dias_garantia" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Días de Garantía
-                                </label>
-                                <input type="number" name="dias_garantia" id="dias_garantia" 
-                                       value="{{ old('dias_garantia', 365) }}" min="0"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label for="tipo_garantia" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Tipo de Garantía
-                                </label>
-                                <select name="tipo_garantia" id="tipo_garantia" 
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    <option value="proveedor">Proveedor</option>
-                                    <option value="tienda">Tienda</option>
-                                    <option value="fabricante">Fabricante</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                    <input type="hidden" name="tipo_inventario" value="cantidad">
 
                     <!-- SECCIÓN 2: INFORMACIÓN BÁSICA (CON SELECTORES EN CADENA) -->
                     <div class="mb-8">
@@ -197,13 +125,11 @@
                             <div>
                                 <label for="modelo_id" class="block text-sm font-medium text-gray-700 mb-2">
                                     Modelo
-                                    <span id="modeloRequeridoLabel" class="text-red-500">*</span>
-                                    <span id="modeloOpcionalLabel" class="text-gray-400 text-xs font-normal hidden">(opcional)</span>
+                                    <span class="text-gray-400 text-xs font-normal">(opcional)</span>
                                 </label>
                                 <div class="flex gap-2">
                                     <select name="modelo_id" id="modelo_id"
-                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                            required>
+                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                         <option value="">Primero seleccione una marca</option>
                                     </select>
                                     <button type="button" onclick="abrirModalModelo()"
@@ -394,12 +320,6 @@
 
                         </div>
 
-                        <div class="mt-4 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
-                            <p class="text-sm text-yellow-700">
-                                <i class="fas fa-info-circle mr-2"></i>
-                                <strong>Nota:</strong> Para productos con stock por serie/IMEI, el stock se controlará mediante registros IMEI individuales.
-                            </p>
-                        </div>
                     </div>
 
                     <!-- SECCIÓN 4: VARIANTES DEL PRODUCTO -->
@@ -407,7 +327,7 @@
                         <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
                             <i class="fas fa-layer-group mr-2 text-indigo-600"></i>
                             Variantes del Producto
-                            <span class="ml-2 text-sm font-normal text-gray-400">(opcional — agrega colores y capacidades)</span>
+                            <span class="ml-2 text-sm font-normal text-gray-400">(opcional — agrega colores y variantes de potencia/temperatura)</span>
                         </h3>
 
                         <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-4">
@@ -466,9 +386,9 @@
                                 </div>
                                 <!-- Capacidad -->
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Capacidad <span class="text-gray-400">(opcional)</span></label>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Variante <span class="text-gray-400">(opcional)</span></label>
                                     <input type="text" x-model="nueva.capacidad"
-                                           placeholder="Ej: 128GB, 256GB"
+                                           placeholder="Ej: 2700K, 4000lm, 60W"
                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
                                 </div>
                             </div>
@@ -520,12 +440,71 @@
                         </div>
                     </div>
 
+                    {{-- ═══════════════════════════════════════════════════════════
+                        SECCIÓN: FICHA TÉCNICA KYRIOS / LUMINARIA
+                    ═══════════════════════════════════════════════════════════ --}}
+                    <div class="mb-8 mt-4">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-6 py-4 mb-6">
+                            <h3 class="text-lg font-bold text-yellow-900 flex items-center gap-2">
+                                <i class="fas fa-lightbulb text-yellow-500"></i>
+                                Ficha Técnica — Kyrios Luminaria
+                            </h3>
+                            <p class="text-sm text-yellow-700 mt-1">
+                                Completa los datos técnicos de la luminaria. Todos los campos son opcionales.
+                            </p>
+                        </div>
+
+                        {{-- Códigos Kyrios --}}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Código Kyrios</label>
+                                <input type="text" name="codigo_kyrios" value="{{ old('codigo_kyrios') }}"
+                                       placeholder="Ej: KYR-00001"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Código Fábrica</label>
+                                <input type="text" name="codigo_fabrica" value="{{ old('codigo_fabrica') }}"
+                                       placeholder="Código del fabricante"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Procedencia</label>
+                                <input type="text" name="procedencia" value="{{ old('procedencia') }}"
+                                       placeholder="Ej: China, Italia, España"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Línea</label>
+                                <input type="text" name="linea" value="{{ old('linea') }}"
+                                       placeholder="Ej: Premium, Básica, Arquitectónica"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">URL Ficha Técnica (PDF)</label>
+                                <input type="text" name="ficha_tecnica_url" value="{{ old('ficha_tecnica_url') }}"
+                                       placeholder="https://..."
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                                <textarea name="observaciones" rows="1"
+                                          placeholder="Notas internas"
+                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">{{ old('observaciones') }}</textarea>
+                            </div>
+                        </div>
+
+                        @php $tiposProyecto = $tiposProyecto ?? \App\Models\Luminaria\TipoProyecto::activos()->orderBy('nombre')->get(); $producto = null; @endphp
+                        @include('luminarias.partials.ficha-tecnica-form')
+                    </div>
+
                     <!-- Botones -->
                     <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
                         <a href="{{ route('inventario.productos.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </a>
-                        <button type="submit" class="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800">
+                        <button type="submit" class="px-6 py-2 text-gray-900 rounded-lg font-semibold"
+                                style="background-color:#F7D600;" onmouseover="this.style.backgroundColor='#e8c900'" onmouseout="this.style.backgroundColor='#F7D600'">
                             <i class="fas fa-save mr-2"></i>Guardar Producto
                         </button>
                     </div>
@@ -547,27 +526,6 @@
                     document.getElementById('imagePreviewContainer').classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
-            }
-        }
-
-        // Función para alternar campos según tipo de inventario
-        function toggleFieldsByType() {
-            const tipo = document.querySelector('input[name="tipo_inventario"]:checked')?.value;
-            const garantiaSection = document.getElementById('garantiaSection');
-            const modeloSelect = document.getElementById('modelo_id');
-            const modeloRequeridoLabel = document.getElementById('modeloRequeridoLabel');
-            const modeloOpcionalLabel = document.getElementById('modeloOpcionalLabel');
-
-            if (tipo === 'serie') {
-                garantiaSection?.style.setProperty('display', 'block');
-                if (modeloSelect) modeloSelect.required = true;
-                modeloRequeridoLabel?.classList.remove('hidden');
-                modeloOpcionalLabel?.classList.add('hidden');
-            } else {
-                garantiaSection?.style.setProperty('display', 'none');
-                if (modeloSelect) modeloSelect.required = false;
-                modeloRequeridoLabel?.classList.add('hidden');
-                modeloOpcionalLabel?.classList.remove('hidden');
             }
         }
 
@@ -653,14 +611,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar toggle de tipo inventario
-            toggleFieldsByType();
-            
-            // Event listeners para radios
-            document.querySelectorAll('input[name="tipo_inventario"]').forEach(radio => {
-                radio.addEventListener('change', toggleFieldsByType);
-            });
-
             // 🔴 Evento cambio de categoría
             const categoriaSelect = document.getElementById('categoria_id');
             const marcaSelect = document.getElementById('marca_id');
@@ -780,8 +730,7 @@
         document.getElementById('btnGenerarCodigo')?.addEventListener('click', function() {
             const btn = this;
             const codigoInput = document.getElementById('codigo_barras');
-            const tipo = document.querySelector('input[name="tipo_inventario"]:checked')?.value;
-            const tipoBarras = tipo === 'serie' ? 'celular' : 'accesorio';
+            const tipoBarras = 'luminaria';
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando...';

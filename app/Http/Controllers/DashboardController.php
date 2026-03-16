@@ -9,7 +9,6 @@ use App\Models\Cliente;
 use App\Models\Almacen;
 use App\Models\Caja;
 use App\Models\MovimientoInventario;
-use App\Models\Imei;
 use App\Models\Proveedor;
 use App\Models\StockAlmacen;
 use App\Models\Compra;
@@ -83,15 +82,14 @@ class DashboardController extends Controller
         $totalClientes = Cliente::count();
 
         // ── Inventario ────────────────────────────────────────────────────────
-        $stockTotal     = StockAlmacen::sum('cantidad');
-        $stockCelulares = Imei::where('estado_imei', 'en_stock')->count();
-        $stockAccesorios = Producto::where('tipo_inventario', 'cantidad')
-            ->sum('stock_actual');
+        $stockTotal      = StockAlmacen::sum('cantidad');
+        $stockAccesorios = Producto::where('tipo_inventario', 'cantidad')->sum('stock_actual');
+        $totalProductos  = Producto::where('estado', 'activo')->count();
 
-        $imeisTotales    = Imei::count();
-        $imeisDisponibles = Imei::where('estado_imei', 'en_stock')->count();
-        $imeisVendidos   = Imei::where('estado_imei', 'vendido')->count();
-        $imeisNuevosSemana = Imei::where('created_at', '>=', now()->subDays(7))->count();
+        // Luminarias con ficha técnica completa
+        $conFichaTecnica = \App\Models\Luminaria\ProductoEspecificacion::distinct('producto_id')->count('producto_id');
+        $conClasificacion = \App\Models\Luminaria\ProductoClasificacion::distinct('producto_id')->count('producto_id');
+        $productosNuevosSemana = Producto::where('created_at', '>=', now()->subDays(7))->count();
 
         // Productos bajo stock con nombre (top 5)
         $productosBajoStockLista = Producto::where('tipo_inventario', 'cantidad')
@@ -101,15 +99,7 @@ class DashboardController extends Controller
             ->limit(5)
             ->get(['nombre', 'stock_actual', 'stock_minimo']);
 
-        $productosSerieConStock = Imei::where('estado_imei', 'en_stock')
-            ->distinct()
-            ->pluck('producto_id');
-
-        $productosBajoStock = $productosBajoStockLista->count()
-            + Producto::where('tipo_inventario', 'serie')
-                ->where('estado', 'activo')
-                ->whereNotIn('id', $productosSerieConStock)
-                ->count();
+        $productosBajoStock = $productosBajoStockLista->count();
 
         // ── Top productos más vendidos (mes actual) ───────────────────────────
         $topProductos = DetalleVenta::join('ventas', 'detalle_ventas.venta_id', '=', 'ventas.id')
@@ -176,14 +166,13 @@ class DashboardController extends Controller
 
             // Inventario
             'stock_total'      => $stockTotal,
-            'stock_celulares'  => $stockCelulares,
             'stock_accesorios' => $stockAccesorios,
+            'total_productos'  => $totalProductos,
 
-            // IMEIs
-            'imeis_totales'      => $imeisTotales,
-            'imeis_disponibles'  => $imeisDisponibles,
-            'imeis_vendidos'     => $imeisVendidos,
-            'imeis_nuevos_semana'=> $imeisNuevosSemana,
+            // Luminarias
+            'con_ficha_tecnica'        => $conFichaTecnica,
+            'con_clasificacion'        => $conClasificacion,
+            'productos_nuevos_semana'  => $productosNuevosSemana,
 
             // Stock bajo
             'productos_bajo_stock'       => $productosBajoStock,

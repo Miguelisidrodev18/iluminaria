@@ -11,6 +11,11 @@ use App\Models\Catalogo\Marca;
 use App\Models\Catalogo\Modelo;
 use App\Models\Catalogo\Color;
 use App\Models\Catalogo\UnidadMedida;
+use App\Models\Luminaria\TipoProyecto;
+use App\Models\Luminaria\ProductoEspecificacion;
+use App\Models\Luminaria\ProductoDimension;
+use App\Models\Luminaria\ProductoMaterial;
+use App\Models\Luminaria\ProductoClasificacion;
 use App\Services\CodigoBarrasService;
 use App\Services\VarianteService;
 use Illuminate\Http\Request;
@@ -124,13 +129,16 @@ public function create()
     $colores = Color::where('estado', 'activo')->orderBy('nombre')->get(); // ✅ YA LO TIENES
     $unidades = UnidadMedida::where('estado', 'activo')->orderBy('nombre')->get(); // ✅ YA LO TIENES
     
+    $tiposProyecto = TipoProyecto::activos()->orderBy('nombre')->get();
+
     return view('inventario.productos.create', compact(
         'categorias',
         'almacenes',
         'marcas',
         'modelos',
-        'colores',      // ✅ BIEN
-        'unidades'      // ✅ BIEN
+        'colores',
+        'unidades',
+        'tiposProyecto'
     ));
 }
 
@@ -173,6 +181,14 @@ public function create()
         // Stock inicial (solo para accesorios)
         'stock_inicial' => 'nullable|integer|min:0',
         'almacen_id' => 'nullable|required_with:stock_inicial|exists:almacenes,id',
+
+        // Kyrios / ficha técnica
+        'codigo_kyrios'   => 'nullable|string|max:100',
+        'codigo_fabrica'  => 'nullable|string|max:100',
+        'procedencia'     => 'nullable|string|max:100',
+        'linea'           => 'nullable|string|max:100',
+        'ficha_tecnica_url' => 'nullable|url|max:500',
+        'observaciones'   => 'nullable|string',
     ]);
 
     // Generar código automático si no existe
@@ -194,6 +210,9 @@ public function create()
     \DB::transaction(function () use ($validated, $request) {
         // Crear producto
         $producto = Producto::create($validated);
+
+        // Guardar ficha técnica luminaria
+        $this->guardarFichaTecnica($producto, $request);
 
         \Log::info('Producto creado:', [
             'id' => $producto->id,
@@ -252,10 +271,13 @@ public function create()
 }
     public function show(Producto $producto)
     {
-        $producto->load(['categoria', 'movimientos' => function($query) {
-            $query->latest()->limit(10);
-        }]);
-        
+        $producto->load([
+            'categoria', 'marca', 'modelo', 'color', 'unidadMedida',
+            'especificacion', 'dimensiones', 'materiales', 'clasificacion',
+            'clasificacion.tipoProyecto',
+            'movimientos' => fn($q) => $q->latest()->limit(10),
+        ]);
+
         return view('inventario.productos.show', compact('producto'));
     }
 
@@ -265,7 +287,10 @@ public function create()
     public function edit(Producto $producto)
     {
         // Cargar relaciones necesarias
-        $producto->load(['marca', 'modelo', 'color', 'categoria', 'unidadMedida']);
+        $producto->load([
+            'marca', 'modelo', 'color', 'categoria', 'unidadMedida',
+            'especificacion', 'dimensiones', 'materiales', 'clasificacion',
+        ]);
         
         // Obtener datos para los selects
         $categorias = Categoria::where('estado', 'activo')->orderBy('nombre')->get();
@@ -287,14 +312,17 @@ public function create()
         // Obtener códigos de barras (opcional)
         $codigosBarras = $producto->codigosBarras ?? collect();
 
+        $tiposProyecto = TipoProyecto::activos()->orderBy('nombre')->get();
+
         return view('inventario.productos.edit', compact(
-            'producto', 
-            'categorias', 
-            'marcas', 
+            'producto',
+            'categorias',
+            'marcas',
             'modelos',
             'colores',
             'unidades',
-            'codigosBarras'
+            'codigosBarras',
+            'tiposProyecto'
         ));
     }
 
@@ -332,6 +360,14 @@ public function create()
         'stock_maximo' => 'required|integer|min:1',
         'ubicacion' => 'nullable|string|max:50',
         'estado' => 'required|in:activo,inactivo,descontinuado',
+
+        // Kyrios / ficha técnica
+        'codigo_kyrios'     => 'nullable|string|max:100',
+        'codigo_fabrica'    => 'nullable|string|max:100',
+        'procedencia'       => 'nullable|string|max:100',
+        'linea'             => 'nullable|string|max:100',
+        'ficha_tecnica_url' => 'nullable|url|max:500',
+        'observaciones'     => 'nullable|string',
     ]);
 
     // Subir nueva imagen si existe
@@ -344,6 +380,9 @@ public function create()
 
     // Actualizar producto
     $producto->update($validated);
+
+    // Guardar ficha técnica luminaria
+    $this->guardarFichaTecnica($producto, $request);
 
     // Actualizar código de barras principal si cambió
     if ($producto->wasChanged('codigo_barras')) {
@@ -367,6 +406,42 @@ public function create()
         ->route('inventario.productos.index')
         ->with('success', 'Producto actualizado exitosamente');
 }
+
+    /**
+     * Guardar / actualizar ficha técnica luminaria (especificacion, dimensiones, materiales, clasificacion)
+     */
+    private function guardarFichaTecnica(Producto $producto, Request $request): void
+    {
+        if ($request->filled('especificacion')) {
+            $data = $request->input('especificacion');
+            $data['regulable'] = isset($data['regulable']) ? (bool)$data['regulable'] : false;
+            $producto->especificacion()->updateOrCreate(
+                ['producto_id' => $producto->id],
+                $data
+            );
+        }
+
+        if ($request->filled('dimensiones')) {
+            $producto->dimensiones()->updateOrCreate(
+                ['producto_id' => $producto->id],
+                $request->input('dimensiones')
+            );
+        }
+
+        if ($request->filled('materiales')) {
+            $producto->materiales()->updateOrCreate(
+                ['producto_id' => $producto->id],
+                $request->input('materiales')
+            );
+        }
+
+        if ($request->filled('clasificacion')) {
+            $producto->clasificacion()->updateOrCreate(
+                ['producto_id' => $producto->id],
+                $request->input('clasificacion')
+            );
+        }
+    }
 
     /**
      * Eliminar producto
@@ -660,76 +735,5 @@ public function asociarProveedor(Request $request, $productoId)
     ]);
     
     return response()->json(['success' => true]);
-}
-    /**
- * API: Obtener IMEIs disponibles de un producto en un almacén
- */
-public function getImeisDisponibles(Request $request)
-{
-    try {
-        $productoId = $request->get('producto_id');
-        $almacenId = $request->get('almacen_id');
-        $tipoMovimiento = $request->get('tipo_movimiento');
-        
-        // Log para debug
-        \Log::info('getImeisDisponibles llamado', [
-            'producto_id' => $productoId,
-            'almacen_id' => $almacenId,
-            'tipo_movimiento' => $tipoMovimiento
-        ]);
-        
-        if (!$productoId || !$almacenId) {
-            return response()->json(['error' => 'Faltan parámetros'], 400);
-        }
-        
-        // Verificar que el producto existe y es tipo celular
-        $producto = \App\Models\Producto::find($productoId);
-        if (!$producto) {
-            return response()->json(['error' => 'Producto no encontrado'], 404);
-        }
-        
-        if ($producto->tipo_inventario !== 'serie') {
-            return response()->json(['error' => 'El producto no es tipo serie/celular'], 400);
-        }
-
-        $query = \App\Models\Imei::where('producto_id', $productoId)
-                                  ->where('almacen_id', $almacenId);
-
-        // Filtrar según tipo de movimiento
-        switch ($tipoMovimiento) {
-            case 'salida':
-            case 'transferencia':
-            case 'merma':
-                $query->where('estado_imei', 'en_stock');
-                break;
-            case 'devolucion':
-                $query->where('estado_imei', 'vendido');
-                break;
-            case 'ajuste':
-                // Mostrar todos
-                break;
-            default:
-                $query->where('estado_imei', 'en_stock');
-                break;
-        }
-
-        $imeis = $query->limit(100)
-                       ->get(['id', 'codigo_imei', 'serie', 'color_id', 'estado_imei']);
-        
-        \Log::info('IMEIs encontrados', ['count' => $imeis->count()]);
-        
-        return response()->json($imeis);
-        
-    } catch (\Exception $e) {
-        \Log::error('Error en getImeisDisponibles', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        
-        return response()->json([
-            'error' => 'Error interno del servidor',
-            'message' => $e->getMessage()
-        ], 500);
-    }
 }
 }

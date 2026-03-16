@@ -18,12 +18,19 @@ use App\Http\Controllers\Admin\EmpresaController;
 use App\Http\Controllers\Admin\SucursalController;
 use App\Http\Controllers\Admin\AdminCajaController;
 
+// ===================== LUMINARIAS =====================
+use App\Http\Controllers\Luminaria\TipoProyectoController;
+use App\Http\Controllers\Luminaria\EspacioProyectoController;
+use App\Http\Controllers\Luminaria\ProductoEspecificacionController;
+use App\Http\Controllers\Luminaria\ProductoDimensionController;
+use App\Http\Controllers\Luminaria\ProductoMaterialController;
+use App\Http\Controllers\Luminaria\ProductoClasificacionController;
+
 // ===================== INVENTARIO =====================
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\MovimientoInventarioController;
 use App\Http\Controllers\AlmacenController;
-use App\Http\Controllers\ImeiController;
 
 // ===================== NUEVOS MÓDULOS =====================
 use App\Http\Controllers\ProveedorController;
@@ -186,7 +193,6 @@ Route::middleware('auth')->group(function () {
         Route::middleware('role:Administrador,Almacenero')->group(function () {
             Route::get('/movimientos', [MovimientoInventarioController::class, 'index'])->name('movimientos.index');
             Route::get('/movimientos/create', [MovimientoInventarioController::class, 'create'])->name('movimientos.create');
-            Route::get('movimientos/imeis-disponibles', [MovimientoInventarioController::class, 'getImeisDisponibles'])->name('movimientos.imeis-disponibles');
             Route::post('/movimientos', [MovimientoInventarioController::class, 'store'])->name('movimientos.store');
             Route::get('/movimientos/{movimiento}', [MovimientoInventarioController::class, 'show'])->name('movimientos.show');
             Route::get('/api/stock-actual', [MovimientoInventarioController::class, 'getStockActual'])->name('movimientos.stock-actual');
@@ -203,35 +209,6 @@ Route::middleware('auth')->group(function () {
             Route::delete('/almacenes/{almacen}', [AlmacenController::class, 'destroy'])->middleware('role:Administrador')->name('almacenes.destroy');
         });
 
-        // GESTIÓN DE IMEIs
-       // GESTIÓN DE IMEIs
-        Route::middleware('role:Administrador,Almacenero')->group(function () {
-            Route::get('/imeis', [ImeiController::class, 'index'])->name('imeis.index');
-            Route::get('/imeis/create', [ImeiController::class, 'create'])->name('imeis.create');
-            Route::post('/imeis', [ImeiController::class, 'store'])->name('imeis.store');
-            Route::get('/imeis/{imei}', [ImeiController::class, 'show'])->name('imeis.show');
-            Route::get('/imeis/{imei}/edit', [ImeiController::class, 'edit'])->name('imeis.edit');
-            Route::put('/imeis/{imei}', [ImeiController::class, 'update'])->name('imeis.update');
-            Route::delete('/imeis/{imei}', [ImeiController::class, 'destroy'])->name('imeis.destroy');
-            
-            // 🔴 RUTAS API PARA AJAX
-            Route::get('/api/imeis-disponibles', [ImeiController::class, 'getImeisDisponibles'])->name('imeis.disponibles');
-            Route::get('/imeis/validar-imei', [ImeiController::class, 'validarImei'])->name('imeis.validar-imei');
-            Route::get('/imeis/generar-imei', [ImeiController::class, 'generarImei'])->name('imeis.generar-imei');
-            
-            // 🔴 RUTAS PARA QR
-            Route::get('/imeis/{imei}/qr', [ImeiController::class, 'mostrarQR'])->name('imeis.qr');
-            Route::get('/imeis/{imei}/qr/download', [ImeiController::class, 'descargarQR'])->name('imeis.qr.download');
-            Route::post('/imeis/{imei}/qr/regenerar', [ImeiController::class, 'regenerarQR'])->name('imeis.qr.regenerar'); // 🔴 ESTA FALTA
-            Route::get('/imeis/{imei}/qr/print', [ImeiController::class, 'imprimirQR'])->name('imeis.qr.print');
-            
-            // 🔴 RUTAS PARA ETIQUETAS
-            Route::get('/imeis/{imei}/etiqueta', [ImeiController::class, 'generarEtiqueta'])->name('imeis.etiqueta');
-            Route::post('/imeis/etiquetas-masivas', [ImeiController::class, 'generarEtiquetasMasivas'])->name('imeis.etiquetas-masivas');
-
-            // 🔴 RUTA PARA CAMBIAR ESTADO
-            Route::post('/imeis/{imei}/estado', [ImeiController::class, 'cambiarEstado'])->name('imeis.cambiar-estado');
-        });
 
         // VARIANTES DE PRODUCTOS
         Route::middleware('role:Administrador,Almacenero')->group(function () {
@@ -307,9 +284,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/{compra}', [CompraController::class, 'update'])->name('update');
         Route::post('/{compra}/anular', [CompraController::class, 'anular'])->name('anular');
 
-        // Rutas para importación de IMEI (AHORA ESTÁN EN EL LUGAR CORRECTO)
-        Route::get('/importar-imei', [CompraController::class, 'importarIMEI'])->name('importar-imei');
-        Route::post('/importar-imei/procesar', [CompraController::class, 'procesarImportacionIMEI'])->name('procesar-importacion');
     });
    // ========================================
     // MÓDULO DE CUENTAS POR PAGAR
@@ -341,7 +315,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/{venta}/pdf', [VentaController::class, 'pdf'])->name('pdf');
         Route::post('/{venta}/confirmar-pago', [VentaController::class, 'confirmarPago'])->middleware('role:Administrador,Tienda')->name('confirmar-pago');
         Route::post('/{venta}/convertir', [VentaController::class, 'convertir'])->middleware('role:Administrador,Tienda')->name('convertir');
-        Route::get('/api/imeis-disponibles', [VentaController::class, 'imeisDisponibles'])->name('imeis-disponibles');
     });
     // ========================================
     // MÓDULO DE REPORTES DE VENTAS
@@ -471,6 +444,33 @@ Route::middleware('auth')->group(function () {
         Route::get('/producto/{producto}/historial', [PrecioController::class, 'historial'])->name('historial');
     });
 
+    // ========================================
+    // MÓDULO LUMINARIAS — CATÁLOGO TÉCNICO
+    // ========================================
+    Route::prefix('luminarias')->name('luminarias.')->middleware('role:Administrador,Almacenero')->group(function () {
+
+        // Tipos de proyecto
+        Route::resource('tipos-proyecto', TipoProyectoController::class)
+             ->parameters(['tipos-proyecto' => 'tiposProyecto']);
+
+        // Espacios por tipo de proyecto
+        Route::resource('espacios-proyecto', EspacioProyectoController::class)
+             ->parameters(['espacios-proyecto' => 'espaciosProyecto']);
+
+        // Fichas técnicas de productos
+        Route::resource('producto-especificaciones', ProductoEspecificacionController::class)
+             ->parameters(['producto-especificaciones' => 'productoEspecificacion']);
+
+        Route::resource('producto-dimensiones', ProductoDimensionController::class)
+             ->parameters(['producto-dimensiones' => 'productoDimension']);
+
+        Route::resource('producto-materiales', ProductoMaterialController::class)
+             ->parameters(['producto-materiales' => 'productoMaterial']);
+
+        Route::resource('producto-clasificacion', ProductoClasificacionController::class)
+             ->parameters(['producto-clasificacion' => 'productoClasificacion']);
+    });
+
     /*
     |--------------------------------------------------------------------------
     | LOGOUT
@@ -491,14 +491,6 @@ Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
     // Obtener precios de un producto (con lógica rotativa)
     Route::get('/productos/{producto}/precios', [App\Http\Controllers\Api\ProductoController::class, 'obtenerPrecios'])
         ->name('productos.precios');
-
-    // Verificar disponibilidad de IMEI
-    Route::get('/imeis/verificar', [App\Http\Controllers\Api\ImeiController::class, 'verificarDisponibilidad'])
-        ->name('imeis.verificar');
-
-    // Obtener IMEIs disponibles para un producto
-    Route::get('/imeis/disponibles', [App\Http\Controllers\Api\ImeiController::class, 'disponibles'])
-        ->name('imeis.disponibles');
 
     // Obtener stock de producto por almacén
     Route::get('/productos/{producto}/stock', [App\Http\Controllers\Api\ProductoController::class, 'obtenerStock'])
@@ -538,9 +530,6 @@ Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
         // Stock e IMEIs de variante
         Route::get('/{variante}/stock', [App\Http\Controllers\Api\VarianteController::class, 'stock'])
             ->name('stock');
-
-        Route::get('/{variante}/imeis', [App\Http\Controllers\Api\VarianteController::class, 'imeis'])
-            ->name('imeis');
     });
 });
 

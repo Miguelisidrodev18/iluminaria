@@ -29,6 +29,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             CatalogoSeeder::class,
             AdminUserSeeder::class,
+            TipoProyectoSeeder::class,
+            EspacioProyectoSeeder::class,
         ]);
 
         // --- Datos de prueba (solo entornos no productivos) ---

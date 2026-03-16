@@ -135,15 +135,10 @@ class CompraController extends Controller
             'detalles.*.modelo_id' => 'nullable|exists:modelos,id',
             'detalles.*.color_id'  => 'nullable|exists:colores,id',
             'detalles.*.capacidad' => 'nullable|string|max:50',
-            'detalles.*.imeis' => 'nullable|array',
-            'detalles.*.imeis.*.codigo_imei' => 'required_with:detalles.*.imeis|string|size:15|distinct',
-            'detalles.*.imeis.*.serie' => 'nullable|string|max:50',
         ], [
             'numero_factura.unique' => 'Ya existe una compra con este número de factura para el proveedor seleccionado',
             'detalles.required' => 'Debe agregar al menos un producto',
             'detalles.*.precio_unitario.min' => 'El precio debe ser mayor a 0',
-            'detalles.*.imeis.*.codigo_imei.size' => 'El IMEI debe tener exactamente 15 dígitos',
-            'detalles.*.imeis.*.codigo_imei.distinct' => 'No puede haber IMEI duplicados en el mismo producto',
         ]);
 
         try {

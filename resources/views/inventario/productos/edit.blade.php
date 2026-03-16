@@ -25,15 +25,9 @@
                     <div>
                         <span class="font-medium text-gray-500">Tipo:</span>
                         <span class="block mt-1">
-                            @if($producto->tipo_inventario == 'serie')
-                                <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                                    <i class="fas fa-mobile-alt mr-1"></i>Serie/IMEI
-                                </span>
-                            @else
-                                <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                                    <i class="fas fa-boxes mr-1"></i>Cantidad
-                                </span>
-                            @endif
+                            <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                                <i class="fas fa-boxes mr-1"></i>Cantidad
+                            </span>
                         </span>
                     </div>
                     <div>
@@ -48,9 +42,9 @@
             </div>
 
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="bg-blue-900 px-6 py-4">
+                <div class="px-6 py-4" style="background-color:#2B2E2C;">
                     <h2 class="text-xl font-bold text-white">
-                        <i class="fas fa-edit mr-2"></i>
+                        <i class="fas fa-edit mr-2" style="color:#F7D600;"></i>
                         Editar Información
                     </h2>
                 </div>
@@ -73,62 +67,7 @@
                         </div>
                     @endif
 
-                    <!-- TIPO DE INVENTARIO (solo lectura) -->
-                    <div class="mb-8 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                @if($producto->tipo_inventario == 'serie')
-                                    <i class="fas fa-mobile-alt text-3xl text-blue-600 mr-3"></i>
-                                    <div>
-                                        <p class="font-semibold text-gray-900">Tipo: Stock por Serie/IMEI</p>
-                                        <p class="text-sm text-gray-500">El stock se controla por IMEI individual</p>
-                                    </div>
-                                @else
-                                    <i class="fas fa-boxes text-3xl text-green-600 mr-3"></i>
-                                    <div>
-                                        <p class="font-semibold text-gray-900">Tipo: Stock por Cantidad</p>
-                                        <p class="text-sm text-gray-500">El stock se controla numéricamente</p>
-                                    </div>
-                                @endif
-                            </div>
-                            <span class="text-xs text-gray-400">
-                                <i class="fas fa-lock mr-1"></i>No editable
-                            </span>
-                        </div>
-                        {{-- Campo oculto para que el tipo se envíe en el form --}}
-                        <input type="hidden" name="tipo_inventario" value="{{ $producto->tipo_inventario }}">
-                    </div>
-
-                    <!-- GARANTÍA (solo para Serie/IMEI) -->
-                    @if($producto->tipo_inventario == 'serie')
-                    <div class="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <h4 class="font-semibold text-blue-900 mb-3">
-                            <i class="fas fa-shield-alt mr-2"></i>
-                            Garantía
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="dias_garantia" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Días de Garantía
-                                </label>
-                                <input type="number" name="dias_garantia" id="dias_garantia"
-                                       value="{{ old('dias_garantia', $producto->dias_garantia ?? 365) }}" min="0"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label for="tipo_garantia" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Tipo de Garantía
-                                </label>
-                                <select name="tipo_garantia" id="tipo_garantia"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    <option value="proveedor" {{ old('tipo_garantia', $producto->tipo_garantia) == 'proveedor' ? 'selected' : '' }}>Proveedor</option>
-                                    <option value="tienda"    {{ old('tipo_garantia', $producto->tipo_garantia) == 'tienda'    ? 'selected' : '' }}>Tienda</option>
-                                    <option value="fabricante"{{ old('tipo_garantia', $producto->tipo_garantia) == 'fabricante'? 'selected' : '' }}>Fabricante</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
+                    <input type="hidden" name="tipo_inventario" value="cantidad">
 
                     <!-- INFORMACIÓN BÁSICA -->
                     <div class="mb-8">
@@ -182,10 +121,17 @@
                             <!-- Marca (filtrada por categoría) -->
                             <div>
                                 <label for="marca_id" class="block text-sm font-medium text-gray-700 mb-2">Marca</label>
-                                <select name="marca_id" id="marca_id"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Cargando marcas...</option>
-                                </select>
+                                <div class="flex gap-2">
+                                    <select name="marca_id" id="marca_id"
+                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Cargando marcas...</option>
+                                    </select>
+                                    <button type="button" onclick="abrirModalMarca()"
+                                            title="Crear nueva marca"
+                                            class="px-3 py-2 bg-blue-100 text-blue-800 border border-blue-300 rounded-lg hover:bg-blue-200 transition shrink-0">
+                                        <i class="fas fa-plus text-sm"></i>
+                                    </button>
+                                </div>
                                 @error('marca_id')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -195,17 +141,19 @@
                             <div>
                                 <label for="modelo_id" class="block text-sm font-medium text-gray-700 mb-2">
                                     Modelo
-                                    @if($producto->tipo_inventario == 'serie')
-                                        <span class="text-red-500">*</span>
-                                    @else
-                                        <span class="text-gray-400 text-xs font-normal">(opcional)</span>
-                                    @endif
+                                    <span class="text-gray-400 text-xs font-normal">(opcional)</span>
                                 </label>
-                                <select name="modelo_id" id="modelo_id"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        {{ $producto->tipo_inventario == 'serie' ? 'required' : '' }}>
-                                    <option value="">Cargando modelos...</option>
-                                </select>
+                                <div class="flex gap-2">
+                                    <select name="modelo_id" id="modelo_id"
+                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Cargando modelos...</option>
+                                    </select>
+                                    <button type="button" onclick="abrirModalModelo()"
+                                            title="Crear nuevo modelo"
+                                            class="px-3 py-2 bg-indigo-100 text-indigo-800 border border-indigo-300 rounded-lg hover:bg-indigo-200 transition shrink-0">
+                                        <i class="fas fa-plus text-sm"></i>
+                                    </button>
+                                </div>
                                 @error('modelo_id')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -217,15 +165,22 @@
                                 <label for="unidad_medida_id" class="block text-sm font-medium text-gray-700 mb-2">
                                     Unidad de Medida <span class="text-red-500">*</span>
                                 </label>
-                                <select name="unidad_medida_id" id="unidad_medida_id"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        required>
-                                    @foreach($unidades as $unidad)
-                                        <option value="{{ $unidad->id }}" {{ old('unidad_medida_id', $producto->unidad_medida_id) == $unidad->id ? 'selected' : '' }}>
-                                            {{ $unidad->nombre }} ({{ $unidad->abreviatura }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="flex gap-2">
+                                    <select name="unidad_medida_id" id="unidad_medida_id"
+                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            required>
+                                        @foreach($unidades as $unidad)
+                                            <option value="{{ $unidad->id }}" {{ old('unidad_medida_id', $producto->unidad_medida_id) == $unidad->id ? 'selected' : '' }}>
+                                                {{ $unidad->nombre }} ({{ $unidad->abreviatura }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="button" onclick="abrirModalUnidad()"
+                                            title="Crear nueva unidad de medida"
+                                            class="px-3 py-2 bg-green-100 text-green-700 border border-green-300 rounded-lg hover:bg-green-200 transition shrink-0">
+                                        <i class="fas fa-plus text-sm"></i>
+                                    </button>
+                                </div>
                                 @error('unidad_medida_id')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -346,6 +301,63 @@
                         </div>
                     </div>
 
+                    {{-- ═══════════════════════════════════════════════════════════
+                        SECCIÓN: FICHA TÉCNICA KYRIOS / LUMINARIA
+                    ═══════════════════════════════════════════════════════════ --}}
+                    <div class="mb-8 mt-4">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-6 py-4 mb-6">
+                            <h3 class="text-lg font-bold text-yellow-900 flex items-center gap-2">
+                                <i class="fas fa-lightbulb text-yellow-500"></i>
+                                Ficha Técnica — Kyrios Luminaria
+                            </h3>
+                            <p class="text-sm text-yellow-700 mt-1">
+                                Completa los datos técnicos de la luminaria. Todos los campos son opcionales.
+                            </p>
+                        </div>
+
+                        {{-- Códigos Kyrios --}}
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Código Kyrios</label>
+                                <input type="text" name="codigo_kyrios" value="{{ old('codigo_kyrios', $producto->codigo_kyrios) }}"
+                                       placeholder="Ej: KYR-00001"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Código Fábrica</label>
+                                <input type="text" name="codigo_fabrica" value="{{ old('codigo_fabrica', $producto->codigo_fabrica) }}"
+                                       placeholder="Código del fabricante"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Procedencia</label>
+                                <input type="text" name="procedencia" value="{{ old('procedencia', $producto->procedencia) }}"
+                                       placeholder="Ej: China, Italia, España"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Línea</label>
+                                <input type="text" name="linea" value="{{ old('linea', $producto->linea) }}"
+                                       placeholder="Ej: Premium, Básica, Arquitectónica"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">URL Ficha Técnica (PDF)</label>
+                                <input type="text" name="ficha_tecnica_url" value="{{ old('ficha_tecnica_url', $producto->ficha_tecnica_url) }}"
+                                       placeholder="https://..."
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                                <textarea name="observaciones" rows="1"
+                                          placeholder="Notas internas"
+                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">{{ old('observaciones', $producto->observaciones) }}</textarea>
+                            </div>
+                        </div>
+
+                        @include('luminarias.partials.ficha-tecnica-form')
+                    </div>
+
                     <!-- Botones -->
                     <div class="flex items-center justify-between pt-6 border-t border-gray-200">
                         <a href="{{ route('inventario.productos.codigos-barras', $producto) }}"
@@ -357,7 +369,8 @@
                                class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
                                 <i class="fas fa-times mr-2"></i>Cancelar
                             </a>
-                            <button type="submit" class="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800">
+                            <button type="submit" class="px-6 py-2 text-gray-900 rounded-lg font-semibold"
+                                    style="background-color:#F7D600;" onmouseover="this.style.backgroundColor='#e8c900'" onmouseout="this.style.backgroundColor='#F7D600'">
                                 <i class="fas fa-save mr-2"></i>Guardar Cambios
                             </button>
                         </div>
@@ -366,6 +379,8 @@
             </div>
         </div>
     </div>
+
+    @include('inventario.productos.partials.modales-rapidos')
 
     <script>
         // Preview de imagen nueva
@@ -466,7 +481,7 @@
         document.getElementById('btnGenerarCodigo')?.addEventListener('click', function() {
             const btn = this;
             const codigoInput = document.getElementById('codigo_barras');
-            const tipoBarras = '{{ $producto->tipo_inventario === "serie" ? "celular" : "accesorio" }}';
+            const tipoBarras = 'luminaria';
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando...';

@@ -1,7 +1,7 @@
 <x-guest>
     <div class="mb-6 text-center">
-        <div class="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
-            <i class="fas fa-key text-indigo-600 text-2xl"></i>
+        <div class="mx-auto w-16 h-16 bg-[#FFF9C4] rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-key text-[#2B2E2C] text-2xl"></i>
         </div>
         <h2 class="text-2xl font-bold text-gray-800 mb-2">¿Olvidaste tu contraseña?</h2>
         <p class="text-sm text-gray-600">

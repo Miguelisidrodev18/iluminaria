@@ -1,6 +1,6 @@
 @props(['title', 'subtitle' => null])
 
-<div class="mb-8 bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-900">
+<div class="mb-8 bg-white rounded-lg shadow-sm p-6 border-l-4 border-[#2B2E2C]">
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">{{ $title }}</h1>

@@ -19,30 +19,54 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         @php $empresa = \App\Models\Empresa::instancia(); @endphp
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-[#034C8C] via-[#4F758C] to-[#FF3950]">
-            <div>
+
+        {{-- Fondo oscuro con acento dorado --}}
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0"
+             style="background: linear-gradient(135deg, #1F2220 0%, #2B2E2C 60%, #333836 100%);">
+
+            {{-- Círculo decorativo dorado (inspirado en el punto del logo) --}}
+            <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none" aria-hidden="true">
+                <div class="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-10"
+                     style="background: radial-gradient(circle, #F7D600 0%, transparent 70%);"></div>
+                <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full opacity-5"
+                     style="background: radial-gradient(circle, #F7D600 0%, transparent 70%);"></div>
+            </div>
+
+            <div class="relative z-10 flex flex-col items-center">
+                {{-- Logo / Ícono --}}
                 <a href="/" class="flex items-center justify-center mb-6">
                     @if($empresa?->logo_url)
                         <img src="{{ $empresa->logo_url }}" alt="Logo"
-                             class="h-24 w-24 object-contain drop-shadow-xl rounded-xl bg-white/10 p-1">
+                             class="h-28 w-28 object-contain drop-shadow-2xl rounded-2xl bg-white/10 p-2">
                     @else
-                        <i class="fas fa-home text-white text-6xl drop-shadow-lg"></i>
+                        {{-- Ícono default estilo Kyrios --}}
+                        <div class="w-24 h-24 rounded-full flex items-center justify-center shadow-2xl"
+                             style="background-color: #F7D600;">
+                            <i class="fas fa-lightbulb text-[#2B2E2C] text-5xl"></i>
+                        </div>
                     @endif
                 </a>
-                <h1 class="text-center text-3xl font-bold text-white mb-2 drop-shadow-lg">
-                    {{ $empresa?->nombre_display ?? 'CORPORACIÓN ADIVON SAC' }}
+
+                <h1 class="text-center text-3xl font-bold drop-shadow-lg mb-1" style="color: #F7D600;">
+                    {{ $empresa?->nombre_display ?? 'KYRIOS' }}
                 </h1>
-                <p class="text-center text-white/80 mb-8">
-                    Sistema de Gestión de Importaciones
+                <p class="text-center mb-8 text-sm tracking-widest uppercase"
+                   style="color: rgba(247,214,0,0.55); letter-spacing: 0.2em;">
+                    luces &amp; entorno
                 </p>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-8 bg-white shadow-2xl overflow-hidden sm:rounded-lg">
-                {{ $slot }}
+            {{-- Tarjeta del formulario --}}
+            <div class="relative z-10 w-full sm:max-w-md mt-2">
+                {{-- Barra dorada superior --}}
+                <div class="h-1 rounded-t-lg" style="background-color: #F7D600;"></div>
+                <div class="px-6 py-8 bg-white shadow-2xl overflow-hidden sm:rounded-b-lg">
+                    {{ $slot }}
+                </div>
             </div>
 
-            <div class="mt-6 text-center text-white/70 text-sm">
-                <p>&copy; {{ date('Y') }} {{ $empresa?->nombre_display ?? 'Corporación Adivon SAC' }}. Todos los derechos reservados.</p>
+            <div class="relative z-10 mt-6 text-center text-sm" style="color: rgba(247,214,0,0.45);">
+                <p>&copy; {{ date('Y') }} {{ $empresa?->nombre_display ?? 'Kyrios Luces & Entorno' }}. Todos los derechos reservados.</p>
             </div>
         </div>
     </body>

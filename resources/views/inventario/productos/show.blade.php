@@ -75,15 +75,9 @@
                             <div class="flex justify-between">
                                 <span class="text-sm font-medium text-gray-500">Tipo Inventario:</span>
                                 <span class="text-sm">
-                                    @if($producto->tipo_inventario === 'serie')
-                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                                            <i class="fas fa-mobile-alt mr-1"></i> Serie/IMEI
-                                        </span>
-                                    @else
-                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                                            <i class="fas fa-boxes mr-1"></i> Cantidad
-                                        </span>
-                                    @endif
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                                        <i class="fas fa-boxes mr-1"></i> Cantidad
+                                    </span>
                                 </span>
                             </div>
                             
@@ -141,16 +135,6 @@
                                 <p class="text-xs text-gray-500">Unidad Medida</p>
                                 <p class="font-medium">{{ $producto->unidadMedida->nombre ?? 'N/A' }}</p>
                             </div>
-                            @if($producto->tipo_inventario === 'serie')
-                            <div>
-                                <p class="text-xs text-gray-500">Garantía</p>
-                                <p class="font-medium">{{ $producto->dias_garantia ?? 0 }} días</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-500">Tipo Garantía</p>
-                                <p class="font-medium">{{ ucfirst($producto->tipo_garantia ?? 'N/A') }}</p>
-                            </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -187,6 +171,191 @@
                     </div>
                 </div>
 
+                {{-- ═══ FICHA TÉCNICA LUMINARIA ═══ --}}
+                @php
+                    $esp   = $producto->especificacion;
+                    $dim   = $producto->dimensiones;
+                    $mat   = $producto->materiales;
+                    $clas  = $producto->clasificacion;
+                    $tieneFicha = $esp || $dim || $mat || $clas
+                        || $producto->codigo_kyrios || $producto->codigo_fabrica;
+                @endphp
+                @if($tieneFicha)
+                <div class="bg-white rounded-lg shadow-md overflow-hidden" x-data="{}">
+                    <div class="bg-yellow-500 px-6 py-3">
+                        <h3 class="text-white font-semibold">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            Ficha Técnica Luminaria
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+
+                        {{-- Códigos Kyrios --}}
+                        @if($producto->codigo_kyrios || $producto->codigo_fabrica || $producto->procedencia || $producto->linea)
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <i class="fas fa-tag text-yellow-500"></i> Identificación Kyrios
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                @foreach([
+                                    ['Código Kyrios',   $producto->codigo_kyrios],
+                                    ['Código Fábrica',  $producto->codigo_fabrica],
+                                    ['Procedencia',     $producto->procedencia],
+                                    ['Línea',           $producto->linea],
+                                ] as [$label, $val])
+                                    @if($val)
+                                    <div>
+                                        <p class="text-xs text-gray-500">{{ $label }}</p>
+                                        <p class="font-medium text-gray-900">{{ $val }}</p>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                            @if($producto->ficha_tecnica_url)
+                            <div class="mt-2">
+                                <a href="{{ $producto->ficha_tecnica_url }}" target="_blank"
+                                   class="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
+                                    <i class="fas fa-file-pdf"></i> Ver ficha técnica PDF
+                                </a>
+                            </div>
+                            @endif
+                            @if($producto->observaciones)
+                            <p class="mt-2 text-sm text-gray-500 italic">{{ $producto->observaciones }}</p>
+                            @endif
+                        </div>
+                        @endif
+
+                        {{-- Especificaciones eléctricas --}}
+                        @if($esp)
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <i class="fas fa-bolt text-yellow-500"></i> Especificaciones Eléctricas
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                @foreach([
+                                    ['Potencia',           $esp->potencia,             ''],
+                                    ['Lúmenes',            $esp->lumenes,              ''],
+                                    ['Voltaje',            $esp->voltaje,              ''],
+                                    ['Temp. de Color',     $esp->temperatura_color,    ''],
+                                    ['CRI',                $esp->cri,                  ''],
+                                    ['IP',                 $esp->ip,                   ''],
+                                    ['IK',                 $esp->ik,                   ''],
+                                    ['Ángulo apertura',    $esp->angulo_apertura,      ''],
+                                    ['Driver',             $esp->driver,               ''],
+                                    ['Socket',             $esp->socket,               ''],
+                                    ['Nº Lámparas',        $esp->numero_lamparas,      ''],
+                                    ['Prot. Regulación',   $esp->protocolo_regulacion, ''],
+                                ] as [$label, $val, $_])
+                                    @if($val !== null && $val !== '')
+                                    <div>
+                                        <p class="text-xs text-gray-500">{{ $label }}</p>
+                                        <p class="font-medium text-gray-900">{{ $val }}</p>
+                                    </div>
+                                    @endif
+                                @endforeach
+                                @if($esp->regulable)
+                                <div>
+                                    <p class="text-xs text-gray-500">Regulable</p>
+                                    <p class="font-medium text-green-700"><i class="fas fa-check-circle mr-1"></i>Sí</p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- Dimensiones --}}
+                        @if($dim)
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <i class="fas fa-ruler-combined text-blue-500"></i> Dimensiones (mm)
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                @foreach([
+                                    ['Alto',              $dim->alto],
+                                    ['Ancho',             $dim->ancho],
+                                    ['Diámetro',          $dim->diametro],
+                                    ['Lado',              $dim->lado],
+                                    ['Profundidad',       $dim->profundidad],
+                                    ['Alto suspendido',   $dim->alto_suspendido],
+                                    ['Diám. agujero',     $dim->diametro_agujero],
+                                ] as [$label, $val])
+                                    @if($val !== null && $val > 0)
+                                    <div>
+                                        <p class="text-xs text-gray-500">{{ $label }}</p>
+                                        <p class="font-medium text-gray-900">{{ $val }} mm</p>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- Materiales --}}
+                        @if($mat && ($mat->material_1 || $mat->material_2 || $mat->color_acabado_1 || $mat->color_acabado_2))
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <i class="fas fa-layer-group text-green-600"></i> Materiales y Acabados
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                @foreach([
+                                    ['Material principal',  $mat->material_1],
+                                    ['Material secundario', $mat->material_2],
+                                    ['Acabado / Color 1',   $mat->color_acabado_1],
+                                    ['Acabado / Color 2',   $mat->color_acabado_2],
+                                ] as [$label, $val])
+                                    @if($val)
+                                    <div>
+                                        <p class="text-xs text-gray-500">{{ $label }}</p>
+                                        <p class="font-medium text-gray-900">{{ $val }}</p>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- Clasificación --}}
+                        @if($clas)
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <i class="fas fa-tags text-purple-600"></i> Clasificación de Uso
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                @if($clas->uso)
+                                <div>
+                                    <p class="text-xs text-gray-500">Uso</p>
+                                    <p class="font-medium text-gray-900">{{ ucfirst(str_replace('_', ' / ', $clas->uso)) }}</p>
+                                </div>
+                                @endif
+                                @if($clas->tipo_instalacion)
+                                <div>
+                                    <p class="text-xs text-gray-500">Instalación</p>
+                                    <p class="font-medium text-gray-900">{{ ucfirst($clas->tipo_instalacion) }}</p>
+                                </div>
+                                @endif
+                                @if($clas->estilo)
+                                <div>
+                                    <p class="text-xs text-gray-500">Estilo</p>
+                                    <p class="font-medium text-gray-900">{{ $clas->estilo }}</p>
+                                </div>
+                                @endif
+                                @if($clas->tipoProyecto)
+                                <div>
+                                    <p class="text-xs text-gray-500">Tipo de Proyecto</p>
+                                    <p class="font-medium text-gray-900">
+                                        <i class="fas {{ $clas->tipoProyecto->icono }} mr-1 text-yellow-500"></i>
+                                        {{ $clas->tipoProyecto->nombre }}
+                                    </p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+
+                    </div>
+                </div>
+                @endif
+
                 <!-- Acciones rápidas -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="bg-gray-700 px-6 py-3">
@@ -197,22 +366,14 @@
                     </div>
                     <div class="p-6">
                         <div class="flex flex-wrap gap-3">
-                            @if($producto->tipo_inventario === 'serie')
-                                <a href="{{ route('inventario.imeis.index', ['producto_id' => $producto->id]) }}" 
-                                   class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                                    <i class="fas fa-sim-card mr-2"></i>
-                                    Gestionar IMEIs
-                                </a>
-                            @endif
-                            
-                            <a href="{{ route('inventario.productos.codigos-barras', $producto) }}" 
+                            <a href="{{ route('inventario.productos.codigos-barras', $producto) }}"
                                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
                                 <i class="fas fa-barcode mr-2"></i>
                                 Códigos de Barras
                             </a>
-                            
+
                             @if($producto->tipo_inventario === 'cantidad')
-                                <a href="{{ route('inventario.movimientos.create', ['producto_id' => $producto->id]) }}" 
+                                <a href="{{ route('inventario.movimientos.create', ['producto_id' => $producto->id]) }}"
                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                                     <i class="fas fa-exchange-alt mr-2"></i>
                                     Movimiento de Stock

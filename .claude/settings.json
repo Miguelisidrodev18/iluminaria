@@ -3,7 +3,17 @@
     "allow": [
       "Bash(grep -r \"posApp\\\\|igv\\\\|IGV\\\\|precio_con_igv\\\\|incluye_igv\" /c/xampp/htdocs/proyecto_importaciones/importaciones/resources/views/ventas/ --include=*.blade.php --include=*.js)",
       "Bash(grep -r \"obtenerPrecios\\\\|function obtenerPrecios\" /c/xampp/htdocs/proyecto_importaciones/importaciones/app --include=*.php)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(sed -i -e 's/focus:border-indigo-500/focus:border-[#F7D600]/g' -e 's/focus:ring-indigo-500/focus:ring-[#F7D600]/g' resources/views/components/text-input.blade.php)",
+      "Bash(__NEW_LINE_4ade60fdee6d471b__ sed:*)",
+      "Bash(sed -i -e 's/bg-indigo-100/bg-[#FFF9C4]/g' -e 's/text-indigo-600/text-[#2B2E2C]/g' resources/views/auth/reset-password-direct.blade.php)",
+      "Bash(__NEW_LINE_a3ae4708e5c2e134__ sed:*)",
+      "Bash(grep -rn \"use App\\\\Models\\\\Imei\\\\|App\\\\Models\\\\Imei::\\\\|new Imei\\(\" c:/xampp/htdocs/luminaria/app/ --include=*.php)",
+      "Bash(grep -rn \"Imei\\\\|imeis\" c:/xampp/htdocs/luminaria/app/ --include=*.php)",
+      "Bash(grep -rn \"\\\\App\\\\Models\\\\Imei\\\\|use App\\\\Models\\\\Imei\\\\|Models\\\\Imei::\" c:/xampp/htdocs/luminaria/app/ --include=*.php)",
+      "Bash(grep -rn \"imeis\\(\\)\\\\|Imei::\\\\|Models.Imei\\\\b\" c:/xampp/htdocs/luminaria/app/ --include=*.php)",
+      "Bash(grep -v \"getImeisDisponibles\\\\|imeis_\\\\|imei_id\\\\|imeis_nuevos\\\\|imeis_totales\\\\|#\\\\|//\")",
+      "Bash(grep -rn \"Models.Imei\\\\b\\\\|Models.TrasladoImei\" c:/xampp/htdocs/luminaria/app/ --include=*.php)"
     ]
   }
 }

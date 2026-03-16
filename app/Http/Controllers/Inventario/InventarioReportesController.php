@@ -88,13 +88,6 @@ class InventarioReportesController extends Controller
 
     private function stockPorAlmacen(Producto $p, int $almacenId): int
     {
-        if ($p->tipo_inventario === 'serie') {
-            return $p->imeis()
-                ->where('almacen_id', $almacenId)
-                ->where('estado_imei', 'en_stock')
-                ->count();
-        }
-
         $neto = MovimientoInventario::where('producto_id', $p->id)
             ->where('almacen_id', $almacenId)
             ->selectRaw("
