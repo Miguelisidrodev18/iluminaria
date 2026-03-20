@@ -15,7 +15,13 @@
       "Bash(grep -v \"getImeisDisponibles\\\\|imeis_\\\\|imei_id\\\\|imeis_nuevos\\\\|imeis_totales\\\\|#\\\\|//\")",
       "Bash(grep -rn \"Models.Imei\\\\b\\\\|Models.TrasladoImei\" c:/xampp/htdocs/luminaria/app/ --include=*.php)",
       "Bash(grep -E \"\\\\.php$\")",
-      "Bash(grep -l \"protected $table\\\\|protected $fillable\" /c/xampp/htdocs/luminaria/app/Models/*.php)"
+      "Bash(grep -l \"protected $table\\\\|protected $fillable\" /c/xampp/htdocs/luminaria/app/Models/*.php)",
+      "Bash(1:*)",
+      "Bash(grep -r \"componente\\\\|kit\\\\|combo\\\\|compuesto\\\\|bundle\" /c/xampp/htdocs/luminaria/app --include=*.php)",
+      "Bash(grep -r \"Excel\\\\|Maatwebsite\\\\|import\\\\|export\" /c/xampp/htdocs/luminaria/app/Http/Controllers --include=*.php)",
+      "Bash(php -l \"c:/xampp/htdocs/luminaria/app/Http/Controllers/ProductoComponenteController.php\")",
+      "Bash(php -l \"c:/xampp/htdocs/luminaria/app/Http/Controllers/ImportadorProductosController.php\")",
+      "Bash(php -r \"echo ''''PHP OK'''';\")"
     ]
   }
 }

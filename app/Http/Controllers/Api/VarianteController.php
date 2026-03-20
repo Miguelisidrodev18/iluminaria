@@ -21,7 +21,7 @@ class VarianteController extends Controller
     {
         $variantes = $producto->variantesActivas()
             ->with('color')
-            ->orderBy('capacidad')
+            ->orderBy('especificacion')
             ->orderBy('color_id')
             ->get()
             ->map(fn($v) => $this->varianteService->formatearVariante($v));
@@ -69,7 +69,7 @@ class VarianteController extends Controller
         $validated = $request->validate([
             'producto_id'  => 'required|exists:productos,id',
             'color_id'     => 'nullable|exists:colores,id',
-            'capacidad'    => 'nullable|string|max:50',
+            'especificacion' => 'nullable|string|max:50',
             'sobreprecio'  => 'nullable|numeric|min:0',
             'stock_inicial'=> 'nullable|integer|min:0',
         ]);
@@ -79,7 +79,7 @@ class VarianteController extends Controller
         $variante = $this->varianteService->obtenerOCrearVariante(
             $producto,
             $validated['color_id'] ?? null,
-            $validated['capacidad'] ?? null,
+            $validated['especificacion'] ?? null,
             (float)($validated['sobreprecio'] ?? 0)
         );
 
@@ -104,7 +104,7 @@ class VarianteController extends Controller
     {
         $validated = $request->validate([
             'color_id'    => 'nullable|exists:colores,id',
-            'capacidad'   => 'nullable|string|max:50',
+            'especificacion' => 'nullable|string|max:50',
             'sobreprecio' => 'nullable|numeric|min:0',
             'stock_minimo'=> 'nullable|integer|min:0',
             'estado'      => 'nullable|in:activo,inactivo',

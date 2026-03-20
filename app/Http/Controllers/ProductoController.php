@@ -196,12 +196,12 @@ public function create()
             }),
         ],
 
-        // Tipo de inventario
-        'tipo_inventario' => 'required|in:cantidad,serie',
+        // Tipo de inventario — solo 'cantidad' para luminarias
+        'tipo_inventario' => 'required|in:cantidad',
 
-        // Garantía (para serie)
-        'dias_garantia' => 'required_if:tipo_inventario,serie|integer|min:0',
-        'tipo_garantia' => 'required_if:tipo_inventario,serie|in:proveedor,tienda,fabricante',
+        // Garantía
+        'dias_garantia' => 'nullable|integer|min:0',
+        'tipo_garantia' => 'nullable|in:proveedor,tienda,fabricante',
 
         // Códigos
         'codigo_barras' => 'nullable|string|max:50|unique:productos,codigo_barras',
@@ -255,7 +255,7 @@ public function create()
 
     // Generar código de barras si no se proporcionó
     if (empty($validated['codigo_barras'])) {
-        $tipoBarras = ($validated['tipo_inventario'] ?? 'cantidad') === 'serie' ? 'celular' : 'accesorio';
+        $tipoBarras = 'luminaria';
         $validated['codigo_barras'] = $codigoBarrasService->generarCodigoUnico(null, $tipoBarras);
     }
 
@@ -322,7 +322,7 @@ public function create()
         // Crear variantes iniciales si las hay
         $variantesData = array_filter(
             (array)$request->input('variantes_iniciales', []),
-            fn($v) => !empty($v['color_id']) || !empty($v['capacidad']) || !empty($v['nombre'])
+            fn($v) => !empty($v['color_id']) || !empty($v['especificacion']) || !empty($v['nombre'])
         );
         if (!empty($variantesData)) {
             $varianteService = app(VarianteService::class);
@@ -330,7 +330,7 @@ public function create()
                 $variante = $varianteService->obtenerOCrearVariante(
                     $producto,
                     !empty($vData['color_id']) ? (int)$vData['color_id'] : null,
-                    !empty($vData['capacidad']) ? $vData['capacidad'] : null,
+                    !empty($vData['especificacion']) ? $vData['especificacion'] : null,
                     !empty($vData['sobreprecio']) ? (float)$vData['sobreprecio'] : 0
                 );
                 if (!empty($vData['nombre'])) {
@@ -350,10 +350,13 @@ public function create()
             'categoria', 'marca', 'modelo', 'color', 'unidadMedida',
             'especificacion', 'dimensiones', 'materiales', 'clasificacion',
             'tiposProyecto',
+            'variantes.color',
             'movimientos' => fn($q) => $q->latest()->limit(10),
         ]);
 
-        return view('inventario.productos.show', compact('producto'));
+        $colores = \App\Models\Catalogo\Color::where('estado', 'activo')->orderBy('nombre')->get();
+
+        return view('inventario.productos.show', compact('producto', 'colores'));
     }
 
     /**
@@ -369,6 +372,7 @@ public function create()
             'clasificaciones', 'tiposProyecto', 'ubicaciones',
             'variantes.color',
             'atributos.atributo', 'atributos.valor',
+            'componentes.hijo', 'componentes.variante',
         ]);
         
         // Obtener datos para los selects
@@ -424,6 +428,12 @@ public function create()
      */
     public function update(Request $request, Producto $producto)
 {
+    // Actualización rápida solo del flag descontar_componentes (desde BOM partial)
+    if ($request->boolean('_only_descontar_componentes')) {
+        $producto->update(['descontar_componentes' => $request->boolean('descontar_componentes')]);
+        return back()->with('success', 'Opción actualizada correctamente.');
+    }
+
     $validated = $request->validate([
         'nombre' => 'required|string|max:200',
         'descripcion' => 'nullable|string',
@@ -894,7 +904,7 @@ public function storeVariante(Request $request, Producto $producto, VarianteServ
     $validated = $request->validate([
         'nombre'        => 'nullable|string|max:100',
         'color_id'      => 'nullable|exists:colores,id',
-        'capacidad'     => 'nullable|string|max:50',
+        'especificacion' => 'nullable|string|max:50',
         'sobreprecio'   => 'nullable|numeric|min:0',
         'stock_inicial' => 'nullable|integer|min:0',
         'atributos'     => 'nullable|array',
@@ -904,7 +914,7 @@ public function storeVariante(Request $request, Producto $producto, VarianteServ
         $variante = $varianteService->obtenerOCrearVariante(
             $producto,
             $validated['color_id'] ?? null,
-            $validated['capacidad'] ?? null,
+            $validated['especificacion'] ?? null,
             (float)($validated['sobreprecio'] ?? 0)
         );
 

@@ -90,7 +90,19 @@
                     {{-- Selector + cantidad --}}
                     <div class="grid grid-cols-3 gap-3">
                         <div class="col-span-2">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Ubicación</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-medium text-gray-600">Ubicación</label>
+                                <a href="{{ route('catalogo.ubicaciones.index') }}" target="_blank"
+                                   class="text-xs text-indigo-500 hover:text-indigo-700">
+                                    <i class="fas fa-cog mr-1"></i>Gestionar ubicaciones
+                                </a>
+                            </div>
+                            @if($ubicaciones->isEmpty())
+                            <div class="w-full px-3 py-2 border border-dashed border-orange-300 rounded-lg text-xs text-orange-500 text-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                No hay ubicaciones. <a href="{{ route('catalogo.ubicaciones.index') }}" target="_blank" class="font-semibold underline">Crear aquí</a>
+                            </div>
+                            @else
                             <select x-model="seleccionId"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400">
                                 <option value="">-- Seleccionar --</option>
@@ -98,11 +110,11 @@
                                 <option value="{{ $ub->id }}"
                                         data-nombre="{{ $ub->nombre }}"
                                         data-tipo="{{ $ub->tipo }}">
-                                    {{ $ub->nombre }}
-                                    <span class="text-gray-400">({{ \App\Models\Ubicacion::TIPOS[$ub->tipo] ?? $ub->tipo }})</span>
+                                    {{ $ub->nombre }} ({{ \App\Models\Ubicacion::TIPOS[$ub->tipo] ?? $ub->tipo }})
                                 </option>
                                 @endforeach
                             </select>
+                            @endif
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">Cantidad</label>

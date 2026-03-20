@@ -42,12 +42,12 @@ class CompraService
                 $variante = null;
                 if (!empty($detalle['variante_id'])) {
                     $variante = ProductoVariante::findOrFail($detalle['variante_id']);
-                } elseif (!empty($detalle['color_id']) || !empty($detalle['capacidad'])) {
+                } elseif (!empty($detalle['color_id']) || !empty($detalle['especificacion'])) {
                     $varianteService = app(VarianteService::class);
                     $variante = $varianteService->obtenerOCrearVariante(
                         $productoBase,
                         $detalle['color_id'] ?? null,
-                        $detalle['capacidad'] ?? null,
+                        $detalle['especificacion'] ?? null,
                         0
                     );
                 }

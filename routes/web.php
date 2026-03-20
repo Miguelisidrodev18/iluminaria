@@ -248,6 +248,23 @@ Route::middleware('auth')->group(function () {
         Route::post('/productos/{producto}/rechazar', [ProductoController::class, 'reject'])->name('productos.rechazar');
         Route::post('/productos/{producto}/enviar-aprobacion', [ProductoController::class, 'submitForApproval'])->name('productos.enviar-aprobacion');
 
+        // BOM — COMPONENTES DE PRODUCTOS COMPUESTOS
+        Route::middleware('role:Administrador,Almacenero')->group(function () {
+            Route::post('/productos/{producto}/componentes', [\App\Http\Controllers\ProductoComponenteController::class, 'store'])->name('productos.componentes.store');
+            Route::put('/productos/componentes/{componente}', [\App\Http\Controllers\ProductoComponenteController::class, 'update'])->name('productos.componentes.update');
+            Route::delete('/productos/componentes/{componente}', [\App\Http\Controllers\ProductoComponenteController::class, 'destroy'])->name('productos.componentes.destroy');
+        });
+
+        // API: componentes de un kit (para venta/cotización)
+        Route::get('/productos/{producto}/componentes/api', [\App\Http\Controllers\ProductoComponenteController::class, 'apiComponentes'])->name('productos.componentes.api');
+
+        // IMPORTADOR MASIVO EXCEL
+        Route::middleware('role:Administrador,Almacenero')->group(function () {
+            Route::get('/productos/importar/formulario', [\App\Http\Controllers\ImportadorProductosController::class, 'index'])->name('productos.importar');
+            Route::post('/productos/importar', [\App\Http\Controllers\ImportadorProductosController::class, 'store'])->name('productos.importar.store');
+            Route::get('/productos/importar/plantilla', [\App\Http\Controllers\ImportadorProductosController::class, 'descargarPlantilla'])->name('productos.importar.plantilla');
+        });
+
         // REPORTES DE INVENTARIO (HU-INVENTARIO-06/07/08)
         Route::middleware('role:Administrador')->group(function () {
             Route::get('/reportes/stock-valorizado', [\App\Http\Controllers\Inventario\InventarioReportesController::class, 'stockValorizado'])->name('reportes.stock-valorizado');
@@ -420,6 +437,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('modelos', App\Http\Controllers\Catalogo\ModeloController::class)->parameters(['modelos' => 'modelo']);
         Route::get('modelos-por-marca/{marcaId}', [App\Http\Controllers\Catalogo\ModeloController::class, 'getModelosPorMarca'])->name('modelos.por-marca');
         Route::get('marcas-por-categoria/{categoriaId}', [App\Http\Controllers\Catalogo\MarcaController::class, 'getMarcasPorCategoria'])->name('marcas.por-categoria');
+        Route::resource('ubicaciones', App\Http\Controllers\Catalogo\UbicacionController::class)->parameters(['ubicaciones' => 'ubicacion'])->only(['index','store','update','destroy']);
     });
 
     // ========================================

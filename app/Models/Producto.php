@@ -39,6 +39,7 @@ class Producto extends Model
         'procedencia', 'linea',
         'creado_por', 'modificado_por', 'codigo_barras',
         'estado_aprobacion', 'aprobado_por', 'aprobado_en', 'motivo_rechazo',
+        'tipo_sistema', 'descontar_componentes',
     ];
 
     const ESTADOS_APROBACION = [
@@ -65,7 +66,14 @@ class Producto extends Model
         'fecha_ultima_compra' => 'date',
         'ultimo_costo_compra' => 'decimal:2',
         'costo_promedio'      => 'decimal:2',
-        'aprobado_en'         => 'datetime',
+        'aprobado_en'            => 'datetime',
+        'descontar_componentes'  => 'boolean',
+    ];
+
+    const TIPOS_SISTEMA = [
+        'simple'    => 'Simple',
+        'compuesto' => 'Compuesto (Kit)',
+        'componente'=> 'Componente',
     ];
 
     /**
@@ -518,5 +526,44 @@ class Producto extends Model
                 ]);
             }
         }
+    }
+
+    // ─── Relaciones BOM (productos compuestos) ────────────────────────────────
+
+    /** Componentes de este producto compuesto, ordenados por posición. */
+    public function componentes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProductoComponente::class, 'padre_id')->orderBy('orden');
+    }
+
+    /** Kits en los que este producto aparece como componente. */
+    public function usadoEn(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProductoComponente::class, 'hijo_id');
+    }
+
+    public function esCompuesto(): bool
+    {
+        return $this->tipo_sistema === 'compuesto';
+    }
+
+    public function esSimple(): bool
+    {
+        return $this->tipo_sistema === 'simple';
+    }
+
+    /**
+     * Verifica si hay stock suficiente de todos los componentes obligatorios
+     * para armar `$cantidad` kits.
+     */
+    public function tieneStockComponentes(int $cantidad = 1): bool
+    {
+        if (!$this->esCompuesto()) return true;
+
+        return $this->componentes()
+            ->where('es_opcional', false)
+            ->with(['hijo', 'variante'])
+            ->get()
+            ->every(fn($comp) => $comp->tieneStockParaKits($cantidad));
     }
 }

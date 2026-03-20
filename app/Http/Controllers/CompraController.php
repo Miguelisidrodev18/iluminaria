@@ -61,7 +61,7 @@ class CompraController extends Controller
                     'color_id'     => $v->color_id,
                     'color_nombre' => $v->color?->nombre,
                     'color_hex'    => $v->color?->codigo_hex,
-                    'capacidad'    => $v->capacidad,
+                    'especificacion' => $v->especificacion,
                     'stock_actual' => (int)$v->stock_actual,
                 ]);
                 return [
@@ -134,7 +134,7 @@ class CompraController extends Controller
             'detalles.*.codigo_barras' => 'nullable|string|max:50',
             'detalles.*.modelo_id' => 'nullable|exists:modelos,id',
             'detalles.*.color_id'  => 'nullable|exists:colores,id',
-            'detalles.*.capacidad' => 'nullable|string|max:50',
+            'detalles.*.especificacion' => 'nullable|string|max:50',
         ], [
             'numero_factura.unique' => 'Ya existe una compra con este número de factura para el proveedor seleccionado',
             'detalles.required' => 'Debe agregar al menos un producto',
@@ -498,7 +498,7 @@ public function importarIMEI(Request $request)
                     'color_id'        => $v->color_id,
                     'color_nombre'    => $v->color?->nombre,
                     'color_hex'       => $v->color?->codigo_hex,
-                    'capacidad'       => $v->capacidad,
+                    'especificacion'   => $v->especificacion,
                     'sobreprecio'     => (float)$v->sobreprecio,
                     'stock_actual'    => (int)$v->stock_actual,
                     'nombre_completo' => $v->nombre_completo,
@@ -603,7 +603,7 @@ public function getProductoDetalle($id)
             'color_id'        => $v->color_id,
             'color_nombre'    => $v->color?->nombre,
             'color_hex'       => $v->color?->codigo_hex,
-            'capacidad'       => $v->capacidad,
+            'especificacion'  => $v->especificacion,
             'sobreprecio'     => (float)$v->sobreprecio,
             'stock_actual'    => (int)$v->stock_actual,
             'nombre_completo' => $v->nombre_completo,

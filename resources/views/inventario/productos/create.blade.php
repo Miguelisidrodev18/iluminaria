@@ -519,20 +519,20 @@
 
     @include('inventario.productos.partials.modales-rapidos')
 
+    @php
+        $atributosParaNombre = $atributosGrupos->flatten()
+            ->filter(fn($a) => $a->en_nombre_auto)
+            ->sortBy('orden_nombre')
+            ->map(fn($a) => ['slug' => $a->slug, 'nombre' => $a->nombre, 'unidad' => $a->unidad])
+            ->values();
+        $valoresMap = \App\Models\Catalogo\CatalogoValor::whereHas('atributo', fn($q) => $q->where('en_nombre_auto', true))
+            ->get()
+            ->mapWithKeys(fn($v) => [$v->id => $v->etiqueta ?? $v->valor]);
+    @endphp
     <script>
     // ─── Atributos para nombre auto-generado ──────────────────────────────────────
-    window.ATRIBUTOS_PARA_NOMBRE = @json(
-        ($atributosGrupos->flatten()->filter(fn($a) => $a->en_nombre_auto)->sortBy('orden_nombre')->map(fn($a) => [
-            'slug'   => $a->slug,
-            'nombre' => $a->nombre,
-            'unidad' => $a->unidad,
-        ])->values())
-    );
-    window.VALORES_MAP = @json(
-        \App\Models\Catalogo\CatalogoValor::whereHas('atributo', fn($q) => $q->where('en_nombre_auto', true))
-            ->get()
-            ->mapWithKeys(fn($v) => [$v->id => $v->etiqueta ?? $v->valor])
-    );
+    window.ATRIBUTOS_PARA_NOMBRE = @json($atributosParaNombre);
+    window.VALORES_MAP = @json($valoresMap);
 
     // ─── Tipos de producto (desde BD, datos serializados) ────────────────────────
     const TIPOS_DATA = @json($tiposProducto->keyBy('id'));

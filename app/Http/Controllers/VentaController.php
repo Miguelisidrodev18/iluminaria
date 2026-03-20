@@ -122,7 +122,7 @@ class VentaController extends Controller
                 'color_id'          => $v->color_id,
                 'color_nombre'      => $v->color?->nombre,
                 'color_hex'         => $v->color?->codigo_hex,
-                'capacidad'         => $v->capacidad,
+                'especificacion'     => $v->especificacion,
                 'sobreprecio'       => (float)$v->sobreprecio,
                 'stock_actual'      => $esSerie
                     ? (int)($imeisPorVariante[$v->id] ?? collect())->sum()

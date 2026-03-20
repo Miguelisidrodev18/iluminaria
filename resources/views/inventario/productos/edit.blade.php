@@ -62,7 +62,7 @@
                 $mostrarFicha    = $tpSel && in_array($tpSel->codigo, ['LU','LA','CL']);
             @endphp
 
-            <form action="{{ route('inventario.productos.update', $producto) }}" method="POST" enctype="multipart/form-data" id="formProducto">
+            <form action="{{ route('inventario.productos.update', $producto) }}" method="POST" enctype="multipart/form-data" id="formProducto" name="form-producto-principal">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="tipo_inventario" value="cantidad">
@@ -638,25 +638,36 @@
                 </div>
 
             </form>
+
+            {{-- ══════════════════════════════════════════════════════════
+                BLOQUE BOM — COMPONENTES (solo para productos compuestos)
+                Va fuera del form principal para evitar forms anidados
+            ══════════════════════════════════════════════════════════ --}}
+            @if($producto->tipo_sistema === 'compuesto')
+                <div class="mb-5">
+                    @include('inventario.productos.partials.componentes-form')
+                </div>
+            @endif
+
         </div>
     </div>
 
     @include('inventario.productos.partials.modales-rapidos')
 
+    @php
+        $atributosParaNombre = $atributosGrupos->flatten()
+            ->filter(fn($a) => $a->en_nombre_auto)
+            ->sortBy('orden_nombre')
+            ->map(fn($a) => ['slug' => $a->slug, 'nombre' => $a->nombre, 'unidad' => $a->unidad])
+            ->values();
+        $valoresMap = \App\Models\Catalogo\CatalogoValor::whereHas('atributo', fn($q) => $q->where('en_nombre_auto', true))
+            ->get()
+            ->mapWithKeys(fn($v) => [$v->id => $v->etiqueta ?? $v->valor]);
+    @endphp
     <script>
     // ─── Atributos para nombre auto-generado ──────────────────────────────────────
-    window.ATRIBUTOS_PARA_NOMBRE = @json(
-        ($atributosGrupos->flatten()->filter(fn($a) => $a->en_nombre_auto)->sortBy('orden_nombre')->map(fn($a) => [
-            'slug'   => $a->slug,
-            'nombre' => $a->nombre,
-            'unidad' => $a->unidad,
-        ])->values())
-    );
-    window.VALORES_MAP = @json(
-        \App\Models\Catalogo\CatalogoValor::whereHas('atributo', fn($q) => $q->where('en_nombre_auto', true))
-            ->get()
-            ->mapWithKeys(fn($v) => [$v->id => $v->etiqueta ?? $v->valor])
-    );
+    window.ATRIBUTOS_PARA_NOMBRE = @json($atributosParaNombre);
+    window.VALORES_MAP = @json($valoresMap);
 
     // ─── Tipos de producto (desde BD) ────────────────────────────────────────────
     const TIPOS_DATA         = @json($tiposProducto->keyBy('id'));
