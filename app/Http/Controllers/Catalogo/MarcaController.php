@@ -39,6 +39,9 @@ class MarcaController extends Controller
             'categorias.*' => 'exists:categorias,id',
         ]);
 
+        // Auto-generar código correlativo único
+        $validated['codigo'] = Marca::generarCodigoSiguiente();
+
         if ($request->hasFile('logo')) {
             $validated['logo'] = $request->file('logo')->store('marcas', 'public');
         }
@@ -48,7 +51,7 @@ class MarcaController extends Controller
 
         return redirect()
             ->route('catalogo.marcas.index')
-            ->with('success', 'Marca creada exitosamente');
+            ->with('success', "Marca creada exitosamente (código: {$marca->codigo})");
     }
 
     public function edit(Marca $marca)
@@ -115,6 +118,7 @@ class MarcaController extends Controller
                 
                 $marca = Marca::create([
                     'nombre' => $request->nombre,
+                    'codigo' => Marca::generarCodigoSiguiente(),
                     'estado' => 'activo'
                 ]);
                 

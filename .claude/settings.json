@@ -13,7 +13,9 @@
       "Bash(grep -rn \"\\\\App\\\\Models\\\\Imei\\\\|use App\\\\Models\\\\Imei\\\\|Models\\\\Imei::\" c:/xampp/htdocs/luminaria/app/ --include=*.php)",
       "Bash(grep -rn \"imeis\\(\\)\\\\|Imei::\\\\|Models.Imei\\\\b\" c:/xampp/htdocs/luminaria/app/ --include=*.php)",
       "Bash(grep -v \"getImeisDisponibles\\\\|imeis_\\\\|imei_id\\\\|imeis_nuevos\\\\|imeis_totales\\\\|#\\\\|//\")",
-      "Bash(grep -rn \"Models.Imei\\\\b\\\\|Models.TrasladoImei\" c:/xampp/htdocs/luminaria/app/ --include=*.php)"
+      "Bash(grep -rn \"Models.Imei\\\\b\\\\|Models.TrasladoImei\" c:/xampp/htdocs/luminaria/app/ --include=*.php)",
+      "Bash(grep -E \"\\\\.php$\")",
+      "Bash(grep -l \"protected $table\\\\|protected $fillable\" /c/xampp/htdocs/luminaria/app/Models/*.php)"
     ]
   }
 }

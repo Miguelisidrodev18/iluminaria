@@ -135,6 +135,21 @@
                         </select>
                     </div>
 
+                    {{-- Aprobación --}}
+                    @can('aprobar_producto')
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Aprobación</label>
+                        <select name="estado_aprobacion"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                            <option value="">Todos</option>
+                            <option value="borrador"             {{ request('estado_aprobacion') == 'borrador'             ? 'selected' : '' }}>Borrador</option>
+                            <option value="pendiente_aprobacion" {{ request('estado_aprobacion') == 'pendiente_aprobacion' ? 'selected' : '' }}>Pendiente</option>
+                            <option value="aprobado"             {{ request('estado_aprobacion') == 'aprobado'             ? 'selected' : '' }}>Aprobado</option>
+                            <option value="rechazado"            {{ request('estado_aprobacion') == 'rechazado'            ? 'selected' : '' }}>Rechazado</option>
+                        </select>
+                    </div>
+                    @endcan
+
                 </div>
 
                 <div class="flex items-center justify-between border-t border-gray-100 pt-3">
@@ -317,6 +332,16 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $estadoBadge[0] }}">
                                     {{ $estadoBadge[1] }}
                                 </span>
+                                @if($producto->estado_aprobacion && $producto->estado_aprobacion !== 'aprobado')
+                                    @php
+                                        $aprobIcono = match($producto->estado_aprobacion) {
+                                            'pendiente_aprobacion' => 'fa-clock text-yellow-500',
+                                            'rechazado'            => 'fa-times-circle text-red-500',
+                                            default                => 'fa-pencil-alt text-gray-400',
+                                        };
+                                    @endphp
+                                    <i class="fas {{ $aprobIcono }} text-xs mt-1" title="{{ \App\Models\Producto::ESTADOS_APROBACION[$producto->estado_aprobacion] ?? '' }}"></i>
+                                @endif
                             </td>
 
                             {{-- Acciones --}}

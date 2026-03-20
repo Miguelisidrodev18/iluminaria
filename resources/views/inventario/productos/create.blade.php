@@ -364,6 +364,21 @@
                 </div>
 
                 {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE UBICACIONES FÍSICAS
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-indigo-500"></i>
+                        <h2 class="font-semibold text-gray-800">Ubicaciones Físicas
+                            <span class="text-xs font-normal text-gray-400">(opcional — dónde se almacena)</span>
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        @include('inventario.productos.partials.modal-ubicaciones')
+                    </div>
+                </div>
+
+                {{-- ══════════════════════════════════════════════════════════
                     BLOQUES 5-7 — FICHA TÉCNICA (se oculta si tipo no la requiere)
                 ══════════════════════════════════════════════════════════ --}}
                 <div id="bloqueFichaTecnica" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
@@ -380,55 +395,107 @@
                 </div>
 
                 {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE CONFIGURADOR DE ATRIBUTOS DINÁMICOS
+                ══════════════════════════════════════════════════════════ --}}
+                @include('inventario.productos.partials.atributos-dinamicos', [
+                    'atributosGrupos'  => $atributosGrupos,
+                    'atributosActuales'=> [],
+                ])
+
+                {{-- ══════════════════════════════════════════════════════════
                     BLOQUE 8 — VARIANTES
                 ══════════════════════════════════════════════════════════ --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5"
-                     x-data="variantesManager()" x-init="init()">
-                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">8</span>
-                        <h2 class="font-semibold text-gray-800">Variantes del Producto <span class="text-xs font-normal text-gray-400">(opcional)</span></h2>
+                     x-data="variantesManager(@js($colores->map(fn($c)=>['id'=>$c->id,'nombre'=>$c->nombre,'hex'=>$c->hex??'#cccccc'])->values()))">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">8</span>
+                            <h2 class="font-semibold text-gray-800">Variantes del Producto
+                                <span class="text-xs font-normal text-gray-400">(opcional)</span>
+                            </h2>
+                        </div>
+                        <span x-show="variantes.length > 0"
+                              class="text-xs bg-indigo-100 text-indigo-700 rounded-full px-2 py-0.5 font-medium"
+                              x-text="variantes.length + ' variante' + (variantes.length > 1 ? 's' : '')"></span>
                     </div>
                     <div class="p-6">
+
+                        {{-- Lista de variantes agregadas --}}
                         <template x-if="variantes.length > 0">
-                            <div class="mb-4 space-y-2">
-                                <template x-for="(v, idx) in variantes" :key="idx">
-                                    <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3">
-                                        <div class="w-5 h-5 rounded-full border-2 border-white shadow shrink-0"
-                                             :style="v.color_hex ? `background-color:${v.color_hex}` : 'background:#e5e7eb'"></div>
-                                        <span class="text-sm font-medium text-gray-800 flex-1" x-text="v.color_nombre || 'Sin color'"></span>
-                                        <span x-show="v.especificacion" class="text-xs text-gray-500" x-text="'— ' + v.especificacion"></span>
-                                        <input type="hidden" :name="`variantes_iniciales[${idx}][color_id]`" :value="v.color_id">
-                                        <input type="hidden" :name="`variantes_iniciales[${idx}][capacidad]`" :value="v.especificacion">
-                                        <button type="button" @click="eliminar(idx)" class="text-red-500 hover:text-red-700">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </template>
+                            <div class="mb-5">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="text-xs text-gray-500 border-b border-gray-100">
+                                            <th class="text-left pb-2 font-medium">Nombre / Color</th>
+                                            <th class="text-left pb-2 font-medium">Especificación</th>
+                                            <th class="text-right pb-2 font-medium">Sobreprecio</th>
+                                            <th class="pb-2 w-8"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-50">
+                                        <template x-for="(v, idx) in variantes" :key="idx">
+                                            <tr class="py-2">
+                                                <td class="py-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="w-4 h-4 rounded-full border border-gray-200 shrink-0"
+                                                             :style="v.color_hex ? `background-color:${v.color_hex}` : 'background:#e5e7eb'"></div>
+                                                        <span class="font-medium text-gray-800"
+                                                              x-text="v.nombre || v.color_nombre || 'Sin nombre'"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-2 text-gray-500" x-text="v.especificacion || '—'"></td>
+                                                <td class="py-2 text-right text-gray-700"
+                                                    x-text="v.sobreprecio > 0 ? '+S/ ' + parseFloat(v.sobreprecio).toFixed(2) : '—'"></td>
+                                                <td class="py-2 text-right">
+                                                    <button type="button" @click="eliminar(idx)"
+                                                            class="text-red-400 hover:text-red-600 transition-colors">
+                                                        <i class="fas fa-trash text-xs"></i>
+                                                    </button>
+                                                </td>
+                                                {{-- Hidden inputs para envío al servidor --}}
+                                                <input type="hidden" :name="`variantes_iniciales[${idx}][nombre]`" :value="v.nombre">
+                                                <input type="hidden" :name="`variantes_iniciales[${idx}][color_id]`" :value="v.color_id || ''">
+                                                <input type="hidden" :name="`variantes_iniciales[${idx}][capacidad]`" :value="v.especificacion">
+                                                <input type="hidden" :name="`variantes_iniciales[${idx}][sobreprecio]`" :value="v.sobreprecio || 0">
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                             </div>
                         </template>
 
-                        <div class="flex gap-3 items-end">
-                            <div class="flex-1">
+                        {{-- Formulario para agregar nueva variante --}}
+                        <div class="grid grid-cols-2 gap-3 mb-3 sm:grid-cols-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Nombre variante</label>
+                                <input type="text" x-model="nueva.nombre" placeholder="Ej: Versión Calida"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400">
+                            </div>
+                            <div>
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Color</label>
-                                <select id="varianteColor" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                <select x-model="nueva.color_id"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400">
                                     <option value="">Sin color</option>
-                                    @foreach($colores as $color)
-                                        <option value="{{ $color->id }}" data-hex="{{ $color->hex ?? '#cccccc' }}" data-nombre="{{ $color->nombre }}">
-                                            {{ $color->nombre }}
-                                        </option>
-                                    @endforeach
+                                    <template x-for="c in coloresCatalogo" :key="c.id">
+                                        <option :value="c.id" x-text="c.nombre"></option>
+                                    </template>
                                 </select>
                             </div>
-                            <div class="flex-1">
+                            <div>
                                 <label class="block text-xs font-medium text-gray-600 mb-1">Especificación</label>
-                                <input type="text" id="varianteSpec" placeholder="Ej: 3000K, 60W"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                <input type="text" x-model="nueva.especificacion" placeholder="Ej: 3000K, 18W"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400">
                             </div>
-                            <button type="button" @click="agregar()"
-                                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 shrink-0">
-                                <i class="fas fa-plus mr-1"></i>Agregar
-                            </button>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Sobreprecio S/</label>
+                                <input type="number" x-model="nueva.sobreprecio" min="0" step="0.01" placeholder="0.00"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400">
+                            </div>
                         </div>
+                        <button type="button" @click="agregar()"
+                                class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors">
+                            <i class="fas fa-plus mr-1"></i>Agregar Variante
+                        </button>
                     </div>
                 </div>
 
@@ -453,6 +520,20 @@
     @include('inventario.productos.partials.modales-rapidos')
 
     <script>
+    // ─── Atributos para nombre auto-generado ──────────────────────────────────────
+    window.ATRIBUTOS_PARA_NOMBRE = @json(
+        ($atributosGrupos->flatten()->filter(fn($a) => $a->en_nombre_auto)->sortBy('orden_nombre')->map(fn($a) => [
+            'slug'   => $a->slug,
+            'nombre' => $a->nombre,
+            'unidad' => $a->unidad,
+        ])->values())
+    );
+    window.VALORES_MAP = @json(
+        \App\Models\Catalogo\CatalogoValor::whereHas('atributo', fn($q) => $q->where('en_nombre_auto', true))
+            ->get()
+            ->mapWithKeys(fn($v) => [$v->id => $v->etiqueta ?? $v->valor])
+    );
+
     // ─── Tipos de producto (desde BD, datos serializados) ────────────────────────
     const TIPOS_DATA = @json($tiposProducto->keyBy('id'));
     // Tipos que muestran ficha técnica (los que no son puro "accesorio/fuente sin specs")
@@ -712,23 +793,27 @@
     }
 
     // ─── Alpine: variantes ────────────────────────────────────────────────────
-    function variantesManager() {
+    function variantesManager(coloresCatalogo = []) {
         return {
             variantes: [],
-            init() {},
+            coloresCatalogo,
+            colorMap: Object.fromEntries(coloresCatalogo.map(c => [String(c.id), c])),
+            nueva: { nombre: '', color_id: '', especificacion: '', sobreprecio: 0 },
+
             agregar() {
-                const colorSel  = document.getElementById('varianteColor');
-                const specInput = document.getElementById('varianteSpec');
+                const color = this.colorMap[String(this.nueva.color_id)] || null;
                 this.variantes.push({
-                    color_id:     colorSel.value || null,
-                    color_nombre: colorSel.value ? colorSel.selectedOptions[0].dataset.nombre : 'Sin color',
-                    color_hex:    colorSel.value ? colorSel.selectedOptions[0].dataset.hex : null,
-                    especificacion: specInput.value.trim(),
+                    nombre:         this.nueva.nombre.trim(),
+                    color_id:       this.nueva.color_id || null,
+                    color_nombre:   color ? color.nombre : 'Sin color',
+                    color_hex:      color ? color.hex : null,
+                    especificacion: this.nueva.especificacion.trim(),
+                    sobreprecio:    parseFloat(this.nueva.sobreprecio) || 0,
                 });
-                colorSel.value = '';
-                specInput.value = '';
+                this.nueva = { nombre: '', color_id: '', especificacion: '', sobreprecio: 0 };
             },
-            eliminar(idx) { this.variantes.splice(idx, 1); }
+
+            eliminar(idx) { this.variantes.splice(idx, 1); },
         };
     }
     </script>

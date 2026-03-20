@@ -19,6 +19,7 @@ use App\Models\Luminaria\ProductoEspecificacion;
 use App\Models\Luminaria\ProductoDimension;
 use App\Models\Luminaria\ProductoMaterial;
 use App\Models\Luminaria\ProductoClasificacion;
+use App\Models\Ubicacion;
 use App\Services\CodigoBarrasService;
 use App\Services\VarianteService;
 use Illuminate\Http\Request;
@@ -99,6 +100,11 @@ class ProductoController extends Controller
             }
         }
 
+        // Filtro por estado de aprobación
+        if ($request->filled('estado_aprobacion')) {
+            $query->where('estado_aprobacion', $request->estado_aprobacion);
+        }
+
         $productos    = $query->orderBy('nombre')->paginate(15);
         $categorias   = Categoria::activas()->orderBy('nombre')->get();
         $tiposProducto = TipoProducto::activos()->orderBy('nombre')->get();
@@ -141,6 +147,10 @@ public function create()
     $tiposProducto   = TipoProducto::activos()->orderBy('nombre')->get();
     $tiposLuminaria  = TipoLuminaria::activos()->orderBy('nombre')->get();
     $clasificaciones = Clasificacion::activos()->orderBy('nombre')->get();
+    $ubicaciones     = Ubicacion::activas()->orderBy('nombre')->get();
+
+    // Atributos dinámicos agrupados para el configurador
+    $atributosGrupos = \App\Models\Catalogo\CatalogoAtributo::paraFormulario();
 
     return view('inventario.productos.create', compact(
         'categorias',
@@ -152,7 +162,9 @@ public function create()
         'tiposProyecto',
         'tiposProducto',
         'tiposLuminaria',
-        'clasificaciones'
+        'clasificaciones',
+        'ubicaciones',
+        'atributosGrupos'
     ));
 }
 
@@ -227,6 +239,13 @@ public function create()
         // Tipos de proyecto (multi-valor, pivot)
         'tipo_proyecto_ids'    => 'nullable|array',
         'tipo_proyecto_ids.*'  => 'exists:tipos_proyecto,id',
+        // Ubicaciones físicas con cantidad
+        'ubicaciones'          => 'nullable|array',
+        'ubicaciones.*.id'     => 'required|exists:ubicaciones,id',
+        'ubicaciones.*.cantidad' => 'required|integer|min:0',
+        'ubicaciones.*.observacion' => 'nullable|string|max:255',
+        // Driver controlado
+        'especificacion.driver' => 'nullable|in:incluido,no_incluido',
     ]);
 
     // Generar código automático si no existe
@@ -246,7 +265,9 @@ public function create()
     }
 
     \DB::transaction(function () use ($validated, $request) {
-        // Crear producto
+        // Crear producto — siempre inicia como borrador
+        $validated['estado_aprobacion'] = 'borrador';
+        $validated['creado_por'] = auth()->id();
         $producto = Producto::create($validated);
 
         // Sincronizar clasificaciones de uso (pivot)
@@ -255,6 +276,15 @@ public function create()
 
         // Guardar ficha técnica luminaria
         $this->guardarFichaTecnica($producto, $request);
+
+        // Sincronizar ubicaciones físicas (pivot con cantidad)
+        $this->sincronizarUbicaciones($producto, $request);
+
+        // Sincronizar atributos dinámicos del configurador
+        $atributosInput = $request->input('atributos', []);
+        if (!empty($atributosInput)) {
+            $producto->sincronizarAtributos($atributosInput);
+        }
 
         \Log::info('Producto creado:', [
             'id' => $producto->id,
@@ -292,17 +322,20 @@ public function create()
         // Crear variantes iniciales si las hay
         $variantesData = array_filter(
             (array)$request->input('variantes_iniciales', []),
-            fn($v) => !empty($v['color_id']) || !empty($v['capacidad'])
+            fn($v) => !empty($v['color_id']) || !empty($v['capacidad']) || !empty($v['nombre'])
         );
         if (!empty($variantesData)) {
             $varianteService = app(VarianteService::class);
             foreach ($variantesData as $vData) {
-                $varianteService->obtenerOCrearVariante(
+                $variante = $varianteService->obtenerOCrearVariante(
                     $producto,
                     !empty($vData['color_id']) ? (int)$vData['color_id'] : null,
                     !empty($vData['capacidad']) ? $vData['capacidad'] : null,
-                    0
+                    !empty($vData['sobreprecio']) ? (float)$vData['sobreprecio'] : 0
                 );
+                if (!empty($vData['nombre'])) {
+                    $variante->update(['nombre' => $vData['nombre']]);
+                }
             }
         }
     });
@@ -333,7 +366,9 @@ public function create()
             'marca', 'modelo', 'color', 'categoria', 'unidadMedida',
             'tipoProducto', 'tipoLuminaria',
             'especificacion', 'dimensiones', 'materiales', 'clasificacion',
-            'clasificaciones', 'tiposProyecto',
+            'clasificaciones', 'tiposProyecto', 'ubicaciones',
+            'variantes.color',
+            'atributos.atributo', 'atributos.valor',
         ]);
         
         // Obtener datos para los selects
@@ -360,6 +395,11 @@ public function create()
         $tiposProducto   = TipoProducto::activos()->orderBy('nombre')->get();
         $tiposLuminaria  = TipoLuminaria::activos()->orderBy('nombre')->get();
         $clasificaciones = Clasificacion::activos()->orderBy('nombre')->get();
+        $ubicaciones     = Ubicacion::activas()->orderBy('nombre')->get();
+
+        // Atributos dinámicos agrupados + valores actuales del producto
+        $atributosGrupos    = \App\Models\Catalogo\CatalogoAtributo::paraFormulario();
+        $atributosActuales  = $producto->atributos_para_formulario;
 
         return view('inventario.productos.edit', compact(
             'producto',
@@ -372,7 +412,10 @@ public function create()
             'tiposProyecto',
             'tiposProducto',
             'tiposLuminaria',
-            'clasificaciones'
+            'clasificaciones',
+            'ubicaciones',
+            'atributosGrupos',
+            'atributosActuales'
         ));
     }
 
@@ -439,6 +482,13 @@ public function create()
         // Clasificaciones de uso (array de IDs)
         'clasificacion_ids'   => 'nullable|array',
         'clasificacion_ids.*' => 'exists:clasificaciones,id',
+        // Ubicaciones físicas con cantidad
+        'ubicaciones'           => 'nullable|array',
+        'ubicaciones.*.id'      => 'required|exists:ubicaciones,id',
+        'ubicaciones.*.cantidad' => 'required|integer|min:0',
+        'ubicaciones.*.observacion' => 'nullable|string|max:255',
+        // Driver controlado
+        'especificacion.driver' => 'nullable|in:incluido,no_incluido',
     ]);
 
     // Subir nueva imagen si existe
@@ -458,6 +508,13 @@ public function create()
 
     // Guardar ficha técnica luminaria
     $this->guardarFichaTecnica($producto, $request);
+
+    // Sincronizar ubicaciones físicas
+    $this->sincronizarUbicaciones($producto, $request);
+
+    // Sincronizar atributos dinámicos del configurador
+    $atributosInput = $request->input('atributos', []);
+    $producto->sincronizarAtributos($atributosInput);
 
     // Actualizar código de barras principal si cambió
     if ($producto->wasChanged('codigo_barras')) {
@@ -528,6 +585,29 @@ public function create()
         // Sincronizar tipos de proyecto (pivot multi-valor)
         $tiposProyectoIds = array_filter((array) $request->input('tipo_proyecto_ids', []));
         $producto->tiposProyecto()->sync($tiposProyectoIds);
+    }
+
+    /**
+     * Sincronizar ubicaciones físicas del producto (pivot producto_ubicaciones)
+     */
+    private function sincronizarUbicaciones(Producto $producto, Request $request): void
+    {
+        $ubicacionesInput = $request->input('ubicaciones', []);
+        if (empty($ubicacionesInput)) {
+            return;
+        }
+
+        $sync = [];
+        foreach ($ubicacionesInput as $ub) {
+            if (!empty($ub['id']) && isset($ub['cantidad'])) {
+                $sync[$ub['id']] = [
+                    'cantidad'    => (int) $ub['cantidad'],
+                    'observacion' => $ub['observacion'] ?? null,
+                ];
+            }
+        }
+
+        $producto->ubicaciones()->sync($sync);
     }
 
     /**
@@ -812,10 +892,12 @@ public function variantes(Producto $producto)
 public function storeVariante(Request $request, Producto $producto, VarianteService $varianteService)
 {
     $validated = $request->validate([
-        'color_id'     => 'nullable|exists:colores,id',
-        'capacidad'    => 'nullable|string|max:50',
-        'sobreprecio'  => 'nullable|numeric|min:0',
-        'stock_inicial'=> 'nullable|integer|min:0',
+        'nombre'        => 'nullable|string|max:100',
+        'color_id'      => 'nullable|exists:colores,id',
+        'capacidad'     => 'nullable|string|max:50',
+        'sobreprecio'   => 'nullable|numeric|min:0',
+        'stock_inicial' => 'nullable|integer|min:0',
+        'atributos'     => 'nullable|array',
     ]);
 
     try {
@@ -825,6 +907,12 @@ public function storeVariante(Request $request, Producto $producto, VarianteServ
             $validated['capacidad'] ?? null,
             (float)($validated['sobreprecio'] ?? 0)
         );
+
+        // Actualizar campos adicionales
+        $variante->update(array_filter([
+            'nombre'    => $validated['nombre'] ?? null,
+            'atributos' => $validated['atributos'] ?? null,
+        ], fn($v) => !is_null($v)));
 
         if (!empty($validated['stock_inicial']) && $validated['stock_inicial'] > 0) {
             $variante->incrementarStock($validated['stock_inicial']);
@@ -837,6 +925,31 @@ public function storeVariante(Request $request, Producto $producto, VarianteServ
     } catch (\Exception $e) {
         return back()->withInput()->with('error', $e->getMessage());
     }
+}
+
+/**
+ * PUT /inventario/productos/variantes/{variante}
+ * Actualizar variante (inline desde edit producto)
+ */
+public function updateVariante(Request $request, \App\Models\ProductoVariante $variante)
+{
+    $validated = $request->validate([
+        'nombre'        => 'nullable|string|max:100',
+        'color_id'      => 'nullable|exists:colores,id',
+        'especificacion'=> 'nullable|string|max:50',
+        'sobreprecio'   => 'nullable|numeric|min:0',
+        'stock_minimo'  => 'nullable|integer|min:0',
+        'atributos'     => 'nullable|array',
+        'estado'        => 'nullable|in:activo,inactivo',
+    ]);
+
+    $variante->update($validated);
+
+    if ($request->wantsJson()) {
+        return response()->json(['success' => true, 'variante' => $variante->fresh()]);
+    }
+
+    return back()->with('success', 'Variante actualizada');
 }
 
 /**
@@ -855,6 +968,64 @@ public function destroyVariante(ProductoVariante $variante, VarianteService $var
     } catch (\Exception $e) {
         return back()->with('error', $e->getMessage());
     }
+}
+
+/**
+ * POST /inventario/productos/{producto}/aprobar
+ * Aprobar producto (requiere permiso aprobar_producto)
+ */
+public function approve(Producto $producto)
+{
+    $this->authorize('aprobar_producto');
+
+    $producto->update([
+        'estado_aprobacion' => 'aprobado',
+        'aprobado_por'      => auth()->id(),
+        'aprobado_en'       => now(),
+        'motivo_rechazo'    => null,
+    ]);
+
+    return back()->with('success', "Producto «{$producto->nombre}» aprobado.");
+}
+
+/**
+ * POST /inventario/productos/{producto}/rechazar
+ * Rechazar producto con motivo (requiere permiso aprobar_producto)
+ */
+public function reject(Request $request, Producto $producto)
+{
+    $this->authorize('aprobar_producto');
+
+    $request->validate([
+        'motivo_rechazo' => 'required|string|max:500',
+    ]);
+
+    $producto->update([
+        'estado_aprobacion' => 'rechazado',
+        'aprobado_por'      => auth()->id(),
+        'aprobado_en'       => now(),
+        'motivo_rechazo'    => $request->motivo_rechazo,
+    ]);
+
+    return back()->with('success', "Producto «{$producto->nombre}» rechazado.");
+}
+
+/**
+ * POST /inventario/productos/{producto}/enviar-aprobacion
+ * El almacenero envía el producto a revisión
+ */
+public function submitForApproval(Producto $producto)
+{
+    if ($producto->estado_aprobacion !== 'borrador' && $producto->estado_aprobacion !== 'rechazado') {
+        return back()->with('error', 'El producto ya fue enviado o está aprobado.');
+    }
+
+    $producto->update([
+        'estado_aprobacion' => 'pendiente_aprobacion',
+        'motivo_rechazo'    => null,
+    ]);
+
+    return back()->with('success', 'Producto enviado a revisión.');
 }
 
 /**

@@ -6,7 +6,9 @@
     <title>{{ $producto->nombre }} - CORPORACIÓN ADIVON SAC</title>
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>[x-cloak]{display:none!important}</style>
 </head>
 <body class="bg-gray-50">
     <x-sidebar :role="auth()->user()->role->nombre" />
@@ -19,23 +21,87 @@
                     <h1 class="text-2xl font-bold text-gray-900">Detalle del Producto</h1>
                     <p class="text-sm text-gray-600 mt-1">Información completa de {{ $producto->nombre }}</p>
                 </div>
-                <div class="flex space-x-2">
-                    <a href="{{ route('inventario.productos.index') }}" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ route('inventario.productos.index') }}" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm">
                         <i class="fas fa-arrow-left mr-2"></i>Volver
                     </a>
-                    @if(in_array(auth()->user()->role->nombre, ['Administrador', 'Almacenero']))
-                        <a href="{{ route('inventario.productos.edit', $producto) }}" class="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800">
+                    @can('editar_producto')
+                        <a href="{{ route('inventario.productos.edit', $producto) }}" class="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm">
                             <i class="fas fa-edit mr-2"></i>Editar
                         </a>
+                    @endcan
+
+                    {{-- Enviar a revisión (Almacenero/creador) --}}
+                    @if(in_array($producto->estado_aprobacion, ['borrador', 'rechazado']))
+                        <form method="POST" action="{{ route('inventario.productos.enviar-aprobacion', $producto) }}">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm">
+                                <i class="fas fa-paper-plane mr-2"></i>Enviar a Revisión
+                            </button>
+                        </form>
                     @endif
+
+                    {{-- Aprobar (Admin con permiso) --}}
+                    @can('aprobar_producto')
+                        @if($producto->estado_aprobacion === 'pendiente_aprobacion')
+                            <form method="POST" action="{{ route('inventario.productos.aprobar', $producto) }}">
+                                @csrf
+                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                                    <i class="fas fa-check mr-2"></i>Aprobar
+                                </button>
+                            </form>
+
+                            {{-- Rechazar con modal --}}
+                            <div x-data="{ abierto: false }">
+                                <button type="button" @click="abierto = true"
+                                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
+                                    <i class="fas fa-times mr-2"></i>Rechazar
+                                </button>
+                                <div x-show="abierto" x-cloak
+                                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" @click.stop>
+                                        <h3 class="text-base font-bold text-gray-900 mb-3">
+                                            <i class="fas fa-times-circle text-red-500 mr-2"></i>Rechazar Producto
+                                        </h3>
+                                        <form method="POST" action="{{ route('inventario.productos.rechazar', $producto) }}">
+                                            @csrf
+                                            <div class="mb-4">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Motivo de rechazo</label>
+                                                <textarea name="motivo_rechazo" rows="3" required
+                                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-400"
+                                                          placeholder="Explica por qué se rechaza el producto..."></textarea>
+                                            </div>
+                                            <div class="flex gap-3 justify-end">
+                                                <button type="button" @click="abierto = false"
+                                                        class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200">
+                                                    Cancelar
+                                                </button>
+                                                <button type="submit"
+                                                        class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
+                                                    Confirmar Rechazo
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @endcan
                 </div>
             </div>
         </div>
 
         <!-- Mensajes -->
         @if(session('success'))
-            <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg">
-                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+            <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg flex items-center gap-3">
+                <i class="fas fa-check-circle text-xl"></i>
+                <p>{{ session('success') }}</p>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex items-center gap-3">
+                <i class="fas fa-exclamation-circle text-xl"></i>
+                <p>{{ session('error') }}</p>
             </div>
         @endif
 
@@ -93,6 +159,31 @@
                                     @endif
                                 </span>
                             </div>
+
+                            {{-- Estado de Aprobación --}}
+                            @if($producto->estado_aprobacion)
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-500">Aprobación:</span>
+                                @php
+                                    $aprobBadge = match($producto->estado_aprobacion) {
+                                        'aprobado'             => ['bg-green-100 text-green-800', 'fa-check-circle'],
+                                        'pendiente_aprobacion' => ['bg-yellow-100 text-yellow-800', 'fa-clock'],
+                                        'rechazado'            => ['bg-red-100 text-red-800', 'fa-times-circle'],
+                                        default                => ['bg-gray-100 text-gray-600', 'fa-pencil-alt'],
+                                    };
+                                @endphp
+                                <span class="px-2 py-1 rounded-full text-xs {{ $aprobBadge[0] }}">
+                                    <i class="fas {{ $aprobBadge[1] }} mr-1"></i>
+                                    {{ \App\Models\Producto::ESTADOS_APROBACION[$producto->estado_aprobacion] ?? $producto->estado_aprobacion }}
+                                </span>
+                            </div>
+                            @if($producto->estado_aprobacion === 'rechazado' && $producto->motivo_rechazo)
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-700">
+                                <i class="fas fa-comment-alt mr-1"></i>
+                                <strong>Motivo:</strong> {{ $producto->motivo_rechazo }}
+                            </div>
+                            @endif
+                            @endif
                             
                             <div class="pt-3 border-t">
                                 <span class="text-sm font-medium text-gray-500 block mb-2">Descripción:</span>

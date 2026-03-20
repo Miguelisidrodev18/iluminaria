@@ -86,6 +86,21 @@ class User extends Authenticatable
     {
         return $this->role && in_array($this->role->nombre, $roles);
     }
+
+    /**
+     * Verifica si el usuario tiene un permiso específico a través de su rol.
+     */
+    public function puedeHacer(string $permiso): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+        // Cargar permisos del rol si no están cargados
+        if (!$this->role->relationLoaded('permisos')) {
+            $this->role->load('permisos');
+        }
+        return $this->role->tienePermiso($permiso);
+    }
      // Scope para filtrar usuarios por almacén
     public function scopeEnAlmacen($query, $almacenId)
     {

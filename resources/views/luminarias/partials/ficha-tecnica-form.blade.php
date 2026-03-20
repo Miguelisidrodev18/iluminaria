@@ -97,10 +97,18 @@
 
         <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Driver</label>
-            <input type="text" name="especificacion[driver]"
-                   value="{{ old('especificacion.driver', $esp->driver ?? '') }}"
-                   placeholder="Ej: Integrado, Externo Meanwell"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+            <select name="especificacion[driver]"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                <option value="">— Sin especificar —</option>
+                <option value="incluido"
+                    {{ old('especificacion.driver', $esp->driver ?? '') === 'incluido' ? 'selected' : '' }}>
+                    Incluido
+                </option>
+                <option value="no_incluido"
+                    {{ old('especificacion.driver', $esp->driver ?? '') === 'no_incluido' ? 'selected' : '' }}>
+                    No incluido
+                </option>
+            </select>
         </div>
 
         <div>
@@ -244,6 +252,14 @@
                    placeholder="Ej: Negro mate"
                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-400">
         </div>
+
+        <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Acabado / Color 3</label>
+            <input type="text" name="materiales[color_acabado_3]"
+                   value="{{ old('materiales.color_acabado_3', $mat->color_acabado_3 ?? '') }}"
+                   placeholder="Ej: Gris perla"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-400">
+        </div>
     </div>
 </div>
 
@@ -344,7 +360,7 @@
             </div>
 
             {{-- Tags seleccionados + input custom --}}
-            <div class="flex flex-wrap gap-1 min-h-[40px] border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-purple-400 cursor-text"
+            <div class="flex flex-wrap gap-1 min-h-10 border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-purple-400 cursor-text"
                  @click="$refs.tagInput.focus()">
                 <template x-for="(tag, i) in tags" :key="i">
                     <span class="inline-flex items-center gap-1 bg-purple-100 text-purple-800 text-xs rounded-full px-2 py-0.5">
@@ -358,7 +374,7 @@
                        placeholder="Escribir y Enter para agregar..."
                        @keydown.enter.prevent="addFromInput($event.target)"
                        @keydown.backspace="backspace($event)"
-                       class="flex-1 min-w-[140px] text-sm border-none outline-none bg-transparent py-0.5">
+                       class="flex-1 min-w-35 text-sm border-none outline-none bg-transparent py-0.5">
             </div>
             <p class="text-xs text-gray-400 mt-1">Selecciona de las sugerencias o escribe un estilo personalizado y presiona Enter</p>
         </div>

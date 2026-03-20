@@ -28,9 +28,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             CatalogoSeeder::class,
+            CatalogoLuminariasSeeder::class,   // Marcas y colores reales de luminarias
             AdminUserSeeder::class,
             TipoProyectoSeeder::class,
             EspacioProyectoSeeder::class,
+            AtributosLuminariasSeeder::class,  // Sistema dinámico de atributos
         ]);
 
         // --- Datos de prueba (solo entornos no productivos) ---

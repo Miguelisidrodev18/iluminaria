@@ -16,6 +16,7 @@ class ProductoMaterial extends Model
         'material_terciario',
         'color_acabado_1',
         'color_acabado_2',
+        'color_acabado_3',
     ];
 
     public function producto()

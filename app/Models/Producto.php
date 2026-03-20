@@ -38,6 +38,14 @@ class Producto extends Model
         'estado', 'imagen', 'ficha_tecnica_url', 'observaciones',
         'procedencia', 'linea',
         'creado_por', 'modificado_por', 'codigo_barras',
+        'estado_aprobacion', 'aprobado_por', 'aprobado_en', 'motivo_rechazo',
+    ];
+
+    const ESTADOS_APROBACION = [
+        'borrador'             => 'Borrador',
+        'pendiente_aprobacion' => 'Pendiente',
+        'aprobado'             => 'Aprobado',
+        'rechazado'            => 'Rechazado',
     ];
 
     /**
@@ -57,6 +65,7 @@ class Producto extends Model
         'fecha_ultima_compra' => 'date',
         'ultimo_costo_compra' => 'decimal:2',
         'costo_promedio'      => 'decimal:2',
+        'aprobado_en'         => 'datetime',
     ];
 
     /**
@@ -414,5 +423,100 @@ class Producto extends Model
             'producto_id',
             'clasificacion_id'
         )->withTimestamps();
+    }
+
+    /**
+     * Ubicaciones físicas donde se almacena este producto con cantidad por ubicación
+     */
+    public function ubicaciones()
+    {
+        return $this->belongsToMany(
+            \App\Models\Ubicacion::class,
+            'producto_ubicaciones'
+        )->withPivot('cantidad', 'observacion')->withTimestamps();
+    }
+
+    // ── Atributos dinámicos ───────────────────────────────────────────────────
+
+    /**
+     * Todos los atributos asignados a este producto.
+     */
+    public function atributos()
+    {
+        return $this->hasMany(\App\Models\ProductoAtributo::class, 'producto_id')
+                    ->with(['atributo', 'valor']);
+    }
+
+    /**
+     * Retorna los atributos del producto como array estructurado.
+     * Útil para pasar a JS como JSON.
+     * Formato: { atributo_slug => valor_id|[valor_ids]|valor_texto }
+     */
+    public function getAtributosParaFormularioAttribute(): array
+    {
+        $result = [];
+        $agrupados = $this->atributos->groupBy('atributo_id');
+
+        foreach ($agrupados as $atributoId => $filas) {
+            $atributo = $filas->first()->atributo;
+            if (!$atributo) continue;
+
+            if ($atributo->tipo === 'multiselect') {
+                // Devuelve array de valor_ids
+                $result[$atributo->slug] = $filas->pluck('valor_id')->filter()->values()->toArray();
+            } elseif ($atributo->tipo === 'number' || $atributo->tipo === 'text') {
+                $result[$atributo->slug] = $filas->first()->valor_texto;
+            } else {
+                // select, checkbox
+                $result[$atributo->slug] = $filas->first()->valor_id;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Sincroniza los atributos dinámicos del producto.
+     * Recibe array con clave = slug del atributo, valor = id/ids/texto.
+     */
+    public function sincronizarAtributos(array $atributosInput): void
+    {
+        // Borrar atributos existentes y re-insertar
+        $this->atributos()->delete();
+
+        $atributosMap = \App\Models\Catalogo\CatalogoAtributo::activos()
+            ->get()
+            ->keyBy('slug');
+
+        foreach ($atributosInput as $slug => $valor) {
+            $atributo = $atributosMap->get($slug);
+            if (!$atributo || is_null($valor) || $valor === '') continue;
+
+            if ($atributo->tipo === 'multiselect') {
+                $ids = is_array($valor) ? $valor : [$valor];
+                foreach ($ids as $valorId) {
+                    if (!empty($valorId)) {
+                        \App\Models\ProductoAtributo::create([
+                            'producto_id' => $this->id,
+                            'atributo_id' => $atributo->id,
+                            'valor_id'    => $valorId,
+                        ]);
+                    }
+                }
+            } elseif (in_array($atributo->tipo, ['number', 'text', 'checkbox'])) {
+                \App\Models\ProductoAtributo::create([
+                    'producto_id'  => $this->id,
+                    'atributo_id'  => $atributo->id,
+                    'valor_texto'  => (string) $valor,
+                ]);
+            } else {
+                // select
+                \App\Models\ProductoAtributo::create([
+                    'producto_id' => $this->id,
+                    'atributo_id' => $atributo->id,
+                    'valor_id'    => $valor,
+                ]);
+            }
+        }
     }
 }

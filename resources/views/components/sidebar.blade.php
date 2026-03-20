@@ -124,12 +124,14 @@
                                     <i class="fas fa-file-contract mr-3 text-sm"></i>Cotizaciones
                                 </a>
                             </li>
+                            @can('editar_precios')
                             <li>
                                 <a href="{{ route('precios.index') }}"
                                     class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('precios.*') ? 'bg-[#484E4A]' : '' }}">
                                     <i class="fas fa-tags mr-3 text-sm"></i>Gestión de Precios
                                 </a>
                             </li>
+                            @endcan
                         </ul>
                     </li>
                       {{-- Compras --}}
@@ -304,12 +306,14 @@
                                     <i class="fas fa-palette mr-3 text-sm"></i>Colores
                                 </a>
                             </li>
+                            @can('gestionar_marcas')
                             <li>
                                 <a href="{{ route('catalogo.marcas.index') }}"
                                     class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('catalogo.marcas.*') ? 'bg-[#484E4A]' : '' }}">
                                     <i class="fas fa-trademark mr-3 text-sm"></i>Marcas
                                 </a>
                             </li>
+                            @endcan
                             <li>
                                 <a href="{{ route('catalogo.modelos.index') }}"
                                     class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('catalogo.modelos.*') ? 'bg-[#484E4A]' : '' }}">
@@ -370,10 +374,30 @@
                     </li>
 
                     {{-- Usuarios --}}
+                    @can('gestionar_usuarios')
                     <li>
                         <a href="{{ route('users.index') }}"
                             class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('users.*') ? 'bg-[#3A3E3B]' : '' }}">
                             <i class="fas fa-users mr-3"></i>Usuarios
+                        </a>
+                    </li>
+                    @endcan
+
+                    {{-- Aprobación de Productos --}}
+                    @can('aprobar_producto')
+                    <li>
+                        <a href="{{ route('inventario.productos.index', ['estado_aprobacion' => 'pendiente_aprobacion']) }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors">
+                            <i class="fas fa-check-circle mr-3 text-yellow-400"></i>Aprobar Productos
+                        </a>
+                    </li>
+                    @endcan
+
+                    {{-- Atributos del Catálogo --}}
+                    <li>
+                        <a href="{{ route('admin.atributos.index') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('admin.atributos.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-sliders-h mr-3 text-yellow-400"></i>Atributos Catálogo
                         </a>
                     </li>
 

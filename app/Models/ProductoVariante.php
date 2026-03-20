@@ -14,6 +14,8 @@ class ProductoVariante extends Model
 
     protected $fillable = [
         'producto_id',
+        'nombre',
+        'atributos',
         'color_id',
         'especificacion',   // Antes "capacidad" — ahora genérico: potencia, versión, etc.
         'sku',
@@ -30,6 +32,7 @@ class ProductoVariante extends Model
         'stock_minimo'  => 'integer',
         'sobreprecio'   => 'decimal:2',
         'estado'        => 'string',
+        'atributos'     => 'array',
     ];
 
     // ─── Relaciones ───────────────────────────────────────────────────────────

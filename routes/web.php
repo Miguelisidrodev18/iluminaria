@@ -17,6 +17,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\EmpresaController;
 use App\Http\Controllers\Admin\SucursalController;
 use App\Http\Controllers\Admin\AdminCajaController;
+use App\Http\Controllers\Admin\AtributoController;
 
 // ===================== LUMINARIAS =====================
 use App\Http\Controllers\Luminaria\TipoProyectoController;
@@ -117,11 +118,34 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | SEGURIDAD — Verificación de contraseña (AJAX, usado por modal)
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/auth/verify-password', function (\Illuminate\Http\Request $request) {
+        $request->validate(['password' => 'required|string']);
+        $valid = \Illuminate\Support\Facades\Hash::check(
+            $request->password,
+            auth()->user()->password
+        );
+        return response()->json(['valid' => $valid]);
+    })->name('auth.verify-password');
+
+    /*
+    |--------------------------------------------------------------------------
     | DASHBOARDS POR ROL
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:Administrador')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+
+        // ── Atributos del catálogo dinámico ────────────────────────────────────
+        Route::get('/atributos', [AtributoController::class, 'index'])->name('atributos.index');
+        Route::get('/atributos/create', [AtributoController::class, 'create'])->name('atributos.create');
+        Route::post('/atributos', [AtributoController::class, 'store'])->name('atributos.store');
+        Route::get('/atributos/{atributo}/edit', [AtributoController::class, 'edit'])->name('atributos.edit');
+        Route::put('/atributos/{atributo}', [AtributoController::class, 'update'])->name('atributos.update');
+        Route::delete('/atributos/{atributo}', [AtributoController::class, 'destroy'])->name('atributos.destroy');
+        Route::post('/atributos/{atributo}/valores', [AtributoController::class, 'storeValor'])->name('atributos.valores.store');
     });
 
     Route::middleware('role:Vendedor')->prefix('vendedor')->name('vendedor.')->group(function () {
@@ -215,8 +239,14 @@ Route::middleware('auth')->group(function () {
         Route::middleware('role:Administrador,Almacenero')->group(function () {
             Route::get('/productos/{producto}/variantes', [ProductoController::class, 'variantes'])->name('productos.variantes');
             Route::post('/productos/{producto}/variantes', [ProductoController::class, 'storeVariante'])->name('productos.variantes.store');
+            Route::put('/productos/variantes/{variante}', [ProductoController::class, 'updateVariante'])->name('productos.variantes.update');
             Route::delete('/productos/variantes/{variante}', [ProductoController::class, 'destroyVariante'])->name('productos.variantes.destroy');
         });
+
+        // FLUJO DE APROBACIÓN
+        Route::post('/productos/{producto}/aprobar', [ProductoController::class, 'approve'])->name('productos.aprobar');
+        Route::post('/productos/{producto}/rechazar', [ProductoController::class, 'reject'])->name('productos.rechazar');
+        Route::post('/productos/{producto}/enviar-aprobacion', [ProductoController::class, 'submitForApproval'])->name('productos.enviar-aprobacion');
 
         // REPORTES DE INVENTARIO (HU-INVENTARIO-06/07/08)
         Route::middleware('role:Administrador')->group(function () {
