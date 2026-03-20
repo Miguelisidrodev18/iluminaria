@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Nuevo Producto - CORPORACIÓN ADIVON SAC</title>
+    <title>Nuevo Producto — Configurador</title>
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -14,749 +14,723 @@
     <x-sidebar :role="auth()->user()->role->nombre" />
 
     <div class="md:ml-64 p-4 md:p-8">
-        <x-header title="Nuevo Producto" subtitle="Registra un nuevo producto en el inventario" />
+        <x-header title="Configurador de Producto" subtitle="Crea un nuevo producto guiado por tipo" />
 
         <div class="max-w-5xl mx-auto">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="px-6 py-4" style="background-color:#2B2E2C;">
-                    <h2 class="text-xl font-bold text-white">
-                        <i class="fas fa-lightbulb mr-2" style="color:#F7D600;"></i>
-                        Información del Producto
-                    </h2>
+
+            @if ($errors->any())
+                <div class="mb-6 bg-red-50 border border-red-300 rounded-lg p-4">
+                    <p class="text-sm font-semibold text-red-700 mb-2">
+                        <i class="fas fa-exclamation-circle mr-1"></i>Corrige los siguientes errores:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li class="text-sm text-red-600">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('inventario.productos.store') }}" method="POST" enctype="multipart/form-data" id="formProducto">
+                @csrf
+                <input type="hidden" name="tipo_inventario" value="cantidad">
+
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 1 — TIPO DE PRODUCTO (desde BD, relacional)
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-4 flex items-center gap-3" style="background-color:#2B2E2C;">
+                        <i class="fas fa-sliders-h text-xl" style="color:#F7D600;"></i>
+                        <div>
+                            <h2 class="text-base font-bold text-white">1 — Tipo de Producto</h2>
+                            <p class="text-xs text-gray-300">Selecciona el tipo — controla los campos visibles y el código Kyrios</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        {{-- Tarjetas de tipo de producto desde BD --}}
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="selectorTipoProducto">
+                            @foreach($tiposProducto as $tp)
+                            @php
+                                $iconos = ['LU'=>'fas fa-lightbulb','LA'=>'fas fa-fire','CL'=>'fas fa-grip-lines','SM'=>'fas fa-cubes','AC'=>'fas fa-tools','EA'=>'fas fa-plug','PE'=>'fas fa-bars','PA'=>'fas fa-tv','VE'=>'fas fa-fan','CA'=>'fas fa-dot-circle','PO'=>'fas fa-map-pin','LE'=>'fas fa-exclamation-triangle','SO'=>'fas fa-sun','RE'=>'fas fa-battery-half'];
+                                $icono  = $iconos[$tp->codigo] ?? 'fas fa-box';
+                                $selTP  = old('tipo_producto_id') == $tp->id;
+                            @endphp
+                            <label class="tipo-card flex flex-col items-center gap-2 p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md
+                                          {{ $selTP ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white' }}"
+                                   data-id="{{ $tp->id }}"
+                                   data-codigo="{{ $tp->codigo }}"
+                                   data-usa-luminaria="{{ $tp->usa_tipo_luminaria ? '1' : '0' }}">
+                                <input type="radio" name="tipo_producto_id" value="{{ $tp->id }}"
+                                       class="sr-only" {{ $selTP ? 'checked' : '' }}>
+                                <i class="{{ $icono }} text-2xl text-gray-600"></i>
+                                <span class="text-sm font-semibold text-gray-800">{{ $tp->nombre }}</span>
+                                <span class="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{{ $tp->codigo }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+
+                        {{-- Tipo Luminaria (condicional — aparece si usa_tipo_luminaria = true) --}}
+                        <div id="bloqueTipoLuminaria" class="{{ old('tipo_producto_id') && $tiposProducto->find(old('tipo_producto_id'))?->usa_tipo_luminaria ? '' : 'hidden' }} mt-5">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-th-large mr-1 text-yellow-500"></i>
+                                Tipo de Luminaria <span class="text-red-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-2" id="selectorTipoLuminaria">
+                                @foreach($tiposLuminaria as $tl)
+                                <label class="tipo-lum-card flex flex-col items-center gap-1 py-3 px-2 border-2 rounded-xl cursor-pointer transition-all hover:border-yellow-400
+                                              {{ old('tipo_luminaria_id') == $tl->id ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white' }}"
+                                       data-id="{{ $tl->id }}"
+                                       data-codigo="{{ $tl->codigo }}">
+                                    <input type="radio" name="tipo_luminaria_id" value="{{ $tl->id }}"
+                                           class="sr-only" {{ old('tipo_luminaria_id') == $tl->id ? 'checked' : '' }}>
+                                    <span class="text-xs font-semibold text-gray-800 text-center">{{ $tl->nombre }}</span>
+                                    <span class="text-xs font-mono text-gray-400 bg-gray-100 px-2 rounded">{{ $tl->codigo }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                            @error('tipo_luminaria_id')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        @error('tipo_producto_id')
+                            <p class="mt-2 text-sm text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
-                <form action="{{ route('inventario.productos.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
-                    @csrf
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 2 — IDENTIFICACIÓN Y CÓDIGO KYRIOS
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">2</span>
+                        <h2 class="font-semibold text-gray-800">Identificación</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                    @if ($errors->any())
-                        <div class="mb-6 bg-red-50 border border-red-300 rounded-lg p-4">
-                            <p class="text-sm font-semibold text-red-700 mb-2">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                Por favor corrige los siguientes errores:
-                            </p>
-                            <ul class="list-disc list-inside space-y-1">
-                                @foreach ($errors->all() as $error)
-                                    <li class="text-sm text-red-600">{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <input type="hidden" name="tipo_inventario" value="cantidad">
-
-                    <!-- SECCIÓN 2: INFORMACIÓN BÁSICA (CON SELECTORES EN CADENA) -->
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                            <i class="fas fa-info-circle mr-2 text-blue-900"></i>
-                            Información Básica
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Nombre -->
-                                                    
-                           <!-- Nombre del Producto (sugerido automáticamente) -->
+                        {{-- Código Kyrios auto-generado --}}
                         <div class="md:col-span-2">
-                            <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
-                                Nombre del Producto <span class="text-red-500">*</span>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Código Kyrios
+                                <span class="ml-1 text-xs text-gray-400">— generado por tipo + marca</span>
                             </label>
-                            <div class="flex space-x-2">
-                                <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Se generará automáticamente"
-                                    required>
-                                <button type="button" 
-                                        id="btnSugerirNombre"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap">
-                                    <i class="fas fa-magic mr-2"></i>Sugerir
+                            <div class="flex gap-2 items-center">
+                                <input type="text" name="codigo_kyrios" id="codigo_kyrios"
+                                       value="{{ old('codigo_kyrios') }}"
+                                       placeholder="Selecciona tipo de producto y marca primero"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400 font-mono bg-gray-50"
+                                       readonly>
+                                <button type="button" id="btnGenerarKyrios"
+                                        class="px-4 py-2 text-gray-900 rounded-lg font-semibold text-sm transition shrink-0"
+                                        style="background-color:#F7D600;"
+                                        onmouseover="this.style.backgroundColor='#e8c900'"
+                                        onmouseout="this.style.backgroundColor='#F7D600'">
+                                    <i class="fas fa-magic mr-1"></i>Generar
+                                </button>
+                                <button type="button" id="btnEditarKyrios"
+                                        title="Editar manualmente"
+                                        class="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition shrink-0">
+                                    <i class="fas fa-pencil-alt text-sm"></i>
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                Puedes editar el nombre o hacer clic en "Sugerir" para generarlo automáticamente
+                            <p class="text-xs text-gray-400 mt-1">
+                                Formato: <span class="font-mono">KY-[TP][TL][M]-[NNNN]</span>
+                                &nbsp;|&nbsp; Ej: <span class="font-mono text-gray-600">KY-LUDLPH-0001</span>
                             </p>
                         </div>
 
-                            <!-- 🔴 CATEGORÍA (ahora filtra marcas) -->
-                            <div>
-                                <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Categoría <span class="text-red-500">*</span>
-                                </label>
-                                <select name="categoria_id" id="categoria_id" 
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        required>
-                                    <option value="">Seleccione una categoría</option>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id }}" 
-                                                data-marcas="{{ $categoria->marcas->pluck('id')->join(',') }}"
-                                                {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
-                                            {{ $categoria->nombre }}
+                        {{-- Código Fábrica --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Código Fábrica</label>
+                            <input type="text" name="codigo_fabrica" value="{{ old('codigo_fabrica') }}"
+                                   placeholder="Código del fabricante"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        {{-- Código de Barras --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Código de Barras</label>
+                            <div class="flex gap-2">
+                                <input type="text" name="codigo_barras" id="codigo_barras"
+                                       value="{{ old('codigo_barras') }}"
+                                       placeholder="Dejar vacío para auto-generar"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400">
+                                <button type="button" id="btnGenerarCodigo"
+                                        class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 shrink-0">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Categoría --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Categoría <span class="text-red-500">*</span>
+                            </label>
+                            <select name="categoria_id" id="categoria_id"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
+                                <option value="">Seleccione una categoría</option>
+                                @foreach($categorias as $cat)
+                                    <option value="{{ $cat->id }}" {{ old('categoria_id') == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('categoria_id')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Marca --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+                            <div class="flex gap-2">
+                                <select name="marca_id" id="marca_id"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Seleccione categoría primero</option>
+                                </select>
+                                <button type="button" onclick="abrirModalMarca()"
+                                        class="px-3 py-2 bg-blue-100 text-blue-800 border border-blue-300 rounded-lg hover:bg-blue-200 transition shrink-0">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Modelo --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
+                            <div class="flex gap-2">
+                                <select name="modelo_id" id="modelo_id"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Seleccione marca primero</option>
+                                </select>
+                                <button type="button" onclick="abrirModalModelo()"
+                                        class="px-3 py-2 bg-indigo-100 text-indigo-800 border border-indigo-300 rounded-lg hover:bg-indigo-200 transition shrink-0">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 3 — INFORMACIÓN BÁSICA
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">3</span>
+                        <h2 class="font-semibold text-gray-800">Información Básica</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Nombre del Producto <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" name="nombre" id="nombre"
+                                       value="{{ old('nombre') }}"
+                                       placeholder="Nombre descriptivo del producto"
+                                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                <button type="button" id="btnSugerirNombre"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                                    <i class="fas fa-magic mr-1"></i>Sugerir
+                                </button>
+                            </div>
+                            @error('nombre')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Unidad de Medida <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <select name="unidad_medida_id" id="unidad_medida_id"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
+                                    <option value="">Seleccionar...</option>
+                                    @foreach($unidades as $unidad)
+                                        <option value="{{ $unidad->id }}" {{ old('unidad_medida_id') == $unidad->id ? 'selected' : '' }}>
+                                            {{ $unidad->nombre }} ({{ $unidad->abreviatura }})
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('categoria_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                                <button type="button" onclick="abrirModalUnidad()"
+                                        class="px-3 py-2 bg-green-100 text-green-700 border border-green-300 rounded-lg hover:bg-green-200 transition shrink-0">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
                             </div>
+                        </div>
 
-                            <!-- 🔴 MARCA (se filtra por categoría) -->
-                            <div>
-                                <label for="marca_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Marca <span class="text-red-500">*</span>
-                                </label>
-                                <div class="flex gap-2">
-                                    <select name="marca_id" id="marca_id"
-                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                            required>
-                                        <option value="">Primero seleccione una categoría</option>
-                                    </select>
-                                    <button type="button" onclick="abrirModalMarca()"
-                                            title="Crear nueva marca"
-                                            class="px-3 py-2 bg-blue-100 text-blue-800 border border-blue-300
-                                                   rounded-lg hover:bg-blue-200 transition shrink-0">
-                                        <i class="fas fa-plus text-sm"></i>
-                                    </button>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado <span class="text-red-500">*</span></label>
+                            <select name="estado" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
+                                <option value="activo"        {{ old('estado', 'activo') == 'activo' ? 'selected' : '' }}>Activo</option>
+                                <option value="inactivo"      {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                                <option value="descontinuado" {{ old('estado') == 'descontinuado' ? 'selected' : '' }}>Descontinuado</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Procedencia</label>
+                            <input type="text" name="procedencia" value="{{ old('procedencia') }}"
+                                   placeholder="Ej: China, Italia"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Línea</label>
+                            <input type="text" name="linea" value="{{ old('linea') }}"
+                                   placeholder="Ej: Premium, Básica"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                            <textarea name="descripcion" rows="2"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Descripción del producto">{{ old('descripcion') }}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">URL Ficha Técnica (PDF)</label>
+                            <input type="text" name="ficha_tecnica_url" value="{{ old('ficha_tecnica_url') }}"
+                                   placeholder="https://..."
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                            <textarea name="observaciones" rows="1"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">{{ old('observaciones') }}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+                            <div class="flex items-center gap-3">
+                                <div id="imagePreviewContainer" class="hidden">
+                                    <img id="imagePreview" src="" alt="Vista previa" class="h-16 w-16 object-cover rounded-lg border">
                                 </div>
-                                @error('marca_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- 🔴 MODELO (se filtra por marca) -->
-                            <div>
-                                <label for="modelo_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Modelo
-                                    <span class="text-gray-400 text-xs font-normal">(opcional)</span>
-                                </label>
-                                <div class="flex gap-2">
-                                    <select name="modelo_id" id="modelo_id"
-                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Primero seleccione una marca</option>
-                                    </select>
-                                    <button type="button" onclick="abrirModalModelo()"
-                                            title="Crear nuevo modelo"
-                                            class="px-3 py-2 bg-indigo-100 text-indigo-800 border border-indigo-300
-                                                   rounded-lg hover:bg-indigo-200 transition shrink-0">
-                                        <i class="fas fa-plus text-sm"></i>
-                                    </button>
-                                </div>
-                                @error('modelo_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-
-                            <!-- SECCIÓN DE UNIDADES DE MEDIDA -->
-                            <div class="md:col-span-2 bg-gray-50 rounded-xl border border-gray-200 p-5">
-                                <h3 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                                    <i class="fas fa-balance-scale text-blue-900"></i>
-                                    Unidades de Medida
-                                </h3>
-
-                                <!-- Unidad base -->
-                                <div class="mb-5">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Unidad Base <span class="text-red-500">*</span>
-                                        <span class="ml-1 text-xs font-normal text-gray-400">— unidad principal de inventario</span>
-                                    </label>
-                                    <div class="flex gap-2">
-                                        <select name="unidad_medida_id" id="unidad_medida_id"
-                                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
-                                                required>
-                                            <option value="">Seleccionar unidad base...</option>
-                                            @foreach($unidades as $unidad)
-                                                <option value="{{ $unidad->id }}" {{ old('unidad_medida_id') == $unidad->id ? 'selected' : '' }}>
-                                                    {{ $unidad->nombre }} ({{ $unidad->abreviatura }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <button type="button"
-                                                onclick="abrirModalUnidad()"
-                                                title="Crear nueva unidad de medida"
-                                                class="px-3 py-2 bg-green-100 text-green-700 border border-green-300 rounded-lg hover:bg-green-200 transition shrink-0">
-                                            <i class="fas fa-plus text-sm"></i>
-                                        </button>
-                                    </div>
-                                    <p class="text-xs text-gray-400 mt-1">
-                                        <i class="fas fa-info-circle mr-1 text-blue-400"></i>
-                                        Ej: Unidad, Kilogramo, Litro
-                                    </p>
-                                </div>
-
-                                <!-- Presentaciones alternativas -->
-                                <div>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div>
-                                            <span class="text-sm font-medium text-gray-700">Presentaciones Alternativas</span>
-                                            <span class="ml-1 text-xs text-gray-400">(opcional)</span>
-                                        </div>
-                                        <button type="button" onclick="agregarUnidadAlternativa()"
-                                                class="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-100 transition flex items-center gap-1">
-                                            <i class="fas fa-plus"></i> Agregar
-                                        </button>
-                                    </div>
-
-                                    <!-- Cabecera de columnas -->
-                                    <div id="unidades-header" class="hidden grid grid-cols-12 gap-2 px-3 mb-1 text-xs font-medium text-gray-500 uppercase">
-                                        <div class="col-span-7">Unidad de presentación</div>
-                                        <div class="col-span-4">Factor de conversión</div>
-                                        <div class="col-span-1"></div>
-                                    </div>
-
-                                    <!-- Filas dinámicas -->
-                                    <div id="unidades-alternativas-container" class="space-y-2"></div>
-
-                                    <!-- Estado vacío -->
-                                    <div id="sin-unidades-msg" class="text-center py-5 bg-white rounded-lg border-2 border-dashed border-gray-200">
-                                        <i class="fas fa-layer-group text-2xl text-gray-300 mb-1 block"></i>
-                                        <p class="text-xs text-gray-400">Sin presentaciones alternativas</p>
-                                        <p class="text-xs text-gray-300">Ej: Pack, Caja, Docena…</p>
-                                    </div>
-
-                                    <!-- Template fila -->
-                                    <template id="template-unidad-alternativa">
-                                        <div class="grid grid-cols-12 gap-2 items-center bg-white px-3 py-2 rounded-lg border border-gray-200 unidad-item">
-                                            <div class="col-span-7">
-                                                <select name="unidades_alternativas[][unidad_id]"
-                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-                                                        required>
-                                                    <option value="">Seleccionar presentación...</option>
-                                                    @foreach($unidades as $unidad)
-                                                        <option value="{{ $unidad->id }}">{{ $unidad->nombre }} ({{ $unidad->abreviatura }})</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-span-4 flex items-center gap-1">
-                                                <span class="text-xs text-gray-400 whitespace-nowrap">×</span>
-                                                <input type="number"
-                                                       name="unidades_alternativas[][factor]"
-                                                       placeholder="Factor"
-                                                       step="0.0001"
-                                                       min="0.0001"
-                                                       title="Cuántas unidades base equivale esta presentación"
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-                                                       required>
-                                                <span class="text-xs text-gray-400 whitespace-nowrap">u.b.</span>
-                                            </div>
-                                            <div class="col-span-1 flex justify-end">
-                                                <button type="button" onclick="eliminarUnidad(this)"
-                                                        class="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition"
-                                                        title="Eliminar">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </template>
-
-                                    <!-- Nota sobre precios -->
-                                    <p class="mt-3 text-xs text-amber-600 flex items-start gap-1">
-                                        <i class="fas fa-tag mt-0.5 shrink-0"></i>
-                                        Los precios por presentación se configuran en el módulo de <strong>Gestión de Precios</strong>.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Código de Barras -->
-                            <div class="md:col-span-2">
-                                <label for="codigo_barras" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Código de Barras
-                                </label>
-                                <div class="flex space-x-2">
-                                    <div class="flex-1">
-                                        <input type="text" 
-                                               name="codigo_barras" 
-                                               id="codigo_barras" 
-                                               value="{{ old('codigo_barras') }}"
-                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                               placeholder="Código único del producto">
-                                    </div>
-                                    <button type="button" 
-                                            id="btnGenerarCodigo"
-                                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                                        <i class="fas fa-sync-alt mr-2"></i>Generar
-                                    </button>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Puedes ingresar manualmente o generar automáticamente
-                                </p>
-                            </div>
-
-                            <!-- Descripción -->
-                            <div class="md:col-span-2">
-                                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                                <textarea name="descripcion" id="descripcion" rows="2"
-                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                          placeholder="Descripción detallada del producto">{{ old('descripcion') }}</textarea>
+                                <input type="file" name="imagen" accept="image/*"
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                       onchange="previewImage(event)">
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- SECCIÓN 3: CONTROL DE STOCK (sin cambios) -->
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                            <i class="fas fa-boxes mr-2 text-blue-900"></i>
-                            Control de Stock
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="stock_minimo" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Stock Mínimo <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" name="stock_minimo" id="stock_minimo" value="{{ old('stock_minimo', 10) }}" min="0"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                       required>
-                            </div>
-
-                            <div>
-                                <label for="stock_maximo" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Stock Máximo <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" name="stock_maximo" id="stock_maximo" value="{{ old('stock_maximo', 1000) }}" min="1"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                       required>
-                            </div>
-
-
-                        </div>
-
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 4 — CONTROL DE STOCK
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">4</span>
+                        <h2 class="font-semibold text-gray-800">Control de Stock</h2>
                     </div>
-
-                    <!-- SECCIÓN 4: VARIANTES DEL PRODUCTO -->
-                    <div class="mb-8" x-data="variantesManager()" x-init="init()">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                            <i class="fas fa-layer-group mr-2 text-indigo-600"></i>
-                            Variantes del Producto
-                            <span class="ml-2 text-sm font-normal text-gray-400">(opcional — agrega colores y variantes de potencia/temperatura)</span>
-                        </h3>
-
-                        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-4">
-                            <p class="text-sm text-indigo-700">
-                                <i class="fas fa-info-circle mr-2"></i>
-                                Puedes guardar el producto primero y luego agregar variantes desde la página del producto.
-                                O define variantes iniciales aquí para crearlas automáticamente.
-                            </p>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Mínimo <span class="text-red-500">*</span></label>
+                            <input type="number" name="stock_minimo" value="{{ old('stock_minimo', 5) }}" min="0"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Máximo <span class="text-red-500">*</span></label>
+                            <input type="number" name="stock_maximo" value="{{ old('stock_maximo', 500) }}" min="1"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
+                            <input type="text" name="ubicacion" value="{{ old('ubicacion') }}"
+                                   placeholder="Ej: Estante A-3"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Inicial</label>
+                            <input type="number" name="stock_inicial" value="{{ old('stock_inicial', 0) }}" min="0"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Almacén (stock inicial)</label>
+                            <select name="almacen_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Sin asignar</option>
+                                @foreach($almacenes as $alm)
+                                    <option value="{{ $alm->id }}" {{ old('almacen_id') == $alm->id ? 'selected' : '' }}>{{ $alm->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- Variantes agregadas -->
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUES 5-7 — FICHA TÉCNICA (se oculta si tipo no la requiere)
+                ══════════════════════════════════════════════════════════ --}}
+                <div id="bloqueFichaTecnica" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-4 flex items-center gap-3" style="background-color:#1a3a2a;">
+                        <i class="fas fa-lightbulb text-xl" style="color:#F7D600;"></i>
+                        <div>
+                            <h2 class="text-base font-bold text-white">Configuración Técnica — Ficha Kyrios</h2>
+                            <p class="text-xs text-gray-300">Especificaciones técnicas según el tipo seleccionado</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        @include('luminarias.partials.ficha-tecnica-form')
+                    </div>
+                </div>
+
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 8 — VARIANTES
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5"
+                     x-data="variantesManager()" x-init="init()">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">8</span>
+                        <h2 class="font-semibold text-gray-800">Variantes del Producto <span class="text-xs font-normal text-gray-400">(opcional)</span></h2>
+                    </div>
+                    <div class="p-6">
                         <template x-if="variantes.length > 0">
                             <div class="mb-4 space-y-2">
                                 <template x-for="(v, idx) in variantes" :key="idx">
                                     <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3">
-                                        <div class="w-6 h-6 rounded-full border-2 border-white shadow flex-shrink-0"
-                                             :style="v.color_hex ? `background-color:${v.color_hex}` : 'background:#e5e7eb'"
-                                             :title="v.color_nombre || 'Sin color'"></div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-semibold text-gray-900">
-                                                <span x-text="v.color_nombre || 'Sin color'"></span>
-                                                <template x-if="v.capacidad">
-                                                    <span x-text="' / ' + v.capacidad" class="text-gray-500 font-normal"></span>
-                                                </template>
-                                            </p>
-                                        </div>
-                                        <button type="button" @click="quitarVariante(idx)"
-                                                class="text-red-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition">
-                                            <i class="fas fa-times text-sm"></i>
+                                        <div class="w-5 h-5 rounded-full border-2 border-white shadow shrink-0"
+                                             :style="v.color_hex ? `background-color:${v.color_hex}` : 'background:#e5e7eb'"></div>
+                                        <span class="text-sm font-medium text-gray-800 flex-1" x-text="v.color_nombre || 'Sin color'"></span>
+                                        <span x-show="v.especificacion" class="text-xs text-gray-500" x-text="'— ' + v.especificacion"></span>
+                                        <input type="hidden" :name="`variantes_iniciales[${idx}][color_id]`" :value="v.color_id">
+                                        <input type="hidden" :name="`variantes_iniciales[${idx}][capacidad]`" :value="v.especificacion">
+                                        <button type="button" @click="eliminar(idx)" class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-times"></i>
                                         </button>
-                                        <!-- Campos hidden para envío -->
-                                        <input type="hidden" :name="`variantes_iniciales[${idx}][color_id]`"  :value="v.color_id || ''">
-                                        <input type="hidden" :name="`variantes_iniciales[${idx}][capacidad]`" :value="v.capacidad || ''">
                                     </div>
                                 </template>
                             </div>
                         </template>
 
-                        <!-- Formulario de nueva variante -->
-                        <div class="bg-white border-2 border-dashed border-indigo-200 rounded-xl p-4" x-show="agregarAbierto">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                                <!-- Color -->
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Color</label>
-                                    <select x-model="nueva.color_id" @change="actualizarColorHex($event)"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
-                                        <option value="">Sin color</option>
-                                        @foreach($colores as $color)
-                                            <option value="{{ $color->id }}"
-                                                    data-hex="{{ $color->codigo_hex }}"
-                                                    data-nombre="{{ $color->nombre }}">
-                                                {{ $color->nombre }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <!-- Capacidad -->
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Variante <span class="text-gray-400">(opcional)</span></label>
-                                    <input type="text" x-model="nueva.capacidad"
-                                           placeholder="Ej: 2700K, 4000lm, 60W"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
-                                </div>
+                        <div class="flex gap-3 items-end">
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Color</label>
+                                <select id="varianteColor" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                    <option value="">Sin color</option>
+                                    @foreach($colores as $color)
+                                        <option value="{{ $color->id }}" data-hex="{{ $color->hex ?? '#cccccc' }}" data-nombre="{{ $color->nombre }}">
+                                            {{ $color->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <div class="flex gap-2">
-                                <button type="button" @click="agregarVariante()"
-                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
-                                    <i class="fas fa-plus mr-2"></i>Agregar
-                                </button>
-                                <button type="button" @click="agregarAbierto = false"
-                                        class="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition">
-                                    Cancelar
-                                </button>
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Especificación</label>
+                                <input type="text" id="varianteSpec" placeholder="Ej: 3000K, 60W"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                             </div>
-                        </div>
-
-                        <button type="button" @click="agregarAbierto = true" x-show="!agregarAbierto"
-                                class="mt-3 w-full py-2.5 border-2 border-dashed border-indigo-300 rounded-xl text-indigo-600 hover:border-indigo-500 hover:bg-indigo-50 text-sm font-medium transition flex items-center justify-center gap-2">
-                            <i class="fas fa-plus"></i> Agregar variante
-                        </button>
-                    </div>
-
-                    <!-- SECCIÓN 5: IMAGEN Y ESTADO -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label for="imagen" class="block text-sm font-medium text-gray-700 mb-2">
-                                Imagen del Producto
-                            </label>
-                            <div class="flex items-center space-x-4">
-                                <div id="imagePreviewContainer" class="hidden">
-                                    <img id="imagePreview" src="" alt="Vista previa" class="h-20 w-20 object-cover rounded-lg border">
-                                </div>
-                                <input type="file" name="imagen" id="imagen" accept="image/*"
-                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                       onchange="previewImage(event)">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
-                                Estado <span class="text-red-500">*</span>
-                            </label>
-                            <select name="estado" id="estado"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    required>
-                                <option value="activo" selected>Activo</option>
-                                <option value="inactivo">Inactivo</option>
-                                <option value="descontinuado">Descontinuado</option>
-                            </select>
+                            <button type="button" @click="agregar()"
+                                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 shrink-0">
+                                <i class="fas fa-plus mr-1"></i>Agregar
+                            </button>
                         </div>
                     </div>
+                </div>
 
-                    {{-- ═══════════════════════════════════════════════════════════
-                        SECCIÓN: FICHA TÉCNICA KYRIOS / LUMINARIA
-                    ═══════════════════════════════════════════════════════════ --}}
-                    <div class="mb-8 mt-4">
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-6 py-4 mb-6">
-                            <h3 class="text-lg font-bold text-yellow-900 flex items-center gap-2">
-                                <i class="fas fa-lightbulb text-yellow-500"></i>
-                                Ficha Técnica — Kyrios Luminaria
-                            </h3>
-                            <p class="text-sm text-yellow-700 mt-1">
-                                Completa los datos técnicos de la luminaria. Todos los campos son opcionales.
-                            </p>
-                        </div>
-
-                        {{-- Códigos Kyrios --}}
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Código Kyrios</label>
-                                <input type="text" name="codigo_kyrios" value="{{ old('codigo_kyrios') }}"
-                                       placeholder="Ej: KYR-00001"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Código Fábrica</label>
-                                <input type="text" name="codigo_fabrica" value="{{ old('codigo_fabrica') }}"
-                                       placeholder="Código del fabricante"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Procedencia</label>
-                                <input type="text" name="procedencia" value="{{ old('procedencia') }}"
-                                       placeholder="Ej: China, Italia, España"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Línea</label>
-                                <input type="text" name="linea" value="{{ old('linea') }}"
-                                       placeholder="Ej: Premium, Básica, Arquitectónica"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">URL Ficha Técnica (PDF)</label>
-                                <input type="text" name="ficha_tecnica_url" value="{{ old('ficha_tecnica_url') }}"
-                                       placeholder="https://..."
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                                <textarea name="observaciones" rows="1"
-                                          placeholder="Notas internas"
-                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">{{ old('observaciones') }}</textarea>
-                            </div>
-                        </div>
-
-                        @php $tiposProyecto = $tiposProyecto ?? \App\Models\Luminaria\TipoProyecto::activos()->orderBy('nombre')->get(); $producto = null; @endphp
-                        @include('luminarias.partials.ficha-tecnica-form')
-                    </div>
-
-                    <!-- Botones -->
-                    <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
-                        <a href="{{ route('inventario.productos.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                            <i class="fas fa-times mr-2"></i>Cancelar
-                        </a>
-                        <button type="submit" class="px-6 py-2 text-gray-900 rounded-lg font-semibold"
-                                style="background-color:#F7D600;" onmouseover="this.style.backgroundColor='#e8c900'" onmouseout="this.style.backgroundColor='#F7D600'">
-                            <i class="fas fa-save mr-2"></i>Guardar Producto
-                        </button>
-                    </div>
-                </form>
-            </div>
+                {{-- Botones --}}
+                <div class="flex items-center justify-between pt-4">
+                    <a href="{{ route('inventario.productos.index') }}"
+                       class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                    <button type="submit"
+                            class="px-8 py-2.5 text-gray-900 rounded-lg font-semibold text-sm shadow-sm"
+                            style="background-color:#F7D600;"
+                            onmouseover="this.style.backgroundColor='#e8c900'"
+                            onmouseout="this.style.backgroundColor='#F7D600'">
+                        <i class="fas fa-save mr-2"></i>Guardar Producto
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
     @include('inventario.productos.partials.modales-rapidos')
 
     <script>
-        // Preview de imagen
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('imagePreview').src = e.target.result;
-                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
+    // ─── Tipos de producto (desde BD, datos serializados) ────────────────────────
+    const TIPOS_DATA = @json($tiposProducto->keyBy('id'));
+    // Tipos que muestran ficha técnica (los que no son puro "accesorio/fuente sin specs")
+    // Por ahora mostramos ficha para todos (el partial siempre está disponible)
+    // Tipos que muestran ficha técnica (todos excepto AC - accesorios sin specs eléctricas)
+    const TIPOS_CON_FICHA    = new Set(['LU','LA','CL','SM','EA','PE','PA','VE','CA','PO','LE','SO','RE']);
+    const TIPOS_CON_LUMENES  = new Set(['LU','LA','CL','SM','PE','PA','PO','LE','SO','RE']);
+    const TIPOS_CON_CRI      = new Set(['LU','LA','CL','SM','PE','PA']);
+    const TIPOS_CON_IP       = new Set(['LU','CL','PO','LE','SO']);
+    const TIPOS_CON_ANGULO   = new Set(['LU','LA','CA','PE']);
+
+    let tipoProductoId  = {{ old('tipo_producto_id', 'null') }};
+    let tipoLuminariaId = {{ old('tipo_luminaria_id', 'null') }};
+    let marcaId         = {{ old('marca_id', 'null') }};
+    let tipoCodigoActual = '';
+
+    function aplicarTipoProducto(id, codigo, usaLuminaria) {
+        tipoProductoId   = id;
+        tipoCodigoActual = codigo;
+
+        // Mostrar/ocultar bloque tipo luminaria
+        document.getElementById('bloqueTipoLuminaria').classList.toggle('hidden', !usaLuminaria);
+        if (!usaLuminaria) {
+            tipoLuminariaId = null;
+            document.querySelectorAll('#selectorTipoLuminaria input').forEach(i => i.checked = false);
+            document.querySelectorAll('.tipo-lum-card').forEach(c => c.classList.remove('border-yellow-400','bg-yellow-50'));
         }
 
-        // 🔴 NUEVO: Carga de marcas por categoría
-        function cargarMarcasPorCategoria(categoriaId, marcaSeleccionada = null) {
-            const marcaSelect = document.getElementById('marca_id');
-            const modeloSelect = document.getElementById('modelo_id');
-            
-            marcaSelect.innerHTML = '<option value="">Cargando marcas...</option>';
-            marcaSelect.disabled = true;
-            modeloSelect.innerHTML = '<option value="">Primero seleccione una marca</option>';
-            modeloSelect.disabled = true;
+        // Mostrar/ocultar ficha técnica
+        const hasFicha = TIPOS_CON_FICHA.has(codigo);
+        document.getElementById('bloqueFichaTecnica').classList.toggle('hidden', !hasFicha);
 
-            if (!categoriaId) {
-                marcaSelect.innerHTML = '<option value="">Primero seleccione una categoría</option>';
-                marcaSelect.disabled = false;
-                return;
-            }
-
-            fetch(`/catalogo/marcas-por-categoria/${categoriaId}`)
-                .then(response => response.json())
-                .then(data => {
-                    marcaSelect.innerHTML = '<option value="">Seleccione una marca</option>';
-                    
-                    if (data.length === 0) {
-                        marcaSelect.innerHTML += '<option value="" disabled>No hay marcas para esta categoría</option>';
-                    } else {
-                        data.forEach(marca => {
-                            const selected = (marcaSeleccionada && marca.id == marcaSeleccionada) ? 'selected' : '';
-                            marcaSelect.innerHTML += `<option value="${marca.id}" ${selected}>${marca.nombre}</option>`;
-                        });
-                    }
-                    
-                    marcaSelect.disabled = false;
-                    
-                    // Si hay marca seleccionada, cargar sus modelos
-                    if (marcaSeleccionada) {
-                        cargarModelosPorMarca(marcaSeleccionada);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    marcaSelect.innerHTML = '<option value="">Error al cargar marcas</option>';
-                    marcaSelect.disabled = false;
-                });
+        // Campos condicionales dentro de la ficha
+        if (hasFicha) {
+            toggleCampo('.campo-lumenes', TIPOS_CON_LUMENES.has(codigo));
+            toggleCampo('.campo-cri',     TIPOS_CON_CRI.has(codigo));
+            toggleCampo('.campo-ip',      TIPOS_CON_IP.has(codigo));
+            toggleCampo('.campo-angulo',  TIPOS_CON_ANGULO.has(codigo));
         }
 
-        // 🔴 NUEVO: Carga de modelos por marca (actualizado)
-        function cargarModelosPorMarca(marcaId, modeloSeleccionado = null) {
-            const modeloSelect = document.getElementById('modelo_id');
-            
-            modeloSelect.innerHTML = '<option value="">Cargando modelos...</option>';
-            modeloSelect.disabled = true;
-
-            if (!marcaId) {
-                modeloSelect.innerHTML = '<option value="">Primero seleccione una marca</option>';
-                modeloSelect.disabled = false;
-                return;
-            }
-
-            fetch(`/catalogo/modelos-por-marca/${marcaId}`)
-                .then(response => response.json())
-                .then(data => {
-                    modeloSelect.innerHTML = '<option value="">Seleccione un modelo</option>';
-                    
-                    if (data.length === 0) {
-                        modeloSelect.innerHTML += '<option value="" disabled>No hay modelos para esta marca</option>';
-                    } else {
-                        data.forEach(modelo => {
-                            const selected = (modeloSeleccionado && modelo.id == modeloSeleccionado) ? 'selected' : '';
-                            modeloSelect.innerHTML += `<option value="${modelo.id}" ${selected}>${modelo.nombre}</option>`;
-                        });
-                    }
-                    
-                    modeloSelect.disabled = false;
-                    sugerirNombreAuto();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    modeloSelect.innerHTML = '<option value="">Error al cargar modelos</option>';
-                    modeloSelect.disabled = false;
-                });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // 🔴 Evento cambio de categoría
-            const categoriaSelect = document.getElementById('categoria_id');
-            const marcaSelect = document.getElementById('marca_id');
-            const modeloSelect = document.getElementById('modelo_id');
-
-            if (categoriaSelect) {
-                categoriaSelect.addEventListener('change', function() {
-                    const categoriaId = this.value;
-                    cargarMarcasPorCategoria(categoriaId);
-                });
-            }
-
-            // 🔴 Evento cambio de marca
-            if (marcaSelect) {
-                marcaSelect.addEventListener('change', function() {
-                    const marcaId = this.value;
-                    cargarModelosPorMarca(marcaId);
-                });
-            }
-
-            // Si hay valores antiguos (por validación fallida), restaurar
-            const oldCategoria = "{{ old('categoria_id') }}";
-            const oldMarca = "{{ old('marca_id') }}";
-            const oldModelo = "{{ old('modelo_id') }}";
-
-            if (oldCategoria) {
-                cargarMarcasPorCategoria(oldCategoria, oldMarca);
-            }
-
-            // Detectar edición manual del nombre
-            document.getElementById('nombre')?.addEventListener('input', function () {
-                nombreEditadoManual = true;
-            });
-
-            // Auto-sugerir al cambiar modelo
-            document.getElementById('modelo_id')?.addEventListener('change', sugerirNombreAuto);
+        // Estilos tarjetas
+        document.querySelectorAll('.tipo-card').forEach(c => {
+            c.classList.remove('border-yellow-400','bg-yellow-50');
+            if (parseInt(c.dataset.id) === id) c.classList.add('border-yellow-400','bg-yellow-50');
         });
-        // Bandera: true cuando el usuario editó el nombre manualmente
-        let nombreEditadoManual = {{ old('nombre') ? 'true' : 'false' }};
 
-        function sugerirNombre() {
-            const marcaOpt  = document.getElementById('marca_id').selectedOptions[0];
-            const modeloOpt = document.getElementById('modelo_id').selectedOptions[0];
+        limpiarKyrios();
+    }
 
-            const marca  = (marcaOpt  && marcaOpt.value)  ? marcaOpt.text  : '';
-            const modelo = (modeloOpt && modeloOpt.value)  ? modeloOpt.text : '';
+    function toggleCampo(sel, vis) {
+        document.querySelectorAll(sel).forEach(el => el.style.display = vis ? '' : 'none');
+    }
 
-            let partes = [];
-            if (marca)  partes.push(marca);
-            if (modelo) partes.push(modelo);
+    function limpiarKyrios() {
+        const input = document.getElementById('codigo_kyrios');
+        if (!input.readOnly) return; // si está en modo edición manual, no limpiar
+        input.value = '';
+    }
 
-            if (partes.length > 0) {
-                document.getElementById('nombre').value = partes.join(' ');
-                nombreEditadoManual = false;
+    // Click en tarjetas tipo producto
+    document.querySelectorAll('.tipo-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.querySelector('input[type=radio]').checked = true;
+            aplicarTipoProducto(
+                parseInt(card.dataset.id),
+                card.dataset.codigo,
+                card.dataset.usaLuminaria === '1'
+            );
+        });
+    });
+
+    // Click en tarjetas tipo luminaria
+    document.querySelectorAll('.tipo-lum-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.querySelector('input[type=radio]').checked = true;
+            tipoLuminariaId = parseInt(card.dataset.id);
+            document.querySelectorAll('.tipo-lum-card').forEach(c => c.classList.remove('border-yellow-400','bg-yellow-50'));
+            card.classList.add('border-yellow-400','bg-yellow-50');
+            limpiarKyrios();
+        });
+    });
+
+    // Inicializar tipo si hay old value
+    if (tipoProductoId) {
+        const card = document.querySelector(`.tipo-card[data-id="${tipoProductoId}"]`);
+        if (card) aplicarTipoProducto(parseInt(card.dataset.id), card.dataset.codigo, card.dataset.usaLuminaria === '1');
+    }
+
+    // ─── Generación de Código Kyrios ──────────────────────────────────────────
+    document.getElementById('btnGenerarKyrios')?.addEventListener('click', function () {
+        if (!tipoProductoId) { alert('Selecciona el tipo de producto primero'); return; }
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Generando...';
+
+        const params = new URLSearchParams({
+            tipo_producto_id:  tipoProductoId  || '',
+            tipo_luminaria_id: tipoLuminariaId || '',
+            marca_id:          marcaId         || '',
+        });
+
+        fetch(`{{ route('inventario.productos.generar-codigo-kyrios') }}?${params}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const input = document.getElementById('codigo_kyrios');
+                input.value = data.codigo;
+                input.classList.add('border-green-500','bg-green-50');
+                setTimeout(() => input.classList.remove('border-green-500','bg-green-50'), 1400);
             } else {
-                alert('Selecciona al menos marca o modelo para generar el nombre');
+                alert(data.message || 'No se pudo generar el código');
             }
-        }
-
-        // Auto-sugerir solo si el usuario no editó manualmente
-        function sugerirNombreAuto() {
-            if (!nombreEditadoManual) {
-                const marcaOpt  = document.getElementById('marca_id').selectedOptions[0];
-                const modeloOpt = document.getElementById('modelo_id').selectedOptions[0];
-
-                const marca  = (marcaOpt  && marcaOpt.value)  ? marcaOpt.text  : '';
-                const modelo = (modeloOpt && modeloOpt.value)  ? modeloOpt.text : '';
-
-                let partes = [];
-                if (marca)  partes.push(marca);
-                if (modelo) partes.push(modelo);
-
-                if (partes.length > 0) {
-                    document.getElementById('nombre').value = partes.join(' ');
-                }
-            }
-        }
-
-        // Botón "Sugerir" siempre fuerza la generación y resetea la bandera
-        document.getElementById('btnSugerirNombre')?.addEventListener('click', function () {
-            nombreEditadoManual = false;
-            sugerirNombre();
+        })
+        .catch(() => alert('Error de conexión al generar código Kyrios'))
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-magic mr-1"></i>Generar';
         });
+    });
 
-        // ── Variantes Manager (Alpine.js) ───────────────────────────────────────
-        function variantesManager() {
-            return {
-                variantes: [],
-                nueva: { color_id: '', color_nombre: '', color_hex: '', capacidad: '' },
-                agregarAbierto: false,
+    // Botón editar manualmente el código Kyrios
+    document.getElementById('btnEditarKyrios')?.addEventListener('click', function () {
+        const input = document.getElementById('codigo_kyrios');
+        if (input.readOnly) {
+            input.readOnly = false;
+            input.classList.remove('bg-gray-50');
+            input.classList.add('bg-white');
+            input.focus();
+            this.innerHTML = '<i class="fas fa-lock text-sm"></i>';
+            this.title = 'Bloquear edición';
+        } else {
+            input.readOnly = true;
+            input.classList.remove('bg-white');
+            input.classList.add('bg-gray-50');
+            this.innerHTML = '<i class="fas fa-pencil-alt text-sm"></i>';
+            this.title = 'Editar manualmente';
+        }
+    });
 
-                init() {},
+    // ─── Código de Barras ────────────────────────────────────────────────────
+    document.getElementById('btnGenerarCodigo')?.addEventListener('click', function () {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-                actualizarColorHex(event) {
-                    const opt = event.target.selectedOptions[0];
-                    this.nueva.color_hex    = opt?.dataset?.hex    || '';
-                    this.nueva.color_nombre = opt?.dataset?.nombre || '';
-                },
+        fetch('{{ route("inventario.productos.generar-codigo-barras") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: JSON.stringify({ tipo: 'accesorio' })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const input = document.getElementById('codigo_barras');
+                input.value = data.codigo;
+                input.classList.add('border-green-500','bg-green-50');
+                setTimeout(() => input.classList.remove('border-green-500','bg-green-50'), 1200);
+            }
+        })
+        .catch(() => alert('Error al generar código de barras'))
+        .finally(() => { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i>'; });
+    });
 
-                agregarVariante() {
-                    if (!this.nueva.color_id && !this.nueva.capacidad) {
-                        alert('Debes seleccionar al menos un color o ingresar una capacidad.');
-                        return;
-                    }
-                    this.variantes.push({ ...this.nueva });
-                    this.nueva = { color_id: '', color_nombre: '', color_hex: '', capacidad: '' };
-                    this.agregarAbierto = false;
-                },
+    // ─── Marca/Modelo en cascada ──────────────────────────────────────────────
+    function cargarMarcasPorCategoria(categoriaId, marcaSeleccionada = null) {
+        const marcaSelect  = document.getElementById('marca_id');
+        const modeloSelect = document.getElementById('modelo_id');
+        marcaSelect.innerHTML = '<option value="">Cargando...</option>';
+        marcaSelect.disabled = true;
+        modeloSelect.innerHTML = '<option value="">Primero selecciona marca</option>';
+        modeloSelect.disabled = true;
 
-                quitarVariante(idx) {
-                    this.variantes.splice(idx, 1);
-                },
-            };
+        if (!categoriaId) {
+            marcaSelect.innerHTML = '<option value="">Sin marca</option>';
+            marcaSelect.disabled = false;
+            return;
         }
 
-        // Botón Generar código de barras
-        document.getElementById('btnGenerarCodigo')?.addEventListener('click', function() {
-            const btn = this;
-            const codigoInput = document.getElementById('codigo_barras');
-            const tipoBarras = 'luminaria';
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando...';
-
-            fetch('{{ route("inventario.productos.generar-codigo-barras") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ tipo: tipoBarras })
-            })
-            .then(response => response.json())
+        fetch(`/catalogo/marcas-por-categoria/${categoriaId}`)
+            .then(r => r.json())
             .then(data => {
-                if (data.success) {
-                    codigoInput.value = data.codigo;
-                } else {
-                    alert('Error: ' + data.message);
-                }
+                marcaSelect.innerHTML = '<option value="">Sin marca</option>';
+                data.forEach(m => {
+                    const sel = (marcaSeleccionada && m.id == marcaSeleccionada) ? 'selected' : '';
+                    marcaSelect.innerHTML += `<option value="${m.id}" ${sel}>${m.nombre}</option>`;
+                });
+                marcaSelect.disabled = false;
+                if (marcaSeleccionada) cargarModelosPorMarca(marcaSeleccionada);
             })
-            .catch(() => alert('Error al generar código'))
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Generar';
-            });
-        });
+            .catch(() => { marcaSelect.innerHTML = '<option value="">Error</option>'; marcaSelect.disabled = false; });
+    }
+
+    function cargarModelosPorMarca(marcaId, modeloSel = null) {
+        const modeloSelect = document.getElementById('modelo_id');
+        modeloSelect.innerHTML = '<option value="">Cargando...</option>';
+        modeloSelect.disabled = true;
+
+        if (!marcaId) {
+            modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
+            modeloSelect.disabled = false;
+            return;
+        }
+
+        fetch(`/catalogo/modelos-por-marca/${marcaId}`)
+            .then(r => r.json())
+            .then(data => {
+                modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
+                data.forEach(m => {
+                    const sel = (modeloSel && m.id == modeloSel) ? 'selected' : '';
+                    modeloSelect.innerHTML += `<option value="${m.id}" ${sel}>${m.nombre}</option>`;
+                });
+                modeloSelect.disabled = false;
+            })
+            .catch(() => { modeloSelect.innerHTML = '<option value="">Error</option>'; modeloSelect.disabled = false; });
+    }
+
+    document.getElementById('categoria_id')?.addEventListener('change', function () {
+        cargarMarcasPorCategoria(this.value);
+    });
+    document.getElementById('marca_id')?.addEventListener('change', function () {
+        marcaId = this.value || null;
+        cargarModelosPorMarca(this.value);
+        limpiarKyrios();
+    });
+
+    // Pre-cargar si hay old values
+    const _cat = {{ old('categoria_id', 'null') }};
+    const _mar = {{ old('marca_id', 'null') }};
+    const _mod = {{ old('modelo_id', 'null') }};
+    if (_cat) cargarMarcasPorCategoria(_cat, _mar);
+
+    // ─── Sugerir nombre ───────────────────────────────────────────────────────
+    document.getElementById('btnSugerirNombre')?.addEventListener('click', () => {
+        const marca  = document.getElementById('marca_id')?.selectedOptions[0]?.text || '';
+        const modelo = document.getElementById('modelo_id')?.selectedOptions[0]?.text || '';
+        const partes = [];
+        if (marca  && marca  !== 'Sin marca')  partes.push(marca);
+        if (modelo && modelo !== 'Sin modelo') partes.push(modelo);
+        if (partes.length) document.getElementById('nombre').value = partes.join(' ');
+        else alert('Selecciona marca o modelo primero');
+    });
+
+    // ─── Preview imagen ───────────────────────────────────────────────────────
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('imagePreview').src = e.target.result;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // ─── Alpine: variantes ────────────────────────────────────────────────────
+    function variantesManager() {
+        return {
+            variantes: [],
+            init() {},
+            agregar() {
+                const colorSel  = document.getElementById('varianteColor');
+                const specInput = document.getElementById('varianteSpec');
+                this.variantes.push({
+                    color_id:     colorSel.value || null,
+                    color_nombre: colorSel.value ? colorSel.selectedOptions[0].dataset.nombre : 'Sin color',
+                    color_hex:    colorSel.value ? colorSel.selectedOptions[0].dataset.hex : null,
+                    especificacion: specInput.value.trim(),
+                });
+                colorSel.value = '';
+                specInput.value = '';
+            },
+            eliminar(idx) { this.variantes.splice(idx, 1); }
+        };
+    }
     </script>
 </body>
 </html>

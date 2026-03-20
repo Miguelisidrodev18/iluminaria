@@ -24,12 +24,14 @@ class ProductoEspecificacion extends Model
         'protocolo_regulacion',
         'socket',
         'numero_lamparas',
+        'vida_util_horas',
     ];
 
     protected $casts = [
         'regulable'      => 'boolean',
-        'cri'            => 'integer',
-        'numero_lamparas'=> 'integer',
+        'cri'              => 'integer',
+        'numero_lamparas'  => 'integer',
+        'vida_util_horas'  => 'integer',
     ];
 
     public function producto()

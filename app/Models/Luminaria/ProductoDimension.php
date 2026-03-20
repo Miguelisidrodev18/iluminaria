@@ -18,6 +18,7 @@ class ProductoDimension extends Model
         'profundidad',
         'alto_suspendido',
         'diametro_agujero',
+        'peso',
     ];
 
     protected $casts = [
@@ -28,6 +29,7 @@ class ProductoDimension extends Model
         'profundidad'      => 'decimal:2',
         'alto_suspendido'  => 'decimal:2',
         'diametro_agujero' => 'decimal:2',
+        'peso'             => 'decimal:3',
     ];
 
     public function producto()

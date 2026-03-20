@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Producto - CORPORACIÓN ADIVON SAC</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Editar Producto — {{ $producto->nombre }}</title>
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50">
@@ -15,20 +17,17 @@
         <x-header title="Editar Producto" subtitle="Actualiza la información de {{ $producto->nombre }}" />
 
         <div class="max-w-5xl mx-auto">
-            <!-- Resumen del producto -->
-            <div class="mb-6 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+
+            {{-- Resumen rápido --}}
+            <div class="mb-5 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                         <span class="font-medium text-gray-500">Código:</span>
                         <span class="block text-gray-900 font-mono font-bold">{{ $producto->codigo }}</span>
                     </div>
                     <div>
-                        <span class="font-medium text-gray-500">Tipo:</span>
-                        <span class="block mt-1">
-                            <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                                <i class="fas fa-boxes mr-1"></i>Cantidad
-                            </span>
-                        </span>
+                        <span class="font-medium text-gray-500">Código Kyrios:</span>
+                        <span class="block text-gray-900 font-mono">{{ $producto->codigo_kyrios ?? '—' }}</span>
                     </div>
                     <div>
                         <span class="font-medium text-gray-500">Stock Actual:</span>
@@ -41,522 +40,645 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="px-6 py-4" style="background-color:#2B2E2C;">
-                    <h2 class="text-xl font-bold text-white">
-                        <i class="fas fa-edit mr-2" style="color:#F7D600;"></i>
-                        Editar Información
-                    </h2>
+            @if ($errors->any())
+                <div class="mb-5 bg-red-50 border border-red-300 rounded-lg p-4">
+                    <p class="text-sm font-semibold text-red-700 mb-2">
+                        <i class="fas fa-exclamation-circle mr-1"></i>Corrige los siguientes errores:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li class="text-sm text-red-600">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @php
+                $tpSelId      = old('tipo_producto_id',  $producto->tipo_producto_id);
+                $tlSelId      = old('tipo_luminaria_id', $producto->tipo_luminaria_id);
+                $tpSel        = $tiposProducto->firstWhere('id', $tpSelId);
+                $mostrarTipoLum  = $tpSel && $tpSel->usa_tipo_luminaria;
+                $mostrarFicha    = $tpSel && in_array($tpSel->codigo, ['LU','LA','CL']);
+            @endphp
+
+            <form action="{{ route('inventario.productos.update', $producto) }}" method="POST" enctype="multipart/form-data" id="formProducto">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="tipo_inventario" value="cantidad">
+
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 1 — TIPO DE PRODUCTO (desde BD, relacional)
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-4 flex items-center gap-3" style="background-color:#2B2E2C;">
+                        <i class="fas fa-sliders-h text-xl" style="color:#F7D600;"></i>
+                        <div>
+                            <h2 class="text-base font-bold text-white">1 — Tipo de Producto</h2>
+                            <p class="text-xs text-gray-300">Selecciona el tipo — controla los campos visibles y el código Kyrios</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        {{-- Tarjetas de tipo de producto desde BD --}}
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="selectorTipoProducto">
+                            @foreach($tiposProducto as $tp)
+                            @php
+                                $iconos = ['LU'=>'fas fa-lightbulb','LA'=>'fas fa-fire','CL'=>'fas fa-grip-lines','SM'=>'fas fa-cubes','AC'=>'fas fa-tools','EA'=>'fas fa-plug','PE'=>'fas fa-bars','PA'=>'fas fa-tv','VE'=>'fas fa-fan','CA'=>'fas fa-dot-circle','PO'=>'fas fa-map-pin','LE'=>'fas fa-exclamation-triangle','SO'=>'fas fa-sun','RE'=>'fas fa-battery-half'];
+                                $icono  = $iconos[$tp->codigo] ?? 'fas fa-box';
+                                $selTP  = $tpSelId == $tp->id;
+                            @endphp
+                            <label class="tipo-card flex flex-col items-center gap-2 p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md
+                                          {{ $selTP ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white' }}"
+                                   data-id="{{ $tp->id }}"
+                                   data-codigo="{{ $tp->codigo }}"
+                                   data-usa-luminaria="{{ $tp->usa_tipo_luminaria ? '1' : '0' }}">
+                                <input type="radio" name="tipo_producto_id" value="{{ $tp->id }}"
+                                       class="sr-only" {{ $selTP ? 'checked' : '' }}>
+                                <i class="{{ $icono }} text-2xl text-gray-600"></i>
+                                <span class="text-sm font-semibold text-gray-800">{{ $tp->nombre }}</span>
+                                <span class="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{{ $tp->codigo }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+
+                        {{-- Tipo Luminaria (condicional) --}}
+                        <div id="bloqueTipoLuminaria" class="{{ $mostrarTipoLum ? '' : 'hidden' }} mt-5">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-th-large mr-1 text-yellow-500"></i>
+                                Tipo de Luminaria <span class="text-red-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-2" id="selectorTipoLuminaria">
+                                @foreach($tiposLuminaria as $tl)
+                                <label class="tipo-lum-card flex flex-col items-center gap-1 py-3 px-2 border-2 rounded-xl cursor-pointer transition-all hover:border-yellow-400
+                                              {{ $tlSelId == $tl->id ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200 bg-white' }}"
+                                       data-id="{{ $tl->id }}"
+                                       data-codigo="{{ $tl->codigo }}">
+                                    <input type="radio" name="tipo_luminaria_id" value="{{ $tl->id }}"
+                                           class="sr-only" {{ $tlSelId == $tl->id ? 'checked' : '' }}>
+                                    <span class="text-xs font-semibold text-gray-800 text-center">{{ $tl->nombre }}</span>
+                                    <span class="text-xs font-mono text-gray-400 bg-gray-100 px-2 rounded">{{ $tl->codigo }}</span>
+                                </label>
+                                @endforeach
+                            </div>
+                            @error('tipo_luminaria_id')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        @error('tipo_producto_id')
+                            <p class="mt-2 text-sm text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
-                <form action="{{ route('inventario.productos.update', $producto) }}" method="POST" enctype="multipart/form-data" class="p-6">
-                    @csrf
-                    @method('PUT')
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 2 — IDENTIFICACIÓN Y CÓDIGO KYRIOS
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">2</span>
+                        <h2 class="font-semibold text-gray-800">Identificación</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                    @if ($errors->any())
-                        <div class="mb-6 bg-red-50 border border-red-300 rounded-lg p-4">
-                            <p class="text-sm font-semibold text-red-700 mb-2">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                Por favor corrige los siguientes errores:
-                            </p>
-                            <ul class="list-disc list-inside space-y-1">
-                                @foreach ($errors->all() as $error)
-                                    <li class="text-sm text-red-600">{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <input type="hidden" name="tipo_inventario" value="cantidad">
-
-                    <!-- INFORMACIÓN BÁSICA -->
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                            <i class="fas fa-info-circle mr-2 text-blue-900"></i>
-                            Información Básica
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Nombre -->
-                            <div class="md:col-span-2">
-                                <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Nombre del Producto <span class="text-red-500">*</span>
-                                </label>
-                                <div class="flex space-x-2">
-                                    <input type="text" name="nombre" id="nombre"
-                                           value="{{ old('nombre', $producto->nombre) }}"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                           required>
-                                    <button type="button" id="btnSugerirNombre"
-                                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap">
-                                        <i class="fas fa-magic mr-2"></i>Sugerir
-                                    </button>
-                                </div>
-                                @error('nombre')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                        {{-- Código Kyrios --}}
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Código Kyrios
+                                <span class="ml-1 text-xs text-gray-400">— generado por tipo + marca</span>
+                            </label>
+                            <div class="flex gap-2 items-center">
+                                <input type="text" name="codigo_kyrios" id="codigo_kyrios"
+                                       value="{{ old('codigo_kyrios', $producto->codigo_kyrios) }}"
+                                       placeholder="KY-LUDLPH-0001"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400 font-mono">
+                                <button type="button" id="btnGenerarKyrios"
+                                        title="Regenerar código Kyrios"
+                                        class="px-4 py-2 text-gray-900 rounded-lg font-semibold text-sm transition shrink-0"
+                                        style="background-color:#F7D600;"
+                                        onmouseover="this.style.backgroundColor='#e8c900'"
+                                        onmouseout="this.style.backgroundColor='#F7D600'">
+                                    <i class="fas fa-sync-alt mr-1"></i>Regenerar
+                                </button>
                             </div>
+                            <p class="text-xs text-gray-400 mt-1">
+                                Formato: <span class="font-mono">KY-[TP][TL][M]-[NNNN]</span>
+                                &nbsp;|&nbsp; Ej: <span class="font-mono text-gray-600">KY-LUDLPH-0001</span>
+                            </p>
+                        </div>
 
-                            <!-- Categoría -->
-                            <div>
-                                <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Categoría <span class="text-red-500">*</span>
-                                </label>
-                                <select name="categoria_id" id="categoria_id"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        required>
-                                    <option value="">Seleccione una categoría</option>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id }}"
-                                                {{ old('categoria_id', $producto->categoria_id) == $categoria->id ? 'selected' : '' }}>
-                                            {{ $categoria->nombre }}
+                        {{-- Código Fábrica --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Código Fábrica</label>
+                            <input type="text" name="codigo_fabrica"
+                                   value="{{ old('codigo_fabrica', $producto->codigo_fabrica) }}"
+                                   placeholder="Código del fabricante"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        {{-- Código de Barras --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Código de Barras</label>
+                            <div class="flex gap-2">
+                                <input type="text" name="codigo_barras" id="codigo_barras"
+                                       value="{{ old('codigo_barras', $producto->codigo_barras) }}"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400">
+                                <button type="button" id="btnGenerarCodigo"
+                                        class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition shrink-0">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            @if($producto->codigo_barras)
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <a href="{{ route('inventario.productos.codigos-barras', $producto) }}" class="text-blue-600 hover:underline">
+                                        <i class="fas fa-barcode mr-1"></i>Gestionar múltiples códigos
+                                    </a>
+                                </p>
+                            @endif
+                        </div>
+
+                        {{-- Categoría --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Categoría <span class="text-red-500">*</span>
+                            </label>
+                            <select name="categoria_id" id="categoria_id"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
+                                <option value="">Seleccione una categoría</option>
+                                @foreach($categorias as $cat)
+                                    <option value="{{ $cat->id }}"
+                                            {{ old('categoria_id', $producto->categoria_id) == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('categoria_id')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Marca --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+                            <div class="flex gap-2">
+                                <select name="marca_id" id="marca_id"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Cargando...</option>
+                                </select>
+                                <button type="button" onclick="abrirModalMarca()"
+                                        class="px-3 py-2 bg-blue-100 text-blue-800 border border-blue-300 rounded-lg hover:bg-blue-200 transition shrink-0">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Modelo --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
+                            <div class="flex gap-2">
+                                <select name="modelo_id" id="modelo_id"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Cargando...</option>
+                                </select>
+                                <button type="button" onclick="abrirModalModelo()"
+                                        class="px-3 py-2 bg-indigo-100 text-indigo-800 border border-indigo-300 rounded-lg hover:bg-indigo-200 transition shrink-0">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 3 — INFORMACIÓN BÁSICA
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">3</span>
+                        <h2 class="font-semibold text-gray-800">Información Básica</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        {{-- Nombre --}}
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Nombre del Producto <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" name="nombre" id="nombre"
+                                       value="{{ old('nombre', $producto->nombre) }}"
+                                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                <button type="button" id="btnSugerirNombre"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                                    <i class="fas fa-magic mr-1"></i>Sugerir
+                                </button>
+                            </div>
+                            @error('nombre')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Unidad de medida --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Unidad de Medida <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <select name="unidad_medida_id" id="unidad_medida_id"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
+                                    <option value="">Seleccionar...</option>
+                                    @foreach($unidades as $unidad)
+                                        <option value="{{ $unidad->id }}"
+                                                {{ old('unidad_medida_id', $producto->unidad_medida_id) == $unidad->id ? 'selected' : '' }}>
+                                            {{ $unidad->nombre }} ({{ $unidad->abreviatura }})
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('categoria_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Marca (filtrada por categoría) -->
-                            <div>
-                                <label for="marca_id" class="block text-sm font-medium text-gray-700 mb-2">Marca</label>
-                                <div class="flex gap-2">
-                                    <select name="marca_id" id="marca_id"
-                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Cargando marcas...</option>
-                                    </select>
-                                    <button type="button" onclick="abrirModalMarca()"
-                                            title="Crear nueva marca"
-                                            class="px-3 py-2 bg-blue-100 text-blue-800 border border-blue-300 rounded-lg hover:bg-blue-200 transition shrink-0">
-                                        <i class="fas fa-plus text-sm"></i>
-                                    </button>
-                                </div>
-                                @error('marca_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Modelo (filtrado por marca) -->
-                            <div>
-                                <label for="modelo_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Modelo
-                                    <span class="text-gray-400 text-xs font-normal">(opcional)</span>
-                                </label>
-                                <div class="flex gap-2">
-                                    <select name="modelo_id" id="modelo_id"
-                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Cargando modelos...</option>
-                                    </select>
-                                    <button type="button" onclick="abrirModalModelo()"
-                                            title="Crear nuevo modelo"
-                                            class="px-3 py-2 bg-indigo-100 text-indigo-800 border border-indigo-300 rounded-lg hover:bg-indigo-200 transition shrink-0">
-                                        <i class="fas fa-plus text-sm"></i>
-                                    </button>
-                                </div>
-                                @error('modelo_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-
-                            <!-- Unidad de Medida -->
-                            <div>
-                                <label for="unidad_medida_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Unidad de Medida <span class="text-red-500">*</span>
-                                </label>
-                                <div class="flex gap-2">
-                                    <select name="unidad_medida_id" id="unidad_medida_id"
-                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                            required>
-                                        @foreach($unidades as $unidad)
-                                            <option value="{{ $unidad->id }}" {{ old('unidad_medida_id', $producto->unidad_medida_id) == $unidad->id ? 'selected' : '' }}>
-                                                {{ $unidad->nombre }} ({{ $unidad->abreviatura }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <button type="button" onclick="abrirModalUnidad()"
-                                            title="Crear nueva unidad de medida"
-                                            class="px-3 py-2 bg-green-100 text-green-700 border border-green-300 rounded-lg hover:bg-green-200 transition shrink-0">
-                                        <i class="fas fa-plus text-sm"></i>
-                                    </button>
-                                </div>
-                                @error('unidad_medida_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Código de Barras -->
-                            <div class="md:col-span-2">
-                                <label for="codigo_barras" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Código de Barras
-                                </label>
-                                <div class="flex space-x-2">
-                                    <input type="text" name="codigo_barras" id="codigo_barras"
-                                           value="{{ old('codigo_barras', $producto->codigo_barras) }}"
-                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                           placeholder="Código único del producto">
-                                    <button type="button" id="btnGenerarCodigo"
-                                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 whitespace-nowrap">
-                                        <i class="fas fa-sync-alt mr-2"></i>Generar
-                                    </button>
-                                </div>
-                                @if($producto->codigo_barras)
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        <i class="fas fa-info-circle mr-1"></i>
-                                        También puedes gestionar múltiples códigos en
-                                        <a href="{{ route('inventario.productos.codigos-barras', $producto) }}" class="text-blue-600 hover:underline">
-                                            Gestión de Códigos de Barras
-                                        </a>
-                                    </p>
-                                @endif
-                                @error('codigo_barras')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Descripción -->
-                            <div class="md:col-span-2">
-                                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                                <textarea name="descripcion" id="descripcion" rows="2"
-                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">{{ old('descripcion', $producto->descripcion) }}</textarea>
+                                <button type="button" onclick="abrirModalUnidad()"
+                                        class="px-3 py-2 bg-green-100 text-green-700 border border-green-300 rounded-lg hover:bg-green-200 transition shrink-0">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- CONTROL DE STOCK -->
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                            <i class="fas fa-boxes mr-2 text-blue-900"></i>
-                            Control de Stock
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="stock_minimo" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Stock Mínimo <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" name="stock_minimo" id="stock_minimo"
-                                       value="{{ old('stock_minimo', $producto->stock_minimo) }}" min="0"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                       required>
-                                @error('stock_minimo')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="stock_maximo" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Stock Máximo <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" name="stock_maximo" id="stock_maximo"
-                                       value="{{ old('stock_maximo', $producto->stock_maximo) }}" min="1"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                       required>
-                                @error('stock_maximo')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- IMAGEN Y ESTADO -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        {{-- Estado --}}
                         <div>
-                            <label for="imagen" class="block text-sm font-medium text-gray-700 mb-2">
-                                Imagen del Producto
-                            </label>
-                            @if($producto->imagen)
-                                <div class="mb-2 flex items-center space-x-3">
-                                    <img src="{{ $producto->imagen_url }}" alt="{{ $producto->nombre }}"
-                                         class="h-20 w-20 object-cover rounded-lg border-2 border-gray-200">
-                                    <span class="text-xs text-gray-500">Imagen actual</span>
-                                </div>
-                            @endif
-                            <div class="flex items-center space-x-4">
-                                <div id="imagePreviewContainer" class="hidden">
-                                    <img id="imagePreview" src="" alt="Vista previa" class="h-20 w-20 object-cover rounded-lg border">
-                                </div>
-                                <input type="file" name="imagen" id="imagen" accept="image/*"
-                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                       onchange="previewImage(event)">
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">Deja vacío para conservar la imagen actual</p>
-                        </div>
-
-                        <div>
-                            <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
-                                Estado <span class="text-red-500">*</span>
-                            </label>
-                            <select name="estado" id="estado"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    required>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado <span class="text-red-500">*</span></label>
+                            <select name="estado" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
                                 <option value="activo"        {{ old('estado', $producto->estado) == 'activo'        ? 'selected' : '' }}>Activo</option>
                                 <option value="inactivo"      {{ old('estado', $producto->estado) == 'inactivo'      ? 'selected' : '' }}>Inactivo</option>
                                 <option value="descontinuado" {{ old('estado', $producto->estado) == 'descontinuado' ? 'selected' : '' }}>Descontinuado</option>
                             </select>
-                            @error('estado')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                        </div>
+
+                        {{-- Procedencia --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Procedencia</label>
+                            <input type="text" name="procedencia"
+                                   value="{{ old('procedencia', $producto->procedencia) }}"
+                                   placeholder="Ej: China, Italia"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        {{-- Línea --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Línea</label>
+                            <input type="text" name="linea"
+                                   value="{{ old('linea', $producto->linea) }}"
+                                   placeholder="Ej: Premium, Básica"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        {{-- Descripción --}}
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                            <textarea name="descripcion" rows="2"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">{{ old('descripcion', $producto->descripcion) }}</textarea>
+                        </div>
+
+                        {{-- URL Ficha Técnica --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">URL Ficha Técnica (PDF)</label>
+                            <input type="text" name="ficha_tecnica_url"
+                                   value="{{ old('ficha_tecnica_url', $producto->ficha_tecnica_url) }}"
+                                   placeholder="https://..."
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                        </div>
+
+                        {{-- Observaciones --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                            <textarea name="observaciones" rows="1"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">{{ old('observaciones', $producto->observaciones) }}</textarea>
+                        </div>
+
+                        {{-- Imagen --}}
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+                            <div class="flex items-center gap-4">
+                                @if($producto->imagen)
+                                    <img src="{{ $producto->imagen_url }}" alt="{{ $producto->nombre }}"
+                                         class="h-16 w-16 object-cover rounded-lg border-2 border-gray-200">
+                                @endif
+                                <div id="imagePreviewContainer" class="hidden">
+                                    <img id="imagePreview" src="" alt="Vista previa" class="h-16 w-16 object-cover rounded-lg border">
+                                </div>
+                                <input type="file" name="imagen" id="imagen" accept="image/*"
+                                       class="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                       onchange="previewImage(event)">
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">Deja vacío para conservar la imagen actual</p>
                         </div>
                     </div>
+                </div>
 
-                    {{-- ═══════════════════════════════════════════════════════════
-                        SECCIÓN: FICHA TÉCNICA KYRIOS / LUMINARIA
-                    ═══════════════════════════════════════════════════════════ --}}
-                    <div class="mb-8 mt-4">
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-6 py-4 mb-6">
-                            <h3 class="text-lg font-bold text-yellow-900 flex items-center gap-2">
-                                <i class="fas fa-lightbulb text-yellow-500"></i>
-                                Ficha Técnica — Kyrios Luminaria
-                            </h3>
-                            <p class="text-sm text-yellow-700 mt-1">
-                                Completa los datos técnicos de la luminaria. Todos los campos son opcionales.
-                            </p>
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUE 4 — CONTROL DE STOCK
+                ══════════════════════════════════════════════════════════ --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">4</span>
+                        <h2 class="font-semibold text-gray-800">Control de Stock</h2>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Mínimo <span class="text-red-500">*</span></label>
+                            <input type="number" name="stock_minimo"
+                                   value="{{ old('stock_minimo', $producto->stock_minimo) }}" min="0"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
                         </div>
-
-                        {{-- Códigos Kyrios --}}
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Código Kyrios</label>
-                                <input type="text" name="codigo_kyrios" value="{{ old('codigo_kyrios', $producto->codigo_kyrios) }}"
-                                       placeholder="Ej: KYR-00001"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Código Fábrica</label>
-                                <input type="text" name="codigo_fabrica" value="{{ old('codigo_fabrica', $producto->codigo_fabrica) }}"
-                                       placeholder="Código del fabricante"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Procedencia</label>
-                                <input type="text" name="procedencia" value="{{ old('procedencia', $producto->procedencia) }}"
-                                       placeholder="Ej: China, Italia, España"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Línea</label>
-                                <input type="text" name="linea" value="{{ old('linea', $producto->linea) }}"
-                                       placeholder="Ej: Premium, Básica, Arquitectónica"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">URL Ficha Técnica (PDF)</label>
-                                <input type="text" name="ficha_tecnica_url" value="{{ old('ficha_tecnica_url', $producto->ficha_tecnica_url) }}"
-                                       placeholder="https://..."
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                                <textarea name="observaciones" rows="1"
-                                          placeholder="Notas internas"
-                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">{{ old('observaciones', $producto->observaciones) }}</textarea>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Máximo <span class="text-red-500">*</span></label>
+                            <input type="number" name="stock_maximo"
+                                   value="{{ old('stock_maximo', $producto->stock_maximo) }}" min="1"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
+                            <input type="text" name="ubicacion"
+                                   value="{{ old('ubicacion', $producto->ubicacion) }}"
+                                   placeholder="Ej: Estante A-3"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
 
+                {{-- ══════════════════════════════════════════════════════════
+                    BLOQUES 5-7 — FICHA TÉCNICA (condicional por tipo)
+                ══════════════════════════════════════════════════════════ --}}
+                <div id="bloqueFichaTecnica" class="{{ $mostrarFicha ? '' : 'hidden' }} bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                    <div class="px-6 py-4 flex items-center gap-3" style="background-color:#1a3a2a;">
+                        <i class="fas fa-lightbulb text-xl" style="color:#F7D600;"></i>
+                        <div>
+                            <h2 class="text-base font-bold text-white">Configuración Técnica — Ficha Kyrios</h2>
+                            <p class="text-xs text-gray-300">Especificaciones técnicas del producto</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
                         @include('luminarias.partials.ficha-tecnica-form')
                     </div>
+                </div>
 
-                    <!-- Botones -->
-                    <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-                        <a href="{{ route('inventario.productos.codigos-barras', $producto) }}"
-                           class="px-4 py-2 text-sm text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50">
-                            <i class="fas fa-barcode mr-2"></i>Gestionar Códigos de Barras
+                {{-- Botones de acción --}}
+                <div class="flex items-center justify-between pt-4">
+                    <a href="{{ route('inventario.productos.codigos-barras', $producto) }}"
+                       class="px-4 py-2 text-sm text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50">
+                        <i class="fas fa-barcode mr-2"></i>Gestionar Códigos de Barras
+                    </a>
+                    <div class="flex gap-3">
+                        <a href="{{ route('inventario.productos.show', $producto) }}"
+                           class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                            <i class="fas fa-times mr-2"></i>Cancelar
                         </a>
-                        <div class="flex space-x-3">
-                            <a href="{{ route('inventario.productos.show', $producto) }}"
-                               class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                                <i class="fas fa-times mr-2"></i>Cancelar
-                            </a>
-                            <button type="submit" class="px-6 py-2 text-gray-900 rounded-lg font-semibold"
-                                    style="background-color:#F7D600;" onmouseover="this.style.backgroundColor='#e8c900'" onmouseout="this.style.backgroundColor='#F7D600'">
-                                <i class="fas fa-save mr-2"></i>Guardar Cambios
-                            </button>
-                        </div>
+                        <button type="submit"
+                                class="px-8 py-2.5 text-gray-900 rounded-lg font-semibold text-sm shadow-sm"
+                                style="background-color:#F7D600;"
+                                onmouseover="this.style.backgroundColor='#e8c900'"
+                                onmouseout="this.style.backgroundColor='#F7D600'">
+                            <i class="fas fa-save mr-2"></i>Guardar Cambios
+                        </button>
                     </div>
-                </form>
-            </div>
+                </div>
+
+            </form>
         </div>
     </div>
 
     @include('inventario.productos.partials.modales-rapidos')
 
     <script>
-        // Preview de imagen nueva
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('imagePreview').src = e.target.result;
-                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
+    // ─── Tipos de producto (desde BD) ────────────────────────────────────────────
+    const TIPOS_DATA         = @json($tiposProducto->keyBy('id'));
+    const TIPOS_CON_FICHA    = new Set(['LU','LA','CL','SM','EA','PE','PA','VE','CA','PO','LE','SO','RE']);
+    const TIPOS_CON_LUMENES  = new Set(['LU','LA','CL','SM','PE','PA','PO','LE','SO','RE']);
+    const TIPOS_CON_CRI      = new Set(['LU','LA','CL','SM','PE','PA']);
+    const TIPOS_CON_IP       = new Set(['LU','CL','PO','LE','SO']);
+    const TIPOS_CON_ANGULO   = new Set(['LU','LA','CA','PE']);
+
+    let tipoProductoId  = {{ $tpSelId ?? 'null' }};
+    let tipoLuminariaId = {{ $tlSelId ?? 'null' }};
+    let marcaId         = {{ old('marca_id', $producto->marca_id ?? 'null') }};
+    let tipoCodigoActual = '{{ $tpSel ? $tpSel->codigo : '' }}';
+
+    function aplicarTipoProducto(id, codigo, usaLuminaria) {
+        tipoProductoId   = id;
+        tipoCodigoActual = codigo;
+
+        // Mostrar/ocultar bloque tipo luminaria
+        document.getElementById('bloqueTipoLuminaria').classList.toggle('hidden', !usaLuminaria);
+        if (!usaLuminaria) {
+            tipoLuminariaId = null;
+            document.querySelectorAll('#selectorTipoLuminaria input').forEach(i => i.checked = false);
+            document.querySelectorAll('.tipo-lum-card').forEach(c => c.classList.remove('border-yellow-400','bg-yellow-50'));
         }
 
-        // Carga de marcas filtradas por categoría
-        function cargarMarcasPorCategoria(categoriaId, marcaSeleccionada = null) {
-            const marcaSelect = document.getElementById('marca_id');
-            const modeloSelect = document.getElementById('modelo_id');
+        // Mostrar/ocultar ficha técnica
+        const hasFicha = TIPOS_CON_FICHA.has(codigo);
+        document.getElementById('bloqueFichaTecnica').classList.toggle('hidden', !hasFicha);
 
-            marcaSelect.innerHTML = '<option value="">Cargando marcas...</option>';
-            marcaSelect.disabled = true;
-            modeloSelect.innerHTML = '<option value="">Primero seleccione una marca</option>';
-            modeloSelect.disabled = true;
-
-            if (!categoriaId) {
-                marcaSelect.innerHTML = '<option value="">Seleccione una categoría primero</option>';
-                marcaSelect.disabled = false;
-                return;
-            }
-
-            fetch(`/catalogo/marcas-por-categoria/${categoriaId}`)
-                .then(response => response.json())
-                .then(data => {
-                    marcaSelect.innerHTML = '<option value="">Sin marca</option>';
-                    data.forEach(marca => {
-                        const selected = (marcaSeleccionada && marca.id == marcaSeleccionada) ? 'selected' : '';
-                        marcaSelect.innerHTML += `<option value="${marca.id}" ${selected}>${marca.nombre}</option>`;
-                    });
-                    marcaSelect.disabled = false;
-
-                    if (marcaSeleccionada) {
-                        cargarModelosPorMarca(marcaSeleccionada);
-                    }
-                })
-                .catch(() => {
-                    marcaSelect.innerHTML = '<option value="">Error al cargar marcas</option>';
-                    marcaSelect.disabled = false;
-                });
+        // Campos condicionales dentro de la ficha
+        if (hasFicha) {
+            toggleCampo('.campo-lumenes', TIPOS_CON_LUMENES.has(codigo));
+            toggleCampo('.campo-cri',     TIPOS_CON_CRI.has(codigo));
+            toggleCampo('.campo-ip',      TIPOS_CON_IP.has(codigo));
+            toggleCampo('.campo-angulo',  TIPOS_CON_ANGULO.has(codigo));
         }
 
-        // Carga de modelos filtrados por marca
-        function cargarModelosPorMarca(marcaId, modeloSeleccionado = null) {
-            const modeloSelect = document.getElementById('modelo_id');
+        // Estilos tarjetas
+        document.querySelectorAll('.tipo-card').forEach(c => {
+            c.classList.remove('border-yellow-400','bg-yellow-50');
+            if (parseInt(c.dataset.id) === id) c.classList.add('border-yellow-400','bg-yellow-50');
+        });
+    }
 
-            modeloSelect.innerHTML = '<option value="">Cargando modelos...</option>';
-            modeloSelect.disabled = true;
+    function toggleCampo(sel, vis) {
+        document.querySelectorAll(sel).forEach(el => el.style.display = vis ? '' : 'none');
+    }
 
-            if (!marcaId) {
-                modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
-                modeloSelect.disabled = false;
-                return;
-            }
+    // Click en tarjetas tipo producto
+    document.querySelectorAll('.tipo-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.querySelector('input[type=radio]').checked = true;
+            aplicarTipoProducto(
+                parseInt(card.dataset.id),
+                card.dataset.codigo,
+                card.dataset.usaLuminaria === '1'
+            );
+        });
+    });
 
-            fetch(`/catalogo/modelos-por-marca/${marcaId}`)
-                .then(response => response.json())
-                .then(data => {
-                    modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
-                    data.forEach(modelo => {
-                        const selected = (modeloSeleccionado && modelo.id == modeloSeleccionado) ? 'selected' : '';
-                        modeloSelect.innerHTML += `<option value="${modelo.id}" ${selected}>${modelo.nombre}</option>`;
-                    });
-                    modeloSelect.disabled = false;
-                })
-                .catch(() => {
-                    modeloSelect.innerHTML = '<option value="">Error al cargar modelos</option>';
-                    modeloSelect.disabled = false;
-                });
+    // Click en tarjetas tipo luminaria
+    document.querySelectorAll('.tipo-lum-card').forEach(card => {
+        card.addEventListener('click', () => {
+            card.querySelector('input[type=radio]').checked = true;
+            tipoLuminariaId = parseInt(card.dataset.id);
+            document.querySelectorAll('.tipo-lum-card').forEach(c => c.classList.remove('border-yellow-400','bg-yellow-50'));
+            card.classList.add('border-yellow-400','bg-yellow-50');
+        });
+    });
+
+    // Inicializar campos condicionales según tipo actual
+    if (tipoCodigoActual) {
+        const hasFicha = TIPOS_CON_FICHA.has(tipoCodigoActual);
+        if (hasFicha) {
+            toggleCampo('.campo-lumenes', TIPOS_CON_LUMENES.has(tipoCodigoActual));
+            toggleCampo('.campo-cri',     TIPOS_CON_CRI.has(tipoCodigoActual));
+            toggleCampo('.campo-ip',      TIPOS_CON_IP.has(tipoCodigoActual));
+            toggleCampo('.campo-angulo',  TIPOS_CON_ANGULO.has(tipoCodigoActual));
         }
+    }
 
-        // Sugerir nombre desde marca + modelo
-        function sugerirNombre() {
-            const marca = document.getElementById('marca_id').selectedOptions[0]?.text || '';
-            const modelo = document.getElementById('modelo_id').selectedOptions[0]?.text || '';
+    // ─── Generación de Código Kyrios ──────────────────────────────────────────
+    document.getElementById('btnGenerarKyrios')?.addEventListener('click', function () {
+        if (!tipoProductoId) { alert('Selecciona el tipo de producto primero'); return; }
 
-            let partes = [];
-            if (marca && marca !== 'Sin marca') partes.push(marca);
-            if (modelo && modelo !== 'Sin modelo') partes.push(modelo);
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Generando...';
 
-            if (partes.length > 0) {
-                document.getElementById('nombre').value = partes.join(' ');
+        const params = new URLSearchParams({
+            tipo_producto_id:  tipoProductoId  || '',
+            tipo_luminaria_id: tipoLuminariaId || '',
+            marca_id:          marcaId         || '',
+        });
+
+        fetch(`{{ route('inventario.productos.generar-codigo-kyrios') }}?${params}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const input = document.getElementById('codigo_kyrios');
+                input.value = data.codigo;
+                input.classList.add('border-green-500','bg-green-50');
+                setTimeout(() => input.classList.remove('border-green-500','bg-green-50'), 1400);
             } else {
-                alert('Selecciona al menos marca o modelo para generar una sugerencia');
+                alert(data.message || 'No se pudo generar el código');
             }
+        })
+        .catch(() => alert('Error de conexión al generar código Kyrios'))
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i>Regenerar';
+        });
+    });
+
+    // ─── Código de Barras ────────────────────────────────────────────────────
+    document.getElementById('btnGenerarCodigo')?.addEventListener('click', function () {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        fetch('{{ route("inventario.productos.generar-codigo-barras") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: JSON.stringify({ tipo: 'accesorio' })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const input = document.getElementById('codigo_barras');
+                input.value = data.codigo;
+                input.classList.add('border-green-500','bg-green-50');
+                setTimeout(() => input.classList.remove('border-green-500','bg-green-50'), 1200);
+            }
+        })
+        .catch(() => alert('Error al generar código de barras'))
+        .finally(() => { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i>'; });
+    });
+
+    // ─── Marca/Modelo en cascada ──────────────────────────────────────────────
+    function cargarMarcasPorCategoria(categoriaId, marcaSeleccionada = null) {
+        const marcaSelect  = document.getElementById('marca_id');
+        const modeloSelect = document.getElementById('modelo_id');
+        marcaSelect.innerHTML = '<option value="">Cargando...</option>';
+        marcaSelect.disabled = true;
+        modeloSelect.innerHTML = '<option value="">Primero selecciona marca</option>';
+        modeloSelect.disabled = true;
+
+        if (!categoriaId) {
+            marcaSelect.innerHTML = '<option value="">Sin marca</option>';
+            marcaSelect.disabled = false;
+            modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
+            modeloSelect.disabled = false;
+            return;
         }
 
-        // Botón Generar código de barras
-        document.getElementById('btnGenerarCodigo')?.addEventListener('click', function() {
-            const btn = this;
-            const codigoInput = document.getElementById('codigo_barras');
-            const tipoBarras = 'luminaria';
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generando...';
-
-            fetch('{{ route("inventario.productos.generar-codigo-barras") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ tipo: tipoBarras })
-            })
-            .then(response => response.json())
+        fetch(`/catalogo/marcas-por-categoria/${categoriaId}`)
+            .then(r => r.json())
             .then(data => {
-                if (data.success) {
-                    codigoInput.value = data.codigo;
-                    codigoInput.classList.add('border-green-500', 'bg-green-50');
-                    setTimeout(() => codigoInput.classList.remove('border-green-500', 'bg-green-50'), 1000);
-                } else {
-                    alert('Error: ' + data.message);
-                }
+                marcaSelect.innerHTML = '<option value="">Sin marca</option>';
+                data.forEach(m => {
+                    const sel = (marcaSeleccionada && m.id == marcaSeleccionada) ? 'selected' : '';
+                    marcaSelect.innerHTML += `<option value="${m.id}" ${sel}>${m.nombre}</option>`;
+                });
+                marcaSelect.disabled = false;
+                if (marcaSeleccionada) cargarModelosPorMarca(marcaSeleccionada, _mod);
             })
-            .catch(() => alert('Error al generar código'))
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync-alt mr-2"></i>Generar';
-            });
-        });
+            .catch(() => { marcaSelect.innerHTML = '<option value="">Error</option>'; marcaSelect.disabled = false; });
+    }
 
-        document.getElementById('btnSugerirNombre')?.addEventListener('click', sugerirNombre);
+    function cargarModelosPorMarca(marcaId, modeloSel = null) {
+        const modeloSelect = document.getElementById('modelo_id');
+        modeloSelect.innerHTML = '<option value="">Cargando...</option>';
+        modeloSelect.disabled = true;
 
-        // Inicialización al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            const categoriaId = {{ old('categoria_id', $producto->categoria_id ?? 'null') }};
-            const marcaId     = {{ old('marca_id',     $producto->marca_id     ?? 'null') }};
-            const modeloId    = {{ old('modelo_id',    $producto->modelo_id    ?? 'null') }};
+        if (!marcaId) {
+            modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
+            modeloSelect.disabled = false;
+            return;
+        }
 
-            // Evento cambio de categoría → recargar marcas
-            document.getElementById('categoria_id')?.addEventListener('change', function() {
-                cargarMarcasPorCategoria(this.value);
-            });
+        fetch(`/catalogo/modelos-por-marca/${marcaId}`)
+            .then(r => r.json())
+            .then(data => {
+                modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
+                data.forEach(m => {
+                    const sel = (modeloSel && m.id == modeloSel) ? 'selected' : '';
+                    modeloSelect.innerHTML += `<option value="${m.id}" ${sel}>${m.nombre}</option>`;
+                });
+                modeloSelect.disabled = false;
+            })
+            .catch(() => { modeloSelect.innerHTML = '<option value="">Error</option>'; modeloSelect.disabled = false; });
+    }
 
-            // Evento cambio de marca → recargar modelos
-            document.getElementById('marca_id')?.addEventListener('change', function() {
-                cargarModelosPorMarca(this.value);
-            });
+    document.getElementById('categoria_id')?.addEventListener('change', function () {
+        cargarMarcasPorCategoria(this.value);
+    });
+    document.getElementById('marca_id')?.addEventListener('change', function () {
+        marcaId = this.value ? parseInt(this.value) : null;
+        cargarModelosPorMarca(this.value);
+    });
 
-            // Pre-cargar marcas y modelos del producto actual
-            if (categoriaId) {
-                cargarMarcasPorCategoria(categoriaId, marcaId);
-                // Los modelos se cargan en cascada dentro de cargarMarcasPorCategoria
-                // pero necesitamos pasar el modelo seleccionado
-                if (marcaId) {
-                    // Sobrescribir para pasar modeloId también
-                    const originalCargarMarcas = cargarMarcasPorCategoria;
-                    fetch(`/catalogo/marcas-por-categoria/${categoriaId}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            const marcaSelect = document.getElementById('marca_id');
-                            marcaSelect.innerHTML = '<option value="">Sin marca</option>';
-                            data.forEach(marca => {
-                                const selected = marca.id == marcaId ? 'selected' : '';
-                                marcaSelect.innerHTML += `<option value="${marca.id}" ${selected}>${marca.nombre}</option>`;
-                            });
-                            marcaSelect.disabled = false;
-                            if (marcaId) cargarModelosPorMarca(marcaId, modeloId);
-                        });
-                }
-            } else {
-                document.getElementById('marca_id').innerHTML = '<option value="">Sin marca</option>';
-                document.getElementById('marca_id').disabled = false;
-                document.getElementById('modelo_id').innerHTML = '<option value="">Sin modelo</option>';
-                document.getElementById('modelo_id').disabled = false;
-            }
-        });
+    // Pre-cargar marca y modelo del producto actual
+    const _cat = {{ old('categoria_id', $producto->categoria_id ?? 'null') }};
+    const _mar = {{ old('marca_id',     $producto->marca_id     ?? 'null') }};
+    const _mod = {{ old('modelo_id',    $producto->modelo_id    ?? 'null') }};
+    if (_cat) cargarMarcasPorCategoria(_cat, _mar);
+
+    // ─── Sugerir nombre ───────────────────────────────────────────────────────
+    document.getElementById('btnSugerirNombre')?.addEventListener('click', function () {
+        const marca  = document.getElementById('marca_id').selectedOptions[0]?.text || '';
+        const modelo = document.getElementById('modelo_id').selectedOptions[0]?.text || '';
+        const partes = [];
+        if (marca  && marca  !== 'Sin marca')  partes.push(marca);
+        if (modelo && modelo !== 'Sin modelo') partes.push(modelo);
+        if (partes.length > 0) document.getElementById('nombre').value = partes.join(' ');
+        else alert('Selecciona al menos marca o modelo');
+    });
+
+    // ─── Preview imagen ───────────────────────────────────────────────────────
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('imagePreview').src = e.target.result;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
     </script>
 </body>
 </html>

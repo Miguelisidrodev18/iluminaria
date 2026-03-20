@@ -13,6 +13,7 @@ class ProductoMaterial extends Model
         'producto_id',
         'material_1',
         'material_2',
+        'material_terciario',
         'color_acabado_1',
         'color_acabado_2',
     ];

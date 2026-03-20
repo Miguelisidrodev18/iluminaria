@@ -321,31 +321,40 @@
                                 <i class="fas fa-tags text-purple-600"></i> Clasificación de Uso
                             </h4>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                @if($clas->uso)
-                                <div>
-                                    <p class="text-xs text-gray-500">Uso</p>
-                                    <p class="font-medium text-gray-900">{{ ucfirst(str_replace('_', ' / ', $clas->uso)) }}</p>
-                                </div>
-                                @endif
-                                @if($clas->tipo_instalacion)
+                                @php
+                                    $instalaciones = is_array($clas->tipo_instalacion) ? $clas->tipo_instalacion : [];
+                                    $estilos       = is_array($clas->estilo) ? $clas->estilo : [];
+                                @endphp
+                                @if(!empty($instalaciones))
                                 <div>
                                     <p class="text-xs text-gray-500">Instalación</p>
-                                    <p class="font-medium text-gray-900">{{ ucfirst($clas->tipo_instalacion) }}</p>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        @foreach($instalaciones as $inst)
+                                            <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                                                {{ ucfirst($inst) }}
+                                            </span>
+                                        @endforeach
+                                    </div>
                                 </div>
                                 @endif
-                                @if($clas->estilo)
+                                @if(!empty($estilos))
                                 <div>
                                     <p class="text-xs text-gray-500">Estilo</p>
-                                    <p class="font-medium text-gray-900">{{ $clas->estilo }}</p>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        @foreach($estilos as $est)
+                                            <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">{{ $est }}</span>
+                                        @endforeach
+                                    </div>
                                 </div>
                                 @endif
-                                @if($clas->tipoProyecto)
-                                <div>
+                                @if($producto->tiposProyecto->isNotEmpty())
+                                <div class="md:col-span-2">
                                     <p class="text-xs text-gray-500">Tipo de Proyecto</p>
-                                    <p class="font-medium text-gray-900">
-                                        <i class="fas {{ $clas->tipoProyecto->icono }} mr-1 text-yellow-500"></i>
-                                        {{ $clas->tipoProyecto->nombre }}
-                                    </p>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        @foreach($producto->tiposProyecto as $tp)
+                                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">{{ $tp->nombre }}</span>
+                                        @endforeach
+                                    </div>
                                 </div>
                                 @endif
                             </div>

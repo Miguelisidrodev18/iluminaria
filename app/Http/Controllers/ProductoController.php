@@ -12,6 +12,9 @@ use App\Models\Catalogo\Modelo;
 use App\Models\Catalogo\Color;
 use App\Models\Catalogo\UnidadMedida;
 use App\Models\Luminaria\TipoProyecto;
+use App\Models\Luminaria\TipoProducto;
+use App\Models\Luminaria\TipoLuminaria;
+use App\Models\Luminaria\Clasificacion;
 use App\Models\Luminaria\ProductoEspecificacion;
 use App\Models\Luminaria\ProductoDimension;
 use App\Models\Luminaria\ProductoMaterial;
@@ -60,7 +63,7 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Producto::with(['categoria', 'variantesActivas.color']);
+        $query = Producto::with(['categoria', 'variantesActivas.color', 'tipoProducto', 'marca', 'unidadMedida']);
 
         // Filtro por búsqueda
         if ($request->filled('buscar')) {
@@ -72,7 +75,12 @@ class ProductoController extends Controller
             $query->where('categoria_id', $request->categoria_id);
         }
 
-        // Filtro por estado — por defecto solo 'activo' (oculta productos migrados a variantes)
+        // Filtro por tipo de producto
+        if ($request->filled('tipo_producto_id')) {
+            $query->where('tipo_producto_id', $request->tipo_producto_id);
+        }
+
+        // Filtro por estado — por defecto solo 'activo'
         $estadoFiltro = $request->get('estado', 'activo');
         if ($estadoFiltro !== 'todos') {
             $query->where('estado', $estadoFiltro);
@@ -86,24 +94,24 @@ class ProductoController extends Controller
         // Filtro por estado de stock
         if ($request->filled('stock_estado')) {
             switch ($request->stock_estado) {
-                case 'bajo':
-                    $query->stockBajo();
-                    break;
-                case 'sin_stock':
-                    $query->sinStock();
-                    break;
+                case 'bajo':    $query->stockBajo(); break;
+                case 'sin_stock': $query->sinStock(); break;
             }
         }
 
-        $productos = $query->orderBy('nombre')->paginate(15);
-        $categorias = Categoria::activas()->orderBy('nombre')->get();
-        
+        $productos    = $query->orderBy('nombre')->paginate(15);
+        $categorias   = Categoria::activas()->orderBy('nombre')->get();
+        $tiposProducto = TipoProducto::activos()->orderBy('nombre')->get();
+
         // Verificar permisos
         $canCreate = in_array(auth()->user()->role->nombre, ['Administrador', 'Almacenero']);
-        $canEdit = in_array(auth()->user()->role->nombre, ['Administrador', 'Almacenero']);
+        $canEdit   = in_array(auth()->user()->role->nombre, ['Administrador', 'Almacenero']);
         $canDelete = auth()->user()->role->nombre === 'Administrador';
-        
-        return view('inventario.productos.index', compact('productos', 'categorias', 'canCreate', 'canEdit', 'canDelete'));
+
+        return view('inventario.productos.index', compact(
+            'productos', 'categorias', 'tiposProducto',
+            'canCreate', 'canEdit', 'canDelete'
+        ));
     }
 
     /**
@@ -129,7 +137,10 @@ public function create()
     $colores = Color::where('estado', 'activo')->orderBy('nombre')->get(); // ✅ YA LO TIENES
     $unidades = UnidadMedida::where('estado', 'activo')->orderBy('nombre')->get(); // ✅ YA LO TIENES
     
-    $tiposProyecto = TipoProyecto::activos()->orderBy('nombre')->get();
+    $tiposProyecto   = TipoProyecto::activos()->orderBy('nombre')->get();
+    $tiposProducto   = TipoProducto::activos()->orderBy('nombre')->get();
+    $tiposLuminaria  = TipoLuminaria::activos()->orderBy('nombre')->get();
+    $clasificaciones = Clasificacion::activos()->orderBy('nombre')->get();
 
     return view('inventario.productos.create', compact(
         'categorias',
@@ -138,7 +149,10 @@ public function create()
         'modelos',
         'colores',
         'unidades',
-        'tiposProyecto'
+        'tiposProyecto',
+        'tiposProducto',
+        'tiposLuminaria',
+        'clasificaciones'
     ));
 }
 
@@ -159,36 +173,60 @@ public function create()
         'color_id' => 'nullable|exists:colores,id',          // ✅ NUEVO
         'unidad_medida_id' => 'required|exists:unidades_medida,id', // Cambiado de 'unidad_medida'
         
-        // ✅ NUEVO: Tipo de inventario (reemplaza a tipo_producto)
-        'tipo_inventario' => 'required|in:cantidad,serie',   // cantidad = accesorio, serie = celular
-        
-        // ✅ NUEVO: Garantía (para celulares)
+        // Tipo de producto — FK relacional (siempre requerido)
+        'tipo_producto_id'  => 'required|exists:tipos_producto,id',
+        'tipo_luminaria_id' => [
+            'nullable',
+            'exists:tipos_luminaria,id',
+            \Illuminate\Validation\Rule::requiredIf(function () use ($request) {
+                $tp = \App\Models\Luminaria\TipoProducto::find($request->tipo_producto_id);
+                return $tp && $tp->usa_tipo_luminaria;
+            }),
+        ],
+
+        // Tipo de inventario
+        'tipo_inventario' => 'required|in:cantidad,serie',
+
+        // Garantía (para serie)
         'dias_garantia' => 'required_if:tipo_inventario,serie|integer|min:0',
         'tipo_garantia' => 'required_if:tipo_inventario,serie|in:proveedor,tienda,fabricante',
-        
+
         // Códigos
         'codigo_barras' => 'nullable|string|max:50|unique:productos,codigo_barras',
-        
+
         // Stock
         'stock_minimo' => 'required|integer|min:0',
         'stock_maximo' => 'required|integer|min:1',
         'ubicacion' => 'nullable|string|max:100',
-        
+
         // Imagen y estado
         'imagen' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
         'estado' => 'required|in:activo,inactivo,descontinuado',
-        
-        // Stock inicial (solo para accesorios)
+
+        // Stock inicial
         'stock_inicial' => 'nullable|integer|min:0',
         'almacen_id' => 'nullable|required_with:stock_inicial|exists:almacenes,id',
 
         // Kyrios / ficha técnica
-        'codigo_kyrios'   => 'nullable|string|max:100',
-        'codigo_fabrica'  => 'nullable|string|max:100',
-        'procedencia'     => 'nullable|string|max:100',
-        'linea'           => 'nullable|string|max:100',
+        'codigo_kyrios'     => 'nullable|string|max:100',
+        'codigo_fabrica'    => 'nullable|string|max:100',
+        'procedencia'       => 'nullable|string|max:100',
+        'linea'             => 'nullable|string|max:100',
         'ficha_tecnica_url' => 'nullable|url|max:500',
-        'observaciones'   => 'nullable|string',
+        'observaciones'     => 'nullable|string',
+
+        // Especificaciones técnicas
+        'especificacion.vida_util_horas' => 'nullable|integer|min:0',
+
+        // Dimensiones
+        'dimensiones.peso' => 'nullable|numeric|min:0',
+
+        // Clasificaciones de uso (array de IDs de clasificaciones)
+        'clasificacion_ids'    => 'nullable|array',
+        'clasificacion_ids.*'  => 'exists:clasificaciones,id',
+        // Tipos de proyecto (multi-valor, pivot)
+        'tipo_proyecto_ids'    => 'nullable|array',
+        'tipo_proyecto_ids.*'  => 'exists:tipos_proyecto,id',
     ]);
 
     // Generar código automático si no existe
@@ -210,6 +248,10 @@ public function create()
     \DB::transaction(function () use ($validated, $request) {
         // Crear producto
         $producto = Producto::create($validated);
+
+        // Sincronizar clasificaciones de uso (pivot)
+        $clasificacionIds = array_filter((array) $request->input('clasificacion_ids', []));
+        $producto->clasificaciones()->sync($clasificacionIds);
 
         // Guardar ficha técnica luminaria
         $this->guardarFichaTecnica($producto, $request);
@@ -274,7 +316,7 @@ public function create()
         $producto->load([
             'categoria', 'marca', 'modelo', 'color', 'unidadMedida',
             'especificacion', 'dimensiones', 'materiales', 'clasificacion',
-            'clasificacion.tipoProyecto',
+            'tiposProyecto',
             'movimientos' => fn($q) => $q->latest()->limit(10),
         ]);
 
@@ -289,7 +331,9 @@ public function create()
         // Cargar relaciones necesarias
         $producto->load([
             'marca', 'modelo', 'color', 'categoria', 'unidadMedida',
+            'tipoProducto', 'tipoLuminaria',
             'especificacion', 'dimensiones', 'materiales', 'clasificacion',
+            'clasificaciones', 'tiposProyecto',
         ]);
         
         // Obtener datos para los selects
@@ -312,7 +356,10 @@ public function create()
         // Obtener códigos de barras (opcional)
         $codigosBarras = $producto->codigosBarras ?? collect();
 
-        $tiposProyecto = TipoProyecto::activos()->orderBy('nombre')->get();
+        $tiposProyecto   = TipoProyecto::activos()->orderBy('nombre')->get();
+        $tiposProducto   = TipoProducto::activos()->orderBy('nombre')->get();
+        $tiposLuminaria  = TipoLuminaria::activos()->orderBy('nombre')->get();
+        $clasificaciones = Clasificacion::activos()->orderBy('nombre')->get();
 
         return view('inventario.productos.edit', compact(
             'producto',
@@ -322,7 +369,10 @@ public function create()
             'colores',
             'unidades',
             'codigosBarras',
-            'tiposProyecto'
+            'tiposProyecto',
+            'tiposProducto',
+            'tiposLuminaria',
+            'clasificaciones'
         ));
     }
 
@@ -342,13 +392,24 @@ public function create()
         'color_id' => 'nullable|exists:colores,id',
         'unidad_medida_id' => 'required|exists:unidades_medida,id',
         
-        // ✅ NUEVO: Tipo de inventario
+        // Tipo de producto — FK relacional (siempre requerido)
+        'tipo_producto_id'  => 'required|exists:tipos_producto,id',
+        'tipo_luminaria_id' => [
+            'nullable',
+            'exists:tipos_luminaria,id',
+            \Illuminate\Validation\Rule::requiredIf(function () use ($request) {
+                $tp = \App\Models\Luminaria\TipoProducto::find($request->tipo_producto_id);
+                return $tp && $tp->usa_tipo_luminaria;
+            }),
+        ],
+
+        // Tipo de inventario
         'tipo_inventario' => 'required|in:cantidad,serie',
-        
-        // ✅ NUEVO: Garantía
+
+        // Garantía
         'dias_garantia' => 'required_if:tipo_inventario,serie|integer|min:0',
         'tipo_garantia' => 'required_if:tipo_inventario,serie|in:proveedor,tienda,fabricante',
-        
+
         // Código de barras (único excepto este producto)
         'codigo_barras' => 'nullable|string|max:100|unique:productos,codigo_barras,' . $producto->id,
 
@@ -368,6 +429,16 @@ public function create()
         'linea'             => 'nullable|string|max:100',
         'ficha_tecnica_url' => 'nullable|url|max:500',
         'observaciones'     => 'nullable|string',
+
+        // Especificaciones técnicas
+        'especificacion.vida_util_horas' => 'nullable|integer|min:0',
+
+        // Dimensiones
+        'dimensiones.peso' => 'nullable|numeric|min:0',
+
+        // Clasificaciones de uso (array de IDs)
+        'clasificacion_ids'   => 'nullable|array',
+        'clasificacion_ids.*' => 'exists:clasificaciones,id',
     ]);
 
     // Subir nueva imagen si existe
@@ -380,6 +451,10 @@ public function create()
 
     // Actualizar producto
     $producto->update($validated);
+
+    // Sincronizar clasificaciones de uso (pivot)
+    $clasificacionIds = array_filter((array) $request->input('clasificacion_ids', []));
+    $producto->clasificaciones()->sync($clasificacionIds);
 
     // Guardar ficha técnica luminaria
     $this->guardarFichaTecnica($producto, $request);
@@ -435,12 +510,96 @@ public function create()
             );
         }
 
-        if ($request->filled('clasificacion')) {
+        // Guardar atributos de instalación (tipo_instalacion[], estilo[]) — multi-valor
+        $clData = $request->input('clasificacion', []);
+        $tipoInstalacion = array_values(array_filter((array) ($clData['tipo_instalacion'] ?? [])));
+        $estilos         = array_values(array_filter((array) ($clData['estilo'] ?? [])));
+
+        if (!empty($tipoInstalacion) || !empty($estilos)) {
             $producto->clasificacion()->updateOrCreate(
                 ['producto_id' => $producto->id],
-                $request->input('clasificacion')
+                [
+                    'tipo_instalacion' => $tipoInstalacion,
+                    'estilo'           => $estilos,
+                ]
             );
         }
+
+        // Sincronizar tipos de proyecto (pivot multi-valor)
+        $tiposProyectoIds = array_filter((array) $request->input('tipo_proyecto_ids', []));
+        $producto->tiposProyecto()->sync($tiposProyectoIds);
+    }
+
+    /**
+     * Generar código Kyrios automático (AJAX)
+     *
+     * Formato si tipo_producto.usa_tipo_luminaria = true:
+     *   KY-[TP][TL][M]-[NNNN]
+     *
+     * Formato si tipo_producto.usa_tipo_luminaria = false:
+     *   KY-[TP]00[M]-[NNNN]
+     *
+     * TP = tipos_producto.codigo (2 chars)
+     * TL = tipos_luminaria.codigo (2 chars) | '00'
+     * M  = marcas.codigo (2 chars) | 'XX'
+     * NNNN = correlativo por (tipo_producto_id, tipo_luminaria_id, marca_id)
+     */
+    public function generarCodigoKyrios(Request $request)
+    {
+        $tipoProductoId  = $request->get('tipo_producto_id');
+        $tipoLuminariaId = $request->get('tipo_luminaria_id');
+        $marcaId         = $request->get('marca_id');
+
+        // Cargar tipo de producto
+        $tipoProducto = TipoProducto::find($tipoProductoId);
+        if (!$tipoProducto) {
+            return response()->json(['success' => false, 'message' => 'Selecciona un tipo de producto'], 422);
+        }
+
+        // Segmento TP (2 chars)
+        $segTP = strtoupper($tipoProducto->codigo);
+
+        // Segmento TL (2 chars) o '00'
+        $segTL = '00';
+        if ($tipoProducto->usa_tipo_luminaria && $tipoLuminariaId) {
+            $tipoLuminaria = TipoLuminaria::find($tipoLuminariaId);
+            if ($tipoLuminaria) {
+                $segTL = strtoupper($tipoLuminaria->codigo);
+            }
+        }
+
+        // Segmento M (2 chars del código de marca) o 'XX'
+        $segM = 'XX';
+        if ($marcaId) {
+            $marca = \App\Models\Catalogo\Marca::find($marcaId);
+            if ($marca && $marca->codigo) {
+                $segM = strtoupper($marca->codigo);
+            }
+        }
+
+        $prefijo = "KY-{$segTP}{$segTL}{$segM}";
+
+        // Correlativo incremental por combinación (tipo_producto_id, tipo_luminaria_id, marca_id)
+        $correlativo = Producto::where('tipo_producto_id', $tipoProductoId)
+            ->where('tipo_luminaria_id', $tipoLuminariaId ?: null)
+            ->where('marca_id', $marcaId ?: null)
+            ->whereNotNull('codigo_kyrios')
+            ->count() + 1;
+
+        $codigo = $prefijo . '-' . str_pad($correlativo, 4, '0', STR_PAD_LEFT);
+
+        // Garantizar unicidad global
+        while (Producto::where('codigo_kyrios', $codigo)->exists()) {
+            $correlativo++;
+            $codigo = $prefijo . '-' . str_pad($correlativo, 4, '0', STR_PAD_LEFT);
+        }
+
+        return response()->json([
+            'success'  => true,
+            'codigo'   => $codigo,
+            'prefijo'  => $prefijo,
+            'segmentos' => compact('segTP', 'segTL', 'segM'),
+        ]);
     }
 
     /**

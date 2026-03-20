@@ -179,6 +179,7 @@ Route::middleware('auth')->group(function () {
                 // 🔴 NUEVAS RUTAS PARA GENERAR CÓDIGOS DE BARRAS
                 Route::post('/productos/generar-codigo-barras', [ProductoController::class, 'generarCodigoBarras'])->name('productos.generar-codigo-barras');
                 Route::get('/productos/validar-codigo-barras', [ProductoController::class, 'validarCodigoBarras'])->name('productos.validar-codigo-barras');
+                Route::get('/productos/generar-codigo-kyrios', [ProductoController::class, 'generarCodigoKyrios'])->name('productos.generar-codigo-kyrios');
                 // Gestión de proveedores del producto
                 Route::get('/productos/{producto}/proveedores', [ProductoController::class, 'proveedores'])->name('productos.proveedores');
                 Route::post('/productos/{producto}/proveedores', [ProductoController::class, 'asociarProveedor'])->name('productos.proveedores.asociar');
