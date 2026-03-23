@@ -8,9 +8,14 @@ use App\Models\User;
 use App\Models\Role;
 
 /**
- * Seeder exclusivo para desarrollo/testing.
- * Crea usuarios de prueba para cada rol del sistema.
+ * Seeder exclusivo para entornos de desarrollo y testing.
  * NUNCA se ejecuta en producción.
+ *
+ * Crea:
+ *   1. Usuarios demo para cada rol del sistema (contraseña: "password")
+ *   2. Catálogo de productos de ejemplo (componentes, simples, compuestos)
+ *   3. Variantes de productos con especificación
+ *   4. BOM (Bill of Materials) de los productos compuestos
  */
 class DevelopmentSeeder extends Seeder
 {
@@ -21,6 +26,20 @@ class DevelopmentSeeder extends Seeder
             return;
         }
 
+        $this->seedUsuariosDemo();
+
+        // Catálogo de productos de ejemplo (en orden: primero productos, luego variantes, luego BOM)
+        $this->call([
+            ProductoSeeder::class,
+            VarianteSeeder::class,
+            ComponenteSeeder::class,
+        ]);
+    }
+
+    // ─── Usuarios demo ────────────────────────────────────────────────────────
+
+    private function seedUsuariosDemo(): void
+    {
         $roles = Role::pluck('id', 'nombre');
 
         if ($roles->isEmpty()) {
@@ -30,34 +49,39 @@ class DevelopmentSeeder extends Seeder
 
         $usuarios = [
             [
-                'name'     => 'Vendedor Demo',
-                'email'    => 'vendedor@demo.test',
-                'password' => 'password',
-                'role'     => 'Vendedor',
+                'name'  => 'Admin Demo',
+                'email' => 'admin@demo.test',
+                'role'  => 'Administrador',
             ],
             [
-                'name'     => 'Almacenero Demo',
-                'email'    => 'almacenero@demo.test',
-                'password' => 'password',
-                'role'     => 'Almacenero',
+                'name'  => 'Supervisor Demo',
+                'email' => 'supervisor@demo.test',
+                'role'  => 'Supervisor',
             ],
             [
-                'name'     => 'Proveedor Demo',
-                'email'    => 'proveedor@demo.test',
-                'password' => 'password',
-                'role'     => 'Proveedor',
+                'name'  => 'Vendedor Demo',
+                'email' => 'vendedor@demo.test',
+                'role'  => 'Vendedor',
             ],
             [
-                'name'     => 'Tienda Demo',
-                'email'    => 'tienda@demo.test',
-                'password' => 'password',
-                'role'     => 'Tienda',
+                'name'  => 'Almacenero Demo',
+                'email' => 'almacenero@demo.test',
+                'role'  => 'Almacenero',
             ],
             [
-                'name'     => 'Admin Demo',
-                'email'    => 'admin@demo.test',
-                'password' => 'password',
-                'role'     => 'Administrador',
+                'name'  => 'Compras Demo',
+                'email' => 'compras@demo.test',
+                'role'  => 'Compras',
+            ],
+            [
+                'name'  => 'Tienda Demo',
+                'email' => 'tienda@demo.test',
+                'role'  => 'Tienda',
+            ],
+            [
+                'name'  => 'Proveedor Demo',
+                'email' => 'proveedor@demo.test',
+                'role'  => 'Proveedor',
             ],
         ];
 
@@ -65,7 +89,7 @@ class DevelopmentSeeder extends Seeder
             $roleId = $roles->get($datos['role']);
 
             if (!$roleId) {
-                $this->command->warn("⚠️  Rol '{$datos['role']}' no encontrado, omitiendo {$datos['email']}");
+                $this->command->warn("   ⚠️  Rol '{$datos['role']}' no encontrado, omitiendo {$datos['email']}");
                 continue;
             }
 
@@ -73,16 +97,16 @@ class DevelopmentSeeder extends Seeder
                 ['email' => $datos['email']],
                 [
                     'name'     => $datos['name'],
-                    'password' => Hash::make($datos['password']),
+                    'password' => Hash::make('password'),
                     'role_id'  => $roleId,
                     'estado'   => 'activo',
                 ]
             );
         }
 
-        $this->command->info('✅ Usuarios de prueba creados (contraseña: "password"):');
+        $this->command->info('✅ Usuarios demo creados (contraseña: "password"):');
         foreach ($usuarios as $u) {
-            $this->command->line("   [{$u['role']}] {$u['email']}");
+            $this->command->line("   [{$u['role']}]  {$u['email']}");
         }
     }
 }

@@ -96,22 +96,11 @@ class CatalogoSeeder extends Seeder
 
     private function seedMarcas(): void
     {
-        $marcas = [
-            ['nombre' => 'Apple',    'sitio_web'   => 'https://www.apple.com'],
-            ['nombre' => 'Samsung',  'sitio_web'   => 'https://www.samsung.com'],
-            ['nombre' => 'Xiaomi',   'sitio_web'   => 'https://www.mi.com'],
-            ['nombre' => 'Huawei',   'sitio_web'   => 'https://www.huawei.com'],
-            ['nombre' => 'Motorola', 'sitio_web'   => 'https://www.motorola.com'],
-            ['nombre' => 'Sony',     'sitio_web'   => 'https://www.sony.com'],
-            ['nombre' => 'LG',       'sitio_web'   => 'https://www.lg.com'],
-            ['nombre' => 'Genérico', 'descripcion' => 'Productos sin marca específica'],
-        ];
-
-        foreach ($marcas as $marca) {
-            Marca::firstOrCreate(
-                ['nombre' => $marca['nombre']],
-                array_diff_key($marca, ['nombre' => ''])
-            );
-        }
+        // Solo "Genérico" como base neutral.
+        // Las marcas reales de iluminación las gestiona CatalogoLuminariasSeeder.
+        Marca::firstOrCreate(
+            ['nombre' => 'Genérico'],
+            ['descripcion' => 'Productos sin marca específica o de origen no especificado.']
+        );
     }
 }

@@ -15,23 +15,31 @@ class RoleSeeder extends Seeder
         $roles = [
             [
                 'nombre'      => 'Administrador',
-                'descripcion' => 'Acceso total al sistema. Puede gestionar usuarios, inventario, compras, ventas y reportes.',
+                'descripcion' => 'Acceso total al sistema. Gestiona usuarios, roles, empresa, inventario, compras, ventas y reportes.',
+            ],
+            [
+                'nombre'      => 'Supervisor',
+                'descripcion' => 'Supervisa operaciones generales. Aprueba productos, compras y ventas. Accede a reportes. Sin administración de usuarios.',
             ],
             [
                 'nombre'      => 'Vendedor',
-                'descripcion' => 'Gestión de ventas y clientes. Puede crear ventas, ver inventario y gestionar clientes.',
+                'descripcion' => 'Gestión de ventas y clientes. Puede crear ventas, consultar inventario y gestionar cartera de clientes.',
             ],
             [
                 'nombre'      => 'Almacenero',
-                'descripcion' => 'Gestión de inventario y almacenes. Puede gestionar productos, stock y movimientos de inventario.',
+                'descripcion' => 'Gestión de inventario y almacenes. Crea y edita productos, gestiona stock, movimientos y traslados.',
+            ],
+            [
+                'nombre'      => 'Compras',
+                'descripcion' => 'Gestión del abastecimiento. Crea y edita órdenes de compra, gestiona proveedores y consulta costos.',
             ],
             [
                 'nombre'      => 'Proveedor',
-                'descripcion' => 'Acceso externo limitado. Puede ver sus compras y actualizar catálogo de productos.',
+                'descripcion' => 'Acceso externo limitado. Consulta el catálogo de productos disponibles.',
             ],
             [
                 'nombre'      => 'Tienda',
-                'descripcion' => 'Encargado de tienda - gestiona cobros y ventas del punto de venta.',
+                'descripcion' => 'Punto de venta. Registra ventas al público y gestiona clientes en tienda física.',
             ],
         ];
 
@@ -42,6 +50,6 @@ class RoleSeeder extends Seeder
             );
         }
 
-        $this->command->info('✅ Roles verificados/creados correctamente.');
+        $this->command->info('✅ Roles verificados/creados: Administrador, Supervisor, Vendedor, Almacenero, Compras, Proveedor, Tienda.');
     }
 }

@@ -116,7 +116,8 @@ class CatalogoLuminariasSeeder extends Seeder
         foreach ($colores as $color) {
             Color::firstOrCreate(
                 ['nombre' => $color['nombre']],
-                ['codigo_hex' => $color['codigo_hex'], 'descripcion' => $color['descripcion'] ?? null]
+                ['codigo_hex' => $color['codigo_hex']]
+                // Nota: columna 'descripcion' eliminada en migración 2026_02_20_173238
             );
         }
     }
