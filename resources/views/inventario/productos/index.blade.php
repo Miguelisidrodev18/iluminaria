@@ -186,7 +186,7 @@
                     </div>
                 </div>
                 @if($canCreate)
-                    <a href="{{ route('inventario.productos.importar') }}"
+                    <a href="{{ route('inventario.importacion.index') }}"
                        class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300 flex items-center gap-2 hover:bg-gray-50">
                         <i class="fas fa-file-excel text-green-600"></i>Importar Excel
                     </a>

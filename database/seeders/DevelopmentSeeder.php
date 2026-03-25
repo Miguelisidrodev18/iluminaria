@@ -27,13 +27,6 @@ class DevelopmentSeeder extends Seeder
         }
 
         $this->seedUsuariosDemo();
-
-        // Catálogo de productos de ejemplo (en orden: primero productos, luego variantes, luego BOM)
-        $this->call([
-            ProductoSeeder::class,
-            VarianteSeeder::class,
-            ComponenteSeeder::class,
-        ]);
     }
 
     // ─── Usuarios demo ────────────────────────────────────────────────────────

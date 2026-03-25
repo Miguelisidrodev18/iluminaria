@@ -340,7 +340,7 @@ public function create()
     public function show(Producto $producto)
     {
         $producto->load([
-            'categoria', 'marca', 'modelo', 'color', 'unidadMedida',
+            'categoria', 'marca', 'unidadMedida',
             'especificacion', 'dimensiones', 'materiales', 'clasificacion',
             'tiposProyecto',
             'variantes.color',
@@ -359,7 +359,7 @@ public function create()
     {
         // Cargar relaciones necesarias
         $producto->load([
-            'marca', 'modelo', 'color', 'categoria', 'unidadMedida',
+            'marca', 'categoria', 'unidadMedida',
             'tipoProducto', 'tipoLuminaria',
             'especificacion', 'dimensiones', 'materiales', 'clasificacion',
             'clasificaciones', 'tiposProyecto', 'ubicaciones',
@@ -849,7 +849,7 @@ public function validarCodigoBarras(Request $request)
     $proveedor_id = $request->get('proveedor_id'); // Para filtrar por proveedor
     
     $query = Producto::activos()
-        ->with(['marca', 'modelo', 'color', 'unidadMedida'])
+        ->with(['marca', 'unidadMedida'])
         ->buscar($termino);
     
     // Si se especifica proveedor, filtrar productos que tiene ese proveedor
@@ -879,8 +879,6 @@ public function validarCodigoBarras(Request $request)
             'codigo' => $producto->codigo,
             'tipo_inventario' => $producto->tipo_inventario,
             'marca' => $producto->marca->nombre ?? '',
-            'modelo' => $producto->modelo->nombre ?? '',
-            'color' => $producto->color->nombre ?? '',
             'unidad' => $producto->unidadMedida->nombre ?? ''
         ];
     });
@@ -897,7 +895,7 @@ public function validarCodigoBarras(Request $request)
  */
 public function variantes(Producto $producto)
 {
-    $producto->load(['variantes.color', 'marca', 'modelo', 'categoria']);
+    $producto->load(['variantes.color', 'marca', 'categoria']);
     $colores = Color::where('estado', 'activo')->orderBy('nombre')->get();
 
     return view('inventario.productos.variantes', compact('producto', 'colores'));
@@ -1058,7 +1056,7 @@ public function productosPorProveedor($proveedorId)
     
     $productos = Producto::whereHas('proveedores', function($q) use ($proveedorId) {
         $q->where('proveedor_id', $proveedorId);
-    })->with(['marca', 'modelo', 'color'])->get();
+    })->with(['marca'])->get();
     
     return view('proveedores.productos', compact('proveedor', 'productos'));
 }

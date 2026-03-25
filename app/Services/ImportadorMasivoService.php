@@ -1,0 +1,746 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+
+use App\Models\Importacion;
+use App\Models\Producto;
+use App\Models\ProductoVariante;
+use App\Models\ProductoComponente;
+use App\Models\ProductoAtributo;
+use App\Models\Categoria;
+use App\Models\Catalogo\Marca;
+use App\Models\Catalogo\Color;
+use App\Models\Catalogo\UnidadMedida;
+use App\Models\Catalogo\CatalogoAtributo;
+use App\Models\Luminaria\TipoProducto;
+use App\Models\Luminaria\TipoLuminaria;
+use App\Models\Luminaria\ProductoDimension;
+use App\Models\Luminaria\ProductoEmbalaje;
+use App\Models\Luminaria\ProductoMaterial;
+use App\Models\Luminaria\Clasificacion;
+
+/**
+ * Importador masivo de productos desde Excel multi-hoja.
+ *
+ * Acepta nombres de hoja flexibles (alias).
+ * Llave de join entre hojas: codigo_fabrica
+ */
+class ImportadorMasivoService
+{
+    private const CHUNK_SIZE = 50;
+
+    /**
+     * Alias de nombres de hoja aceptados → nombre canónico interno.
+     * Permite que el usuario use sus propios nombres sin renombrar el archivo.
+     */
+    private const SHEET_ALIASES = [
+        'PRODUCTOS'          => ['PRODUCTOS', 'completo_kyrios', 'productos', 'PRODUCTO'],
+        'ATRIBUTOS'          => ['ATRIBUTOS', 'ATRIBUTOS_PRODUCTO', 'atributos', 'atributos_producto'],
+        'DIMENSIONES'        => ['DIMENSIONES', 'dimensiones'],
+        'EMBALAJE'           => ['EMBALAJE', 'embalaje'],
+        'VARIANTES'          => ['VARIANTES', 'variantes'],
+        'COMPONENTES'        => ['COMPONENTES', 'componentes'],
+        'CLASIFICACIONES'    => ['CLASIFICACIONES', 'clasificaciones'],
+    ];
+
+    /**
+     * Mapeo columna Excel → slug de CatalogoAtributo.
+     * Incluye los nombres reales que usa el usuario.
+     */
+    private const ATRIBUTOS_MAP = [
+        // Columnas del usuario en ATRIBUTOS_PRODUCTO
+        'tipo_fuente'           => 'tipo_fuente',
+        'nivel_potencia'        => 'nivel_potencia',
+        'socket'                => 'socket',
+        'numero_lamparas'       => 'numero_lamparas',
+        'potencia'              => 'potencia',
+        'voltaje'               => 'voltaje',
+        'ip'                    => 'ip',
+        'ik'                    => 'ik',
+        'angulo_apertura'       => 'angulo_apertura',
+        'angulo_apert'          => 'angulo_apertura',   // truncado en Excel
+        'angulo'                => 'angulo_apertura',
+        'driver'                => 'driver',
+        'regulable'             => 'regulable',
+        'protocolo_regulacion'  => 'protocolo_regulacion',
+        'protocolo'             => 'protocolo_regulacion',
+        'vida_util_horas'       => 'vida_util_horas',
+        'nominal_lumenes'       => 'nominal_lumenes',
+        'real_lumenes'          => 'real_lumenes',
+        'eficacia_luminosa'     => 'eficacia_luminosa',
+        'temperatura_color'     => 'temperatura_color',
+        'temperatura'           => 'temperatura_color',
+        'tonalidad_luz'         => 'tonalidad_luz',
+        'cri'                   => 'cri',
+    ];
+
+    // ── Catálogos en memoria (lookup cache) ───────────────────────────────────
+    private array $marcas          = [];
+    private array $colores         = [];
+    private array $tiposProducto   = [];
+    private array $tiposLuminaria  = [];
+    private array $atributosSlug   = [];
+    private array $clasificaciones = [];
+    private int   $unidadDefaultId    = 1;
+    private int   $categoriaDefaultId = 1;
+
+    // ── Estado del proceso ────────────────────────────────────────────────────
+    private Importacion $importacion;
+    private int $procesadas = 0;
+    private int $exitosas   = 0;
+
+    // ── Punto de entrada ──────────────────────────────────────────────────────
+
+    public function procesar(Importacion $importacion): void
+    {
+        $this->importacion = $importacion;
+        $this->cargarCatalogos();
+
+        $reader = IOFactory::createReaderForFile($importacion->ruta_archivo);
+        $reader->setReadDataOnly(true);
+        $spreadsheet = $reader->load($importacion->ruta_archivo);
+
+        $total = $this->contarFilas($spreadsheet);
+        $importacion->update(['total_filas' => $total, 'started_at' => now()]);
+
+        // Pasada 1: productos base
+        $mapa = $this->procesarHojaProductos($spreadsheet);
+
+        // Pasada 2: datos relacionados
+        $this->procesarHojaAtributos($spreadsheet, $mapa);
+        $this->procesarHojaDimensiones($spreadsheet, $mapa);
+        $this->procesarHojaEmbalaje($spreadsheet, $mapa);
+        $this->procesarHojaVariantes($spreadsheet, $mapa);
+        $this->procesarHojaClasificaciones($spreadsheet, $mapa);
+
+        // Pasada 3: BOM (requiere todos los ids)
+        $this->procesarHojaComponentes($spreadsheet, $mapa);
+    }
+
+    // ── Resolución flexible de hojas ──────────────────────────────────────────
+
+    private function hoja(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, string $canonical): ?Worksheet
+    {
+        $nombres = self::SHEET_ALIASES[$canonical] ?? [$canonical];
+        foreach ($nombres as $nombre) {
+            $sheet = $spreadsheet->getSheetByName($nombre);
+            if ($sheet !== null) return $sheet;
+        }
+        return null;
+    }
+
+    // ── Carga de catálogos en memoria ─────────────────────────────────────────
+
+    private function cargarCatalogos(): void
+    {
+        $this->marcas = Marca::pluck('id', 'nombre')
+            ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
+
+        $this->colores = Color::pluck('id', 'nombre')
+            ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
+
+        $this->tiposProducto = TipoProducto::pluck('id', 'codigo')
+            ->mapWithKeys(fn($id, $c) => [strtoupper(trim($c)) => $id])->toArray();
+
+        $this->tiposLuminaria = TipoLuminaria::pluck('id', 'codigo')
+            ->mapWithKeys(fn($id, $c) => [strtoupper(trim($c)) => $id])->toArray();
+
+        $this->atributosSlug = CatalogoAtributo::pluck('id', 'slug')->toArray();
+
+        $this->clasificaciones = Clasificacion::pluck('id', 'nombre')
+            ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
+
+        $this->unidadDefaultId = UnidadMedida::where('abreviatura', 'und')
+            ->orWhere('nombre', 'like', '%unidad%')->value('id') ?? 1;
+
+        // Usar la categoría seleccionada en el formulario; fallback a primera categoría activa
+        $this->categoriaDefaultId = $this->importacion->categoria_id
+            ?? Categoria::where('estado', 'activo')->value('id')
+            ?? 1;
+    }
+
+    // ── Hoja PRODUCTOS ────────────────────────────────────────────────────────
+
+    private function procesarHojaProductos(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet): array
+    {
+        $sheet = $this->hoja($spreadsheet, 'PRODUCTOS');
+        if (!$sheet) {
+            $this->registrarError('No se encontró la hoja PRODUCTOS (o sus alias: completo_kyrios).');
+            return [];
+        }
+
+        $filas = $this->extraerFilas($sheet);
+        $mapa  = [];
+
+        foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
+            DB::transaction(function () use ($chunk, &$mapa) {
+                foreach ($chunk as $fila) {
+                    $codigo = null;
+                    try {
+                        $codigo = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
+                        $nombre = $this->norm($fila['nombre'] ?? '');
+
+                        if (!$codigo || !$nombre) {
+                            $this->registrarError("PRODUCTOS — omitida: falta codigo_fabrica o nombre.");
+                            continue;
+                        }
+
+                        $marcaId     = $this->resolverMarca($fila['marca_codigo'] ?? '');
+                        $tipoProdId  = $this->tiposProducto[strtoupper($this->norm($fila['tipo_producto_codigo'] ?? '') ?? '')] ?? null;
+                        $tipoLumId   = $this->tiposLuminaria[strtoupper($this->norm($fila['tipo_luminaria_codigo'] ?? '') ?? '')] ?? null;
+                        $unidadId    = $this->resolverUnidadMedida($fila['unidad_medida_codigo'] ?? '');
+                        $categoriaId = $this->resolverCategoria($fila['categoria_codigo'] ?? '');
+
+                        $datosProducto = [
+                            'nombre'            => $nombre,
+                            'nombre_kyrios'     => $this->norm($fila['nombre_kyrios'] ?? '') ?: null,
+                            'categoria_id'      => $categoriaId,
+                            'marca_id'          => $marcaId,
+                            'unidad_medida_id'  => $unidadId,
+                            'tipo_producto_id'  => $tipoProdId ?? TipoProducto::first()?->id,
+                            'tipo_luminaria_id' => $tipoLumId,
+                            'tipo_sistema'      => 'simple',
+                            'tipo_inventario'   => 'cantidad',
+                            'stock_minimo'      => 0,
+                            'stock_maximo'      => 9999,
+                            'estado'            => $this->normEstado($fila['estado'] ?? 'activo'),
+                            'linea'             => $this->norm($fila['linea'] ?? '') ?: null,
+                            'procedencia'       => $this->norm($fila['procedencia'] ?? '') ?: null,
+                            'ficha_tecnica_url' => $this->norm($fila['ficha_tecnica_url'] ?? '') ?: null,
+                        ];
+
+                        // Separar campos solo-creación para no pisar codigo/estado_aprobacion en updates
+                        $producto = Producto::firstOrCreate(
+                            ['codigo_fabrica' => $codigo],
+                            array_merge($datosProducto, [
+                                'codigo'            => Producto::generarCodigo(),
+                                'estado_aprobacion' => 'borrador',
+                                'creado_por'        => 1,
+                            ])
+                        );
+
+                        // Si ya existía, actualizar solo los campos de datos
+                        if (!$producto->wasRecentlyCreated) {
+                            $producto->update($datosProducto);
+                        }
+
+                        $mapa[$codigo] = $producto->id;
+                        $this->exitosas++;
+
+                    } catch (\Throwable $e) {
+                        $this->registrarError("PRODUCTOS — '{$codigo}': " . $e->getMessage());
+                    }
+                    $this->procesadas++;
+                }
+            });
+            $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
+        }
+
+        return $mapa;
+    }
+
+    // ── Hoja ATRIBUTOS ────────────────────────────────────────────────────────
+
+    private function procesarHojaAtributos(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
+    {
+        $sheet = $this->hoja($spreadsheet, 'ATRIBUTOS');
+        if (!$sheet) return;
+
+        $filas = $this->extraerFilas($sheet);
+
+        foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
+            DB::transaction(function () use ($chunk, $mapa) {
+                foreach ($chunk as $fila) {
+                    try {
+                        $codigo     = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
+                        $productoId = $mapa[$codigo] ?? null;
+                        if (!$productoId) continue;
+
+                        foreach (self::ATRIBUTOS_MAP as $columna => $slug) {
+                            // Saltar si la columna no existe en esta fila
+                            if (!array_key_exists($columna, $fila)) continue;
+
+                            $valor = $this->norm($fila[$columna]);
+                            if ($valor === null || $valor === '') continue;
+
+                            $atributoId = $this->resolverAtributo($slug);
+
+                            ProductoAtributo::updateOrCreate(
+                                ['producto_id' => $productoId, 'atributo_id' => $atributoId],
+                                ['valor_texto' => $valor, 'valor_id' => null]
+                            );
+                        }
+
+                        $this->exitosas++;
+                    } catch (\Throwable $e) {
+                        $this->registrarError("ATRIBUTOS — '{$codigo}': " . $e->getMessage());
+                    }
+                    $this->procesadas++;
+                }
+            });
+            $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
+        }
+    }
+
+    // ── Hoja DIMENSIONES (+ materiales inline) ────────────────────────────────
+
+    private function procesarHojaDimensiones(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
+    {
+        $sheet = $this->hoja($spreadsheet, 'DIMENSIONES');
+        if (!$sheet) return;
+
+        $filas = $this->extraerFilas($sheet);
+
+        foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
+            DB::transaction(function () use ($chunk, $mapa) {
+                foreach ($chunk as $fila) {
+                    try {
+                        $codigo     = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
+                        $productoId = $mapa[$codigo] ?? null;
+                        if (!$productoId) continue;
+
+                        // ── Dimensiones ───────────────────────────────────────
+                        $dimData = array_filter([
+                            'alto'              => $this->normNum($fila['alto_mm'] ?? ''),
+                            'ancho'             => $this->normNum($fila['ancho_mm'] ?? ''),
+                            'diametro'          => $this->normNum($fila['diametro_mm'] ?? ''),
+                            'lado'              => $this->normNum($fila['lado_mm'] ?? ''),
+                            'profundidad'       => $this->normNum($fila['profundidad_mm'] ?? '')
+                                                ?? $this->normNum($fila['salida_mm'] ?? ''), // alias
+                            'alto_suspendido'   => $this->normNum($fila['alto_suspendido_mm'] ?? ''),
+                            'diametro_agujero'  => $this->normNum($fila['diametro_agujero_mm'] ?? ''),
+                            'ancho_agujero'     => $this->normNum($fila['ancho_suspendido_mm'] ?? ''), // alias
+                        ], fn($v) => $v !== null);
+
+                        if ($dimData) {
+                            ProductoDimension::updateOrCreate(
+                                ['producto_id' => $productoId],
+                                $dimData
+                            );
+                        }
+
+                        // ── Materiales (columnas opcionales en esta hoja) ─────
+                        $matData = array_filter([
+                            'material_1'        => $this->norm($fila['material_1'] ?? '') ?: null,
+                            'material_2'        => $this->norm($fila['material_2'] ?? '') ?: null,
+                            'material_terciario'=> $this->norm($fila['material_3'] ?? '') ?: null,
+                        ], fn($v) => $v !== null);
+
+                        if ($matData) {
+                            ProductoMaterial::updateOrCreate(
+                                ['producto_id' => $productoId],
+                                $matData
+                            );
+                        }
+
+                        $this->exitosas++;
+                    } catch (\Throwable $e) {
+                        $this->registrarError("DIMENSIONES — '{$codigo}': " . $e->getMessage());
+                    }
+                    $this->procesadas++;
+                }
+            });
+            $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
+        }
+    }
+
+    // ── Hoja EMBALAJE ─────────────────────────────────────────────────────────
+
+    private function procesarHojaEmbalaje(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
+    {
+        $sheet = $this->hoja($spreadsheet, 'EMBALAJE');
+        if (!$sheet) return;
+
+        $filas = $this->extraerFilas($sheet);
+
+        foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
+            DB::transaction(function () use ($chunk, $mapa) {
+                foreach ($chunk as $fila) {
+                    try {
+                        $codigo     = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
+                        $productoId = $mapa[$codigo] ?? null;
+                        if (!$productoId) continue;
+
+                        // "embalado" acepta: SI/NO, 1/0, true/false, o texto numérico (cantidad)
+                        $embaladoRaw = $fila['embalado'] ?? '';
+                        $embalado    = $this->normBool($embaladoRaw);
+
+                        $data = [
+                            'peso'              => $this->normNum($fila['peso_kg'] ?? ''),
+                            'volumen'           => $this->normNum($fila['volumen_cm3'] ?? ''),
+                            'embalado'          => $embalado,
+                            'medida_embalaje'   => $this->norm($fila['medida_embalaje'] ?? '') ?: null,
+                            'cantidad_por_caja' => $this->normInt($fila['cantidad_por_caja'] ?? ''),
+                        ];
+
+                        if (array_filter($data, fn($v) => $v !== null && $v !== false)) {
+                            ProductoEmbalaje::updateOrCreate(
+                                ['producto_id' => $productoId],
+                                $data
+                            );
+                        }
+
+                        $this->exitosas++;
+                    } catch (\Throwable $e) {
+                        $this->registrarError("EMBALAJE — '{$codigo}': " . $e->getMessage());
+                    }
+                    $this->procesadas++;
+                }
+            });
+            $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
+        }
+    }
+
+    // ── Hoja VARIANTES ────────────────────────────────────────────────────────
+
+    private function procesarHojaVariantes(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
+    {
+        $sheet = $this->hoja($spreadsheet, 'VARIANTES');
+        if (!$sheet) return;
+
+        $filas = $this->extraerFilas($sheet);
+
+        foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
+            DB::transaction(function () use ($chunk, $mapa) {
+                foreach ($chunk as $fila) {
+                    try {
+                        $codigo     = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
+                        $productoId = $mapa[$codigo] ?? null;
+                        if (!$productoId) continue;
+
+                        $tamano         = $this->norm($fila['tamano'] ?? '') ?: null;
+                        $especificacion = $this->norm($fila['especificacion'] ?? '') ?: null;
+
+                        // Acepta columna "color" o "color_id" (alias del usuario)
+                        $colorTexto = $this->norm($fila['color'] ?? $fila['color_id'] ?? '');
+                        $colorId    = $this->resolverColor($colorTexto ?? '');
+
+                        // Buscar variante existente para no pisar el SKU
+                        $variante = ProductoVariante::where([
+                            'producto_id'    => $productoId,
+                            'tamano'         => $tamano,
+                            'especificacion' => $especificacion,
+                            'color_id'       => $colorId,
+                        ])->first();
+
+                        if ($variante) {
+                            $variante->update([
+                                'stock_actual' => $this->normInt($fila['stock'] ?? '') ?? 0,
+                                'sobreprecio'  => $this->normNum($fila['precio'] ?? '') ?? 0,
+                                'estado'       => 'activo',
+                            ]);
+                        } else {
+                            $producto = Producto::find($productoId);
+                            $colorObj = $colorId ? \App\Models\Catalogo\Color::find($colorId) : null;
+                            ProductoVariante::create([
+                                'producto_id'    => $productoId,
+                                'tamano'         => $tamano,
+                                'especificacion' => $especificacion,
+                                'color_id'       => $colorId,
+                                'sku'            => ProductoVariante::generarSku($producto, $colorObj, $especificacion),
+                                'stock_actual'   => $this->normInt($fila['stock'] ?? '') ?? 0,
+                                'sobreprecio'    => $this->normNum($fila['precio'] ?? '') ?? 0,
+                                'estado'         => 'activo',
+                                'creado_por'     => auth()->id() ?? 1,
+                            ]);
+                        }
+
+                        $this->exitosas++;
+                    } catch (\Throwable $e) {
+                        $this->registrarError("VARIANTES — '{$codigo}': " . $e->getMessage());
+                    }
+                    $this->procesadas++;
+                }
+            });
+            $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
+        }
+    }
+
+    // ── Hoja CLASIFICACIONES ──────────────────────────────────────────────────
+
+    /**
+     * Columnas aceptadas: uso, ambiente, instalacion, Estilo
+     * Cada valor no vacío se crea/busca como Clasificacion y se adjunta al producto.
+     */
+    private function procesarHojaClasificaciones(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
+    {
+        $sheet = $this->hoja($spreadsheet, 'CLASIFICACIONES');
+        if (!$sheet) return;
+
+        $filas = $this->extraerFilas($sheet);
+
+        // Columnas que se mapean a clasificaciones (además de codigo_fabrica)
+        $camposClasificacion = ['uso', 'ambiente', 'instalacion', 'estilo'];
+
+        foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
+            DB::transaction(function () use ($chunk, $mapa, $camposClasificacion) {
+                foreach ($chunk as $fila) {
+                    try {
+                        $codigo     = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
+                        $productoId = $mapa[$codigo] ?? null;
+                        if (!$productoId) continue;
+
+                        $producto = Producto::find($productoId);
+                        if (!$producto) continue;
+
+                        $idsAdjuntar = [];
+
+                        foreach ($camposClasificacion as $campo) {
+                            // extraerFilas() normaliza headers a minúsculas, así que $campo ya coincide
+                            $valor = $this->norm($fila[$campo] ?? '');
+                            if (!$valor) continue;
+
+                            $clf = $this->resolverClasificacion($valor);
+                            $idsAdjuntar[] = $clf;
+                        }
+
+                        if ($idsAdjuntar) {
+                            // syncWithoutDetaching: agrega sin eliminar los existentes
+                            $producto->clasificaciones()->syncWithoutDetaching($idsAdjuntar);
+                        }
+
+                        $this->exitosas++;
+                    } catch (\Throwable $e) {
+                        $this->registrarError("CLASIFICACIONES — '{$codigo}': " . $e->getMessage());
+                    }
+                    $this->procesadas++;
+                }
+            });
+            $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
+        }
+    }
+
+    // ── Hoja COMPONENTES (BOM) ────────────────────────────────────────────────
+
+    private function procesarHojaComponentes(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
+    {
+        $sheet = $this->hoja($spreadsheet, 'COMPONENTES');
+        if (!$sheet) return;
+
+        $filas = $this->extraerFilas($sheet);
+
+        foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
+            DB::transaction(function () use ($chunk, $mapa) {
+                foreach ($chunk as $fila) {
+                    try {
+                        $codigoPadre = strtoupper($this->norm($fila['codigo_fabrica_padre'] ?? ''));
+                        $codigoHijo  = strtoupper($this->norm($fila['codigo_fabrica_hijo'] ?? ''));
+
+                        $padreId = $mapa[$codigoPadre]
+                            ?? Producto::where('codigo_fabrica', $codigoPadre)->value('id');
+                        $hijoId  = $mapa[$codigoHijo]
+                            ?? Producto::where('codigo_fabrica', $codigoHijo)->value('id');
+
+                        if (!$padreId || !$hijoId || $padreId === $hijoId) continue;
+
+                        ProductoComponente::updateOrCreate(
+                            ['padre_id' => $padreId, 'hijo_id' => $hijoId, 'variante_id' => null],
+                            [
+                                'cantidad'    => $this->normNum($fila['cantidad'] ?? '') ?? 1,
+                                'unidad'      => 'unidad',
+                                'es_opcional' => false,
+                                'orden'       => 0,
+                            ]
+                        );
+
+                        $this->exitosas++;
+                    } catch (\Throwable $e) {
+                        $this->registrarError("COMPONENTES: " . $e->getMessage());
+                    }
+                    $this->procesadas++;
+                }
+            });
+            $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
+        }
+    }
+
+    // ── Extraer filas de una hoja ─────────────────────────────────────────────
+
+    private function extraerFilas(Worksheet $sheet): array
+    {
+        $filas    = [];
+        $cabecera = null;
+
+        foreach ($sheet->getRowIterator() as $row) {
+            $celdas = [];
+            foreach ($row->getCellIterator() as $celda) {
+                $celdas[] = trim((string) $celda->getValue());
+            }
+
+            if (empty(array_filter($celdas, fn($v) => $v !== ''))) continue;
+
+            if ($cabecera === null) {
+                // Normalizar cabecera: minúsculas y trim
+                $cabecera = array_map(fn($c) => strtolower(trim($c)), $celdas);
+                continue;
+            }
+
+            $filas[] = array_combine(
+                $cabecera,
+                array_pad(array_map('trim', $celdas), count($cabecera), '')
+            );
+        }
+
+        return $filas;
+    }
+
+    // ── Contar filas totales ──────────────────────────────────────────────────
+
+    private function contarFilas(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet): int
+    {
+        $total = 0;
+        foreach (array_keys(self::SHEET_ALIASES) as $canonical) {
+            $sheet = $this->hoja($spreadsheet, $canonical);
+            if ($sheet) {
+                $total += max(0, $sheet->getHighestDataRow() - 1);
+            }
+        }
+        return $total;
+    }
+
+    // ── Resolvers de lookup ───────────────────────────────────────────────────
+
+    private function resolverMarca(string $valor): ?int
+    {
+        $valor = trim($valor);
+        if (!$valor) return null;
+
+        $key = strtolower($valor);
+        if (isset($this->marcas[$key])) return $this->marcas[$key];
+
+        $marca = Marca::firstOrCreate(
+            ['nombre' => $valor],
+            ['estado' => 'activo']
+        );
+        return $this->marcas[$key] = $marca->id;
+    }
+
+    private function resolverColor(string $valor): ?int
+    {
+        $valor = trim($valor);
+        if (!$valor) return null;
+
+        $key = strtolower($valor);
+        if (isset($this->colores[$key])) return $this->colores[$key];
+
+        // Búsqueda parcial
+        $id = Color::whereRaw('LOWER(nombre) LIKE ?', ["%{$key}%"])->value('id');
+        if ($id) return $this->colores[$key] = $id;
+
+        $color = Color::create(['nombre' => ucfirst($valor), 'estado' => 'activo']);
+        return $this->colores[$key] = $color->id;
+    }
+
+    private function resolverUnidadMedida(string $valor): int
+    {
+        $valor = trim($valor);
+        if (!$valor) return $this->unidadDefaultId;
+
+        $id = UnidadMedida::where('abreviatura', strtolower($valor))
+            ->orWhere('abreviatura', strtoupper($valor))
+            ->orWhere('nombre', 'like', "%{$valor}%")
+            ->value('id');
+
+        return $id ?? $this->unidadDefaultId;
+    }
+
+    private function resolverCategoria(string $valor): int
+    {
+        $valor = trim($valor);
+        if (!$valor) return $this->categoriaDefaultId;
+
+        $id = Categoria::where('nombre', $valor)->value('id');
+        if ($id) return $id;
+
+        return Categoria::firstOrCreate(
+            ['nombre' => $valor],
+            ['estado' => 'activo', 'codigo' => strtoupper(substr(Str::slug($valor, ''), 0, 20))]
+        )->id;
+    }
+
+    private function resolverAtributo(string $slug): int
+    {
+        if (isset($this->atributosSlug[$slug])) return $this->atributosSlug[$slug];
+
+        $atributo = CatalogoAtributo::firstOrCreate(
+            ['slug' => $slug],
+            [
+                'nombre' => ucwords(str_replace('_', ' ', $slug)),
+                'tipo'   => 'text',
+                'grupo'  => 'tecnico',
+                'activo' => true,
+            ]
+        );
+
+        return $this->atributosSlug[$slug] = $atributo->id;
+    }
+
+    private function resolverClasificacion(string $valor): int
+    {
+        $key = strtolower($valor);
+        if (isset($this->clasificaciones[$key])) return $this->clasificaciones[$key];
+
+        // codigo es varchar(3) — tomar primeras 3 letras y hacerlo único
+        $codigoBase = strtoupper(substr(preg_replace('/[^A-Z]/i', '', $valor), 0, 3));
+        $codigo = $codigoBase;
+        $n = 1;
+        while (Clasificacion::where('codigo', $codigo)->exists()) {
+            $codigo = substr($codigoBase, 0, 2) . $n;
+            $n++;
+        }
+
+        $clf = Clasificacion::firstOrCreate(
+            ['nombre' => $valor],
+            ['codigo' => $codigo, 'activo' => true]
+        );
+
+        return $this->clasificaciones[$key] = $clf->id;
+    }
+
+    // ── Normalización de valores ──────────────────────────────────────────────
+
+    private function norm(mixed $valor): ?string
+    {
+        $v = trim((string) $valor);
+        return ($v !== '') ? $v : null;
+    }
+
+    private function normNum(mixed $valor): ?float
+    {
+        $v = trim((string) $valor);
+        // Limpiar unidades como "mm", "kg", " unidades" etc.
+        $v = preg_replace('/[^0-9.\-]/', '', $v);
+        return ($v !== '' && is_numeric($v)) ? (float) $v : null;
+    }
+
+    private function normInt(mixed $valor): ?int
+    {
+        $v = trim((string) $valor);
+        $v = preg_replace('/[^0-9\-]/', '', $v);
+        return ($v !== '' && is_numeric($v)) ? (int) $v : null;
+    }
+
+    private function normBool(mixed $valor): bool
+    {
+        $v = strtolower(trim((string) $valor));
+        return in_array($v, ['1', 'si', 'sí', 'yes', 'true', 'x'], true);
+    }
+
+    private function normEstado(mixed $valor): string
+    {
+        $v = strtolower(trim((string) $valor));
+        return in_array($v, ['activo', 'inactivo', 'descontinuado']) ? $v : 'activo';
+    }
+
+    // ── Registro de errores ───────────────────────────────────────────────────
+
+    private function registrarError(string $mensaje): void
+    {
+        $this->importacion->agregarError($mensaje);
+    }
+}

@@ -32,7 +32,11 @@
       "Bash(php -l app/Http/Controllers/ProductoController.php)",
       "Bash(php -l app/Http/Controllers/ImportadorProductosController.php)",
       "Bash(php -l database/seeders/ProductoSeeder.php)",
-      "Bash(php -l resources/views/luminarias/partials/ficha-clasificaciones.blade.php)"
+      "Bash(php -l resources/views/luminarias/partials/ficha-clasificaciones.blade.php)",
+      "Bash(ls -la \"c:\\\\xampp\\\\htdocs\\\\luminaria\\\\app\\\\Jobs\"\" 2>/dev/null || echo \"Jobs directory not found \")",
+      "Bash(ls -la /c/xampp/htdocs/luminaria/app/Models/*.php)",
+      "Bash(php -l app/Http/Controllers/ImportacionController.php)",
+      "Bash(php -r \"require ''''routes/web.php'''';\")"
     ]
   }
 }

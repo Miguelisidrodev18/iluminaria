@@ -258,11 +258,22 @@ Route::middleware('auth')->group(function () {
         // API: componentes de un kit (para venta/cotización)
         Route::get('/productos/{producto}/componentes/api', [\App\Http\Controllers\ProductoComponenteController::class, 'apiComponentes'])->name('productos.componentes.api');
 
-        // IMPORTADOR MASIVO EXCEL
+        // IMPORTADOR MASIVO EXCEL (legacy single-sheet)
         Route::middleware('role:Administrador,Almacenero')->group(function () {
             Route::get('/productos/importar/formulario', [\App\Http\Controllers\ImportadorProductosController::class, 'index'])->name('productos.importar');
             Route::post('/productos/importar', [\App\Http\Controllers\ImportadorProductosController::class, 'store'])->name('productos.importar.store');
             Route::get('/productos/importar/plantilla', [\App\Http\Controllers\ImportadorProductosController::class, 'descargarPlantilla'])->name('productos.importar.plantilla');
+        });
+
+        // IMPORTADOR MASIVO MULTI-HOJA + APROBACIÓN
+        Route::prefix('importacion')->name('importacion.')->middleware('role:Administrador,Almacenero')->group(function () {
+            Route::get('/',                         [\App\Http\Controllers\ImportacionController::class, 'index'])->name('index');
+            Route::post('/',                        [\App\Http\Controllers\ImportacionController::class, 'store'])->name('store');
+            Route::get('/plantilla',                [\App\Http\Controllers\ImportacionController::class, 'descargarPlantilla'])->name('plantilla');
+            Route::get('/{importacion}/progreso',   [\App\Http\Controllers\ImportacionController::class, 'progreso'])->name('progreso');
+            Route::patch('/{importacion}/cancelar', [\App\Http\Controllers\ImportacionController::class, 'cancelar'])->name('cancelar');
+            Route::get('/aprobacion',               [\App\Http\Controllers\ImportacionController::class, 'aprobacion'])->name('aprobacion');
+            Route::post('/aprobar-lote',            [\App\Http\Controllers\ImportacionController::class, 'aprobarLote'])->name('aprobar-lote');
         });
 
         // REPORTES DE INVENTARIO (HU-INVENTARIO-06/07/08)

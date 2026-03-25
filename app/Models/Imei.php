@@ -40,7 +40,7 @@ class Imei extends Model
             public function whereIn(...$args)        { return $this; }
             public function distinct(...$args)       { return $this; }
             public function pluck(...$args)          { return collect(); }
-            public function count(...)              { return 0; }
+            public function count(...$args)          { return 0; }
             public function exists()                { return false; }
             public function get(...$args)           { return collect(); }
             public function limit(...$args)         { return $this; }
@@ -50,6 +50,14 @@ class Imei extends Model
             public function delete()                { return 0; }
             public function when(...$args)          { return $this; }
             public function with(...$args)          { return $this; }
+            public function selectRaw(...$args)     { return $this; }
+            public function groupBy(...$args)       { return $this; }
+            public function select(...$args)        { return $this; }
+            public function whereNotNull(...$args)  { return $this; }
+            public function whereNull(...$args)     { return $this; }
+            public function whereHas(...$args)      { return $this; }
+            public function has(...$args)           { return $this; }
+            public function latest(...$args)        { return $this; }
         };
     }
 

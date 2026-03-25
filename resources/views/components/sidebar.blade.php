@@ -224,6 +224,18 @@
                                     <i class="fas fa-chart-bar mr-3 text-sm"></i>Análisis ABC
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('inventario.importacion.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.importacion.index') || request()->routeIs('inventario.importacion.store') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-file-import mr-3 text-sm"></i>Importación Masiva
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('inventario.importacion.aprobacion') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.importacion.aprobacion') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-check-double mr-3 text-sm"></i>Aprobar Importados
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     {{-- Traslados --}}
@@ -386,8 +398,8 @@
                     {{-- Aprobación de Productos --}}
                     @can('aprobar_producto')
                     <li>
-                        <a href="{{ route('inventario.productos.index', ['estado_aprobacion' => 'pendiente_aprobacion']) }}"
-                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors">
+                        <a href="{{ route('inventario.importacion.aprobacion') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.importacion.aprobacion') ? 'bg-[#3A3E3B]' : '' }}">
                             <i class="fas fa-check-circle mr-3 text-yellow-400"></i>Aprobar Productos
                         </a>
                     </li>
@@ -436,6 +448,12 @@
                                 <a href="{{ route('inventario.movimientos.index') }}"
                                     class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.movimientos.*') ? 'bg-[#484E4A]' : '' }}">
                                     <i class="fas fa-exchange-alt mr-3 text-sm"></i>Movimientos
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('inventario.importacion.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.importacion.index') || request()->routeIs('inventario.importacion.store') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-file-import mr-3 text-sm"></i>Importación Masiva
                                 </a>
                             </li>
                         </ul>
