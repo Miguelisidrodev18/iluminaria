@@ -21,7 +21,18 @@
       "Bash(grep -r \"Excel\\\\|Maatwebsite\\\\|import\\\\|export\" /c/xampp/htdocs/luminaria/app/Http/Controllers --include=*.php)",
       "Bash(php -l \"c:/xampp/htdocs/luminaria/app/Http/Controllers/ProductoComponenteController.php\")",
       "Bash(php -l \"c:/xampp/htdocs/luminaria/app/Http/Controllers/ImportadorProductosController.php\")",
-      "Bash(php -r \"echo ''''PHP OK'''';\")"
+      "Bash(php -r \"echo ''''PHP OK'''';\")",
+      "Bash(grep -r \"celular\\\\|IMEI\\\\|smartphone\\\\|móvil\" /c/xampp/htdocs/luminaria/app/Models/ --include=*.php)",
+      "Bash(grep -r \"celular\\\\|IMEI\\\\|smartphone\\\\|móvil\" /c/xampp/htdocs/luminaria/database/migrations/ --include=*.php)",
+      "Bash(grep -r \"Modelo\\\\|modelo\" /c/xampp/htdocs/luminaria/app/Models/Catalogo/ --include=*.php)",
+      "Bash(find /c/xampp/htdocs/luminaria/resources -type f \\\\\\(-name *.vue -o -name *.js \\\\\\))",
+      "Bash(ls /c/xampp/htdocs/luminaria/app/Models/*.php)",
+      "Bash(xargs basename:*)",
+      "Bash(cat /c/xampp/htdocs/luminaria/database/migrations/[0-9]*_create_productos_table.php)",
+      "Bash(php -l app/Http/Controllers/ProductoController.php)",
+      "Bash(php -l app/Http/Controllers/ImportadorProductosController.php)",
+      "Bash(php -l database/seeders/ProductoSeeder.php)",
+      "Bash(php -l resources/views/luminarias/partials/ficha-clasificaciones.blade.php)"
     ]
   }
 }

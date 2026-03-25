@@ -34,10 +34,11 @@ class AdminUserSeeder extends Seeder
         $user = User::updateOrCreate(
             ['email' => $email],
             [
-                'name'     => $nombre,
-                'password' => Hash::make($password),
-                'role_id'  => $adminRole->id,
-                'estado'   => 'activo',
+                'name'              => $nombre,
+                'password'          => Hash::make($password),
+                'role_id'           => $adminRole->id,
+                'estado'            => 'activo',
+                'email_verified_at' => now(),
             ]
         );
 

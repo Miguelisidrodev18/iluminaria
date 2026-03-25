@@ -9,14 +9,13 @@ use App\Models\Catalogo\UnidadMedida;
 
 /**
  * Seeder de catálogo específico para luminarias.
- * Reemplaza datos de celulares (Apple, Samsung, etc.) con marcas reales de iluminación.
+ * Carga marcas, colores y unidades propias del rubro de iluminación.
  * Idempotente: se puede ejecutar múltiples veces.
  */
 class CatalogoLuminariasSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->desactivarMarcasIrrelevantes();
         $this->seedMarcasLuminarias();
         $this->seedColoresLuminarias();
         $this->seedUnidadesLuminarias();
@@ -24,18 +23,7 @@ class CatalogoLuminariasSeeder extends Seeder
         $this->command->info('✅ Catálogo de luminarias cargado correctamente.');
     }
 
-    // ── Desactivar marcas de celulares ────────────────────────────────────────
-
-    private function desactivarMarcasIrrelevantes(): void
-    {
-        $marcasObsoletas = ['Apple', 'Samsung', 'Xiaomi', 'Huawei', 'Motorola', 'Sony'];
-
-        Marca::whereIn('nombre', $marcasObsoletas)
-             ->where('estado', 'activo')
-             ->update(['estado' => 'inactivo']);
-    }
-
-    // ── Marcas reales de iluminación ──────────────────────────────────────────
+    // ── Marcas de iluminación ─────────────────────────────────────────────────
 
     private function seedMarcasLuminarias(): void
     {

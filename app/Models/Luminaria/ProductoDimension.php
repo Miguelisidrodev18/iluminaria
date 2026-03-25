@@ -11,25 +11,30 @@ class ProductoDimension extends Model
 
     protected $fillable = [
         'producto_id',
+        // Dimensiones del cuerpo (en mm)
         'alto',
         'ancho',
-        'diametro',
-        'lado',
+        'diametro',          // Para circulares
+        'lado',              // Para cuadrados
         'profundidad',
         'alto_suspendido',
-        'diametro_agujero',
-        'peso',
+        // Dimensiones del agujero/corte de instalación (en mm)
+        'diametro_agujero',  // Corte circular
+        'ancho_agujero',     // Corte rectangular
+        'profundidad_agujero',
+        // NOTA: 'peso' está en tabla producto_embalaje, no aquí
     ];
 
     protected $casts = [
-        'alto'             => 'decimal:2',
-        'ancho'            => 'decimal:2',
-        'diametro'         => 'decimal:2',
-        'lado'             => 'decimal:2',
-        'profundidad'      => 'decimal:2',
-        'alto_suspendido'  => 'decimal:2',
-        'diametro_agujero' => 'decimal:2',
-        'peso'             => 'decimal:3',
+        'alto'               => 'decimal:2',
+        'ancho'              => 'decimal:2',
+        'diametro'           => 'decimal:2',
+        'lado'               => 'decimal:2',
+        'profundidad'        => 'decimal:2',
+        'alto_suspendido'    => 'decimal:2',
+        'diametro_agujero'   => 'decimal:2',
+        'ancho_agujero'      => 'decimal:2',
+        'profundidad_agujero'=> 'decimal:2',
     ];
 
     public function producto()

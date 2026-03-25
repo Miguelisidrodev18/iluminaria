@@ -13,6 +13,7 @@ use App\Models\Luminaria\TipoLuminaria;
 use App\Models\Luminaria\ProductoEspecificacion;
 use App\Models\Luminaria\ProductoDimension;
 use App\Models\Luminaria\ProductoMaterial;
+use App\Models\Luminaria\ProductoEmbalaje;
 
 /**
  * Productos de ejemplo que cubren los tres arquetipos del sistema.
@@ -201,6 +202,7 @@ class ProductoSeeder extends Seeder
                 'codigo'                => 'PROD-DL9W-001',
                 'codigo_fabrica'        => 'KY-DL-9W-RD-WH',
                 'nombre'                => 'Downlight LED 9W Redondo',
+                'nombre_kyrios'         => 'Downlight Kyrios 9W Slim',
                 'descripcion'           => 'Luminaria empotrada circular LED 9W. Disponible en temperatura de color 3000K, 4000K y 6000K. Cuerpo aluminio, difusor policarbonato.',
                 'categoria_id'          => $catLumiInt,
                 'marca_id'              => $marcaKyrios,
@@ -221,14 +223,23 @@ class ProductoSeeder extends Seeder
                 ProductoEspecificacion::create([
                     'producto_id'       => $downlight->id,
                     'potencia'          => '9W',
+                    'tipo_fuente'       => 'LED',
+                    'salida_luz'        => 'Directa',
+                    'nivel_potencia'    => 'Baja (0–10W)',
+                    'nominal_lumenes'   => 900,
+                    'real_lumenes'      => 810,
+                    'eficacia_luminosa' => 90.00,
+                    'tonalidad_luz'     => 'Cálido',
                     'lumenes'           => '810lm',
                     'voltaje'           => '220V',
-                    'temperatura_color' => '3000K / 4000K / 6000K',
+                    'temperatura_color' => '3000K',
                     'cri'               => 80,
                     'ip'                => 'IP20',
                     'angulo_apertura'   => '120°',
-                    'driver'            => 'Integrado',
+                    'driver'            => 'incluido',
                     'regulable'         => false,
+                    'numero_lamparas'   => 1,
+                    'vida_util_horas'   => 25000,
                 ]);
                 ProductoDimension::create([
                     'producto_id'      => $downlight->id,
@@ -242,6 +253,14 @@ class ProductoSeeder extends Seeder
                     'material_2'      => 'Policarbonato difusor',
                     'color_acabado_1' => 'Blanco',
                 ]);
+                ProductoEmbalaje::create([
+                    'producto_id'      => $downlight->id,
+                    'peso'             => 0.180,
+                    'volumen'          => 400.000,
+                    'embalado'         => true,
+                    'medida_embalaje'  => '13x13x5 cm',
+                    'cantidad_por_caja'=> 20,
+                ]);
             }
 
             // Simple 2 — Panel LED 40W 60×60cm
@@ -249,6 +268,7 @@ class ProductoSeeder extends Seeder
                 'codigo'                => 'PROD-PA40-001',
                 'codigo_fabrica'        => 'KY-PA-40W-6060',
                 'nombre'                => 'Panel LED 40W 60×60cm',
+                'nombre_kyrios'         => 'Panel Kyrios Office 40W',
                 'descripcion'           => 'Panel LED retroiluminado de aluminio ultradelgado. 4000K, CRI>80. Ideal para oficinas, salas de reuniones y comercios.',
                 'categoria_id'          => $catLumiInt,
                 'marca_id'              => $marcaKyrios,
@@ -269,14 +289,23 @@ class ProductoSeeder extends Seeder
                 ProductoEspecificacion::create([
                     'producto_id'       => $panel->id,
                     'potencia'          => '40W',
+                    'tipo_fuente'       => 'LED',
+                    'salida_luz'        => 'Difusa',
+                    'nivel_potencia'    => 'Alta (31W+)',
+                    'nominal_lumenes'   => 4000,
+                    'real_lumenes'      => 3800,
+                    'eficacia_luminosa' => 95.00,
+                    'tonalidad_luz'     => 'Neutro',
                     'lumenes'           => '3800lm',
                     'voltaje'           => '220V',
                     'temperatura_color' => '4000K',
                     'cri'               => 80,
                     'ip'                => 'IP20',
                     'angulo_apertura'   => '120°',
-                    'driver'            => 'Incluido',
+                    'driver'            => 'incluido',
                     'regulable'         => false,
+                    'numero_lamparas'   => 1,
+                    'vida_util_horas'   => 50000,
                 ]);
                 ProductoDimension::create([
                     'producto_id' => $panel->id,
@@ -288,6 +317,14 @@ class ProductoSeeder extends Seeder
                     'material_1'      => 'Perfil de aluminio',
                     'material_2'      => 'PMMA difusor',
                     'color_acabado_1' => 'Blanco',
+                ]);
+                ProductoEmbalaje::create([
+                    'producto_id'      => $panel->id,
+                    'peso'             => 1.200,
+                    'volumen'          => 3600.000,
+                    'embalado'         => true,
+                    'medida_embalaje'  => '62x62x5 cm',
+                    'cantidad_por_caja'=> 4,
                 ]);
             }
 

@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Categoria;
 use App\Models\Catalogo\Marca;
-use App\Models\Catalogo\Modelo;
 use App\Models\Catalogo\UnidadMedida;
 use App\Models\Catalogo\Color;
 use App\Models\Luminaria\ProductoEspecificacion;
 use App\Models\Luminaria\ProductoDimension;
 use App\Models\Luminaria\ProductoMaterial;
 use App\Models\Luminaria\ProductoClasificacion;
+use App\Models\Luminaria\ProductoEmbalaje;
 use App\Models\Luminaria\TipoProducto;
 use App\Models\Luminaria\TipoLuminaria;
 use App\Models\Luminaria\Clasificacion;
@@ -29,8 +29,8 @@ class Producto extends Model
      */
     protected $fillable = [
         'codigo', 'codigo_kyrios', 'codigo_fabrica',
-        'nombre', 'descripcion', 'categoria_id',
-        'marca_id', 'modelo_id', 'color_id', 'unidad_medida_id',
+        'nombre', 'nombre_kyrios', 'descripcion', 'categoria_id',
+        'marca_id', 'color_id', 'unidad_medida_id',
         'tipo_inventario', 'tipo_producto_id', 'tipo_luminaria_id',
         'dias_garantia', 'tipo_garantia',
         'stock_actual', 'stock_minimo', 'stock_maximo', 'ubicacion',
@@ -339,11 +339,6 @@ class Producto extends Model
         return $this->belongsTo(Marca::class, 'marca_id');
     }
 
-    public function modelo()
-    {
-        return $this->belongsTo(Modelo::class, 'modelo_id');
-    }
-
     public function unidadMedida()
     {
         return $this->belongsTo(UnidadMedida::class);
@@ -391,6 +386,11 @@ class Producto extends Model
     public function materiales()
     {
         return $this->hasOne(ProductoMaterial::class);
+    }
+
+    public function embalaje()
+    {
+        return $this->hasOne(ProductoEmbalaje::class);
     }
 
     public function clasificacion()

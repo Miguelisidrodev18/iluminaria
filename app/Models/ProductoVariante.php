@@ -17,7 +17,8 @@ class ProductoVariante extends Model
         'nombre',
         'atributos',
         'color_id',
-        'especificacion',   // Antes "capacidad" — ahora genérico: potencia, versión, etc.
+        'especificacion',   // Genérico: potencia, temperatura, versión, etc.
+        'tamano',           // Ej: "600x600mm", "Circular 4\"", "30x120cm"
         'sku',
         'sobreprecio',
         'stock_actual',

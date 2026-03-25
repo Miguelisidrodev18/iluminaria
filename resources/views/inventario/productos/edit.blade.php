@@ -232,21 +232,6 @@
                             </div>
                         </div>
 
-                        {{-- Modelo --}}
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
-                            <div class="flex gap-2">
-                                <select name="modelo_id" id="modelo_id"
-                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Cargando...</option>
-                                </select>
-                                <button type="button" onclick="abrirModalModelo()"
-                                        class="px-3 py-2 bg-indigo-100 text-indigo-800 border border-indigo-300 rounded-lg hover:bg-indigo-200 transition shrink-0">
-                                    <i class="fas fa-plus text-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
@@ -260,10 +245,11 @@
                     </div>
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                        {{-- Nombre --}}
-                        <div class="md:col-span-2">
+                        {{-- Nombre (del fabricante / nombre_origen del Excel) --}}
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Nombre del Producto <span class="text-red-500">*</span>
+                                Nombre del Fabricante <span class="text-red-500">*</span>
+                                <span class="font-normal text-xs text-gray-400 ml-1">(nombre_origen del Excel)</span>
                             </label>
                             <div class="flex gap-2">
                                 <input type="text" name="nombre" id="nombre"
@@ -277,6 +263,18 @@
                             @error('nombre')
                                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                             @enderror
+                        </div>
+
+                        {{-- Nombre Kyrios (interno) --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Nombre Kyrios
+                                <span class="font-normal text-xs text-gray-400 ml-1">(nombre interno del sistema)</span>
+                            </label>
+                            <input type="text" name="nombre_kyrios"
+                                   value="{{ old('nombre_kyrios', $producto->nombre_kyrios) }}"
+                                   placeholder="Nombre normalizado para el sistema"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400">
                         </div>
 
                         {{-- Unidad de medida --}}
@@ -420,33 +418,82 @@
                 </div>
 
                 {{-- ══════════════════════════════════════════════════════════
-                    BLOQUES 5-7 — FICHA TÉCNICA (condicional por tipo)
+                    FICHA TÉCNICA EN TABS (Especificaciones / Dimensiones /
+                    Fotometría / Embalaje / Clasificaciones / Atributos / Variantes)
                 ══════════════════════════════════════════════════════════ --}}
-                <div id="bloqueFichaTecnica" class="{{ $mostrarFicha ? '' : 'hidden' }} bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
-                    <div class="px-6 py-4 flex items-center gap-3" style="background-color:#1a3a2a;">
-                        <i class="fas fa-lightbulb text-xl" style="color:#F7D600;"></i>
-                        <div>
-                            <h2 class="text-base font-bold text-white">Configuración Técnica — Ficha Kyrios</h2>
-                            <p class="text-xs text-gray-300">Especificaciones técnicas del producto</p>
+                <div x-data="{ tab: 'especificaciones' }" class="mb-5">
+
+                    {{-- Barra de tabs --}}
+                    <div class="bg-white rounded-t-xl border border-gray-200 overflow-x-auto">
+                        <div class="flex min-w-max">
+                            @php
+                                $tabs = [
+                                    ['id'=>'especificaciones', 'icon'=>'fa-bolt',           'label'=>'Especificaciones', 'color'=>'yellow'],
+                                    ['id'=>'fotometria',       'icon'=>'fa-sun',            'label'=>'Fotometría',       'color'=>'amber'],
+                                    ['id'=>'dimensiones',      'icon'=>'fa-ruler-combined', 'label'=>'Dimensiones',      'color'=>'blue'],
+                                    ['id'=>'embalaje',         'icon'=>'fa-box-open',       'label'=>'Embalaje',         'color'=>'teal'],
+                                    ['id'=>'clasificaciones',  'icon'=>'fa-tags',           'label'=>'Clasificaciones',  'color'=>'purple'],
+                                    ['id'=>'atributos',        'icon'=>'fa-sliders-h',      'label'=>'Atributos',        'color'=>'gray'],
+                                    ['id'=>'variantes',        'icon'=>'fa-layer-group',    'label'=>'Variantes',        'color'=>'indigo'],
+                                ];
+                            @endphp
+                            @foreach($tabs as $t)
+                            <button type="button"
+                                    @click="tab = '{{ $t['id'] }}'"
+                                    :class="tab === '{{ $t['id'] }}'
+                                        ? 'border-b-2 border-yellow-400 text-gray-900 bg-yellow-50 font-semibold'
+                                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                                    class="flex items-center gap-1.5 px-5 py-3 text-sm transition whitespace-nowrap">
+                                <i class="fas {{ $t['icon'] }} text-xs opacity-70"></i>
+                                {{ $t['label'] }}
+                            </button>
+                            @endforeach
                         </div>
                     </div>
-                    <div class="p-6">
-                        @include('luminarias.partials.ficha-tecnica-form')
-                    </div>
-                </div>
 
-                {{-- ══════════════════════════════════════════════════════════
-                    BLOQUE CONFIGURADOR DE ATRIBUTOS DINÁMICOS
-                ══════════════════════════════════════════════════════════ --}}
-                @include('inventario.productos.partials.atributos-dinamicos', [
-                    'atributosGrupos'  => $atributosGrupos,
-                    'atributosActuales'=> $atributosActuales ?? [],
-                ])
+                    {{-- Panel de tabs --}}
+                    <div class="bg-white rounded-b-xl border border-t-0 border-gray-200 p-6">
 
-                {{-- ══════════════════════════════════════════════════════════
-                    BLOQUE VARIANTES (EDIT)
-                ══════════════════════════════════════════════════════════ --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+                        {{-- Tab: Especificaciones --}}
+                        <div x-show="tab === 'especificaciones'" x-cloak>
+                            @include('inventario.productos.partials.tab-especificaciones')
+                        </div>
+
+                        {{-- Tab: Fotometría --}}
+                        <div x-show="tab === 'fotometria'" x-cloak>
+                            @include('inventario.productos.partials.tab-fotometria')
+                        </div>
+
+                        {{-- Tab: Dimensiones --}}
+                        <div x-show="tab === 'dimensiones'" x-cloak>
+                            @include('inventario.productos.partials.tab-dimensiones')
+                        </div>
+
+                        {{-- Tab: Embalaje --}}
+                        <div x-show="tab === 'embalaje'" x-cloak>
+                            @include('inventario.productos.partials.tab-embalaje')
+                        </div>
+
+                        {{-- Tab: Clasificaciones --}}
+                        <div x-show="tab === 'clasificaciones'" x-cloak>
+                            @include('luminarias.partials.ficha-clasificaciones')
+                        </div>
+
+                        {{-- Tab: Atributos dinámicos --}}
+                        <div x-show="tab === 'atributos'" x-cloak>
+                            @include('inventario.productos.partials.atributos-dinamicos', [
+                                'atributosGrupos'  => $atributosGrupos,
+                                'atributosActuales'=> $atributosActuales ?? [],
+                            ])
+                        </div>
+
+                        {{-- Tab: Variantes --}}
+                        <div x-show="tab === 'variantes'" x-cloak>
+
+                        {{-- ══════════════════════════════════════════════════
+                            VARIANTES DEL PRODUCTO
+                        ══════════════════════════════════════════════════ --}}
+                        <div class="border border-gray-200 rounded-xl overflow-hidden">
 
                     <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -522,10 +569,16 @@
                                             <form method="POST" action="{{ route('inventario.productos.variantes.update', $variante) }}"
                                                   class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
                                                 @csrf @method('PUT')
-                                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-3">
+                                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-5 mb-3">
                                                     <div>
                                                         <label class="block text-xs font-medium text-gray-600 mb-1">Nombre</label>
                                                         <input type="text" name="nombre" value="{{ $variante->nombre }}"
+                                                               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-xs font-medium text-gray-600 mb-1">Tamaño</label>
+                                                        <input type="text" name="tamano" value="{{ $variante->tamano }}"
+                                                               placeholder="Ej: 600x600mm"
                                                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
                                                     </div>
                                                     <div>
@@ -596,8 +649,13 @@
                                             </select>
                                         </div>
                                         <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1">Tamaño</label>
+                                            <input type="text" name="tamano" placeholder="Ej: 600x600mm, 4\""
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                                        </div>
+                                        <div>
                                             <label class="block text-xs font-medium text-gray-600 mb-1">Especificación</label>
-                                            <input type="text" name="capacidad" placeholder="Ej: 3000K, 18W"
+                                            <input type="text" name="especificacion" placeholder="Ej: 3000K, 18W"
                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                         </div>
                                         <div>
@@ -614,7 +672,12 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                        </div>{{-- /variantes border div --}}
+
+                        </div>{{-- /tab variantes x-show --}}
+
+                    </div>{{-- /panel body bg-white rounded-b-xl --}}
+                </div>{{-- /Alpine x-data tab wrapper --}}
 
                 {{-- Botones de acción --}}
                 <div class="flex items-center justify-between pt-4">

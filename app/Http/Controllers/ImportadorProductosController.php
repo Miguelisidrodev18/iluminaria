@@ -13,9 +13,11 @@ use App\Models\Catalogo\Marca;
 use App\Models\Catalogo\UnidadMedida;
 use App\Models\Luminaria\TipoProducto;
 use App\Models\Luminaria\TipoLuminaria;
+use App\Models\Luminaria\Clasificacion;
 use App\Models\Luminaria\ProductoEspecificacion;
 use App\Models\Luminaria\ProductoDimension;
 use App\Models\Luminaria\ProductoMaterial;
+use App\Models\Luminaria\ProductoEmbalaje;
 
 class ImportadorProductosController extends Controller
 {
@@ -35,7 +37,6 @@ class ImportadorProductosController extends Controller
 
     public function descargarPlantilla()
     {
-        // Crear CSV como plantilla simplificada (más compatible que Excel v1)
         $filename = 'plantilla_productos.csv';
 
         $headers = [
@@ -45,36 +46,34 @@ class ImportadorProductosController extends Controller
 
         $callback = function () {
             $handle = fopen('php://output', 'w');
-            // BOM para UTF-8 en Excel
-            fwrite($handle, "\xEF\xBB\xBF");
+            fwrite($handle, "\xEF\xBB\xBF"); // BOM UTF-8
 
-            // Hoja PRODUCTOS
-            fputcsv($handle, ['=== HOJA: PRODUCTOS ===']);
             fputcsv($handle, [
-                'codigo', 'nombre', 'tipo_sistema', 'categoria', 'marca',
-                'tipo_kyrios', 'tipo_luminaria', 'potencia_w', 'lumenes',
-                'voltaje', 'temperatura_color_k', 'cri', 'ip',
-                'alto_mm', 'ancho_mm', 'diametro_mm',
-                'material_1', 'color_acabado_1',
-                'stock_inicial', 'precio_compra', 'estado',
+                'Código_fabrica', 'tipo_producto', 'tipo_fuente', 'ambiente', 'tipo_luminaria',
+                'nombre_origen', 'nombre_kyrios', 'color_acabado', 'Tamaño', 'diametro_lado',
+                'ancho_producto', 'salida', 'alto', 'alto-suspendido',
+                'diámetro_lado_producto_agujero', 'ancho_producto_ajugero', 'profundidad_producto_ajugero',
+                'socket_producto', 'numero_lamparas_producto', 'material_1_producto', 'material_2_producto',
+                'nivel_potencia_producto', 'W_lumenes_producto', 'real_lumenes', 'nominal_lumenes',
+                'tonalidad_luz_lumenes', 'T° color especifica', 'IP', 'CRI', 'Angulo de apertura',
+                'IK', 'Voltaje', 'Driver', 'Posibilidad de regulación', 'Protocolo de regulación',
+                'Marca', 'línea', 'Procedencia', 'Ficha tecnica fabrica',
+                'PESO', 'VOLUMEN', 'EMBALADO', 'Medida de embalaje', 'CANTIDAD POR CAJA',
+                'CODIGOS RELACIONADOS',
             ]);
             fputcsv($handle, [
-                'DL-8W-EMP-BL', 'Downlight LED Slim 8W Blanco', 'simple', 'Empotrables', 'Kyrios',
-                'LU', 'ET', '8', '800', '220', '3000', '80', '65',
-                '45', '145', '145',
-                'Aluminio', 'Blanco',
-                '10', '25.50', 'activo',
+                'DL-8W-001', 'LU', 'LED', 'Interior', 'ET',
+                'Downlight LED Slim 8W', 'DL-KYRIOS-001', 'Blanco', '145mm', '145',
+                '', 'Directa', '45', '',
+                '135', '', '',
+                'GU10', '1', 'Aluminio', 'PC',
+                'Baja (0–10W)', '100', '800', '850',
+                'Cálido', '3000K', 'IP65', '80', '36°',
+                'IK08', '220V', 'incluido', '1', '0-10V',
+                'Kyrios', 'Premium', 'China', 'https://...',
+                '0.250', '500', '0', '20x20x10 cm', '12',
+                '',
             ]);
-
-            fputcsv($handle, []);
-            fputcsv($handle, ['=== HOJA: VARIANTES ===']);
-            fputcsv($handle, ['codigo_padre', 'especificacion', 'sobreprecio', 'stock_inicial']);
-            fputcsv($handle, ['DL-8W-EMP-BL', '3000K', '0', '5']);
-
-            fputcsv($handle, []);
-            fputcsv($handle, ['=== HOJA: COMPONENTES (para kits) ===']);
-            fputcsv($handle, ['codigo_padre', 'codigo_hijo', 'cantidad', 'unidad', 'es_opcional', 'orden']);
-            fputcsv($handle, ['KIT-DL-18W', 'DL-8W-EMP-BL', '1', 'unidad', '0', '1']);
 
             fclose($handle);
         };
@@ -118,252 +117,215 @@ class ImportadorProductosController extends Controller
             throw new \RuntimeException('No se pudo abrir el archivo CSV.');
         }
 
-        // Detectar y saltar BOM
         $bom = fread($handle, 3);
         if ($bom !== "\xEF\xBB\xBF") {
             rewind($handle);
         }
 
-        $cabecera  = null;
-        $seccion   = null; // 'productos' | 'variantes' | 'componentes'
-        $secciones = ['productos' => [], 'variantes' => [], 'componentes' => []];
+        $cabecera = null;
 
-        while (($fila = fgetcsv($handle, 1000, ',')) !== false) {
-            $first = trim($fila[0] ?? '');
-
-            if (str_contains($first, 'HOJA: PRODUCTOS')) { $seccion = 'productos'; $cabecera = null; continue; }
-            if (str_contains($first, 'HOJA: VARIANTES')) { $seccion = 'variantes'; $cabecera = null; continue; }
-            if (str_contains($first, 'HOJA: COMPONENTES')) { $seccion = 'componentes'; $cabecera = null; continue; }
-
-            if (!$seccion) continue;
-            if (empty(array_filter($fila))) continue; // fila vacía
+        while (($fila = fgetcsv($handle, 2000, ',')) !== false) {
+            if (empty(array_filter($fila))) continue;
 
             if ($cabecera === null) {
                 $cabecera = array_map('trim', $fila);
                 continue;
             }
 
-            $secciones[$seccion][] = array_combine(
+            $filas[] = array_combine(
                 $cabecera,
                 array_pad(array_map('trim', $fila), count($cabecera), '')
             );
         }
 
         fclose($handle);
-        return $secciones;
+        return $filas;
     }
 
-    // ─── Leer XLSX usando maatwebsite/excel v1.1 ──────────────────────────────
+    // ─── Leer XLSX ────────────────────────────────────────────────────────────
 
     private function leerExcel(string $path): array
     {
-        $secciones = ['productos' => [], 'variantes' => [], 'componentes' => []];
+        $filas    = [];
+        $cabecera = null;
 
         $data = \Excel::load($path, function ($reader) {
             $reader->noHeading();
-        })->get();
+        })->get()->toArray();
 
-        $sheetMap = [
-            'PRODUCTOS'   => 'productos',
-            'VARIANTES'   => 'variantes',
-            'COMPONENTES' => 'componentes',
-        ];
+        // Usar primera hoja con datos
+        $rows = is_array(reset($data)) ? reset($data) : [];
 
-        foreach ($data->toArray() as $sheetName => $rows) {
-            $key = strtoupper(trim($sheetName));
-            foreach ($sheetMap as $name => $sectionKey) {
-                if (str_contains($key, $name)) {
-                    $cabecera = null;
-                    foreach ($rows as $row) {
-                        $row = array_map('trim', $row);
-                        if (empty(array_filter($row))) continue;
-                        if ($cabecera === null) {
-                            $cabecera = $row;
-                            continue;
-                        }
-                        $secciones[$sectionKey][] = array_combine(
-                            $cabecera,
-                            array_pad($row, count($cabecera), '')
-                        );
-                    }
-                }
+        foreach ($rows as $row) {
+            $row = array_map('trim', $row);
+            if (empty(array_filter($row))) continue;
+
+            if ($cabecera === null) {
+                $cabecera = $row;
+                continue;
             }
+
+            $filas[] = array_combine(
+                $cabecera,
+                array_pad($row, count($cabecera), '')
+            );
         }
 
-        return $secciones;
+        return $filas;
     }
 
-    // ─── Procesar las filas extraídas ─────────────────────────────────────────
+    // ─── Normalización de valores ─────────────────────────────────────────────
 
-    private function procesarFilas(array $secciones): array
+    private function norm(string $campo, mixed $valor): ?string
     {
-        $log    = ['creados' => 0, 'actualizados' => 0, 'variantes' => 0, 'componentes' => 0, 'errores' => []];
-        $mapaId = []; // codigo => producto_id
+        $valor = trim((string) $valor);
+        if ($valor === '' || $valor === null) return null;
+
+        $upper = ['IP', 'IK', 'CRI', 'Código_fabrica', 'codigo_fabrica'];
+        if (in_array($campo, $upper)) return strtoupper($valor);
+
+        return $valor;
+    }
+
+    private function normNum(mixed $valor): ?float
+    {
+        $v = trim((string) $valor);
+        return ($v !== '' && is_numeric($v)) ? (float) $v : null;
+    }
+
+    private function normInt(mixed $valor): ?int
+    {
+        $v = trim((string) $valor);
+        return ($v !== '' && is_numeric($v)) ? (int) $v : null;
+    }
+
+    private function normBool(mixed $valor): bool
+    {
+        $v = strtolower(trim((string) $valor));
+        return in_array($v, ['1', 'si', 'sí', 'yes', 'true', 'x'], true);
+    }
+
+    // ─── Procesar las filas ───────────────────────────────────────────────────
+
+    private function procesarFilas(array $filas): array
+    {
+        $log    = ['creados' => 0, 'actualizados' => 0, 'variantes' => 0, 'errores' => []];
+        $mapaId = [];
 
         DB::beginTransaction();
         try {
-            // ── 1. PRODUCTOS ───────────────────────────────────────────────────
-            foreach ($secciones['productos'] as $i => $fila) {
+            foreach ($filas as $i => $fila) {
                 $linea = $i + 2;
                 try {
-                    $nombre = $fila['nombre'] ?? '';
-                    if (empty($nombre)) {
-                        $log['errores'][] = "Fila {$linea}: falta el nombre del producto.";
+                    // Validar campo obligatorio
+                    $codigoFabrica = $this->norm('Código_fabrica', $fila['Código_fabrica'] ?? '');
+                    if (!$codigoFabrica) {
+                        $log['errores'][] = "Fila {$linea}: omitida — falta Código_fabrica.";
                         continue;
                     }
 
-                    // Resolver categoría (crea si no existe)
-                    $catNombre = $fila['categoria'] ?? 'General';
-                    $categoria = Categoria::firstOrCreate(
-                        ['nombre' => $catNombre],
-                        ['estado' => 'activo', 'descripcion' => 'Creada automáticamente desde importación']
-                    );
+                    $nombre = $this->norm('nombre', $fila['nombre_origen'] ?? '');
+                    if (!$nombre) {
+                        $log['errores'][] = "Fila {$linea}: omitida — falta nombre_origen.";
+                        continue;
+                    }
 
-                    // Resolver marca (crea si no existe)
+                    // Lookups
                     $marcaId = null;
-                    if (!empty($fila['marca'])) {
+                    if (!empty($fila['Marca'])) {
                         $marca   = Marca::firstOrCreate(
-                            ['nombre' => $fila['marca']],
-                            ['estado' => 'activo', 'codigo' => Str::upper(Str::slug($fila['marca'], ''))]
+                            ['nombre' => trim($fila['Marca'])],
+                            ['estado' => 'activo', 'codigo' => Str::upper(Str::slug(trim($fila['Marca']), ''))]
                         );
                         $marcaId = $marca->id;
                     }
 
-                    // Unidad de medida por defecto
+                    $tipoProdId = null;
+                    if (!empty($fila['tipo_producto'])) {
+                        $tipoProdId = TipoProducto::where('codigo', trim($fila['tipo_producto']))->value('id');
+                    }
+                    $tipoProdId ??= TipoProducto::first()?->id ?? 1;
+
+                    $tipoLumId = null;
+                    if (!empty($fila['tipo_luminaria'])) {
+                        $tipoLumId = TipoLuminaria::where('codigo', trim($fila['tipo_luminaria']))->value('id');
+                    }
+
+                    $categoria  = Categoria::firstOrCreate(
+                        ['nombre' => 'Importados'],
+                        ['estado' => 'activo', 'descripcion' => 'Importados desde Excel']
+                    );
+
                     $unidadId = UnidadMedida::where('simbolo', 'und')
                         ->orWhere('nombre', 'like', '%unidad%')
                         ->value('id') ?? 1;
 
-                    // Tipo de producto
-                    $tipoProdId = null;
-                    if (!empty($fila['tipo_kyrios'])) {
-                        $tipoProdId = TipoProducto::where('codigo', $fila['tipo_kyrios'])->value('id');
-                    }
-                    if (!$tipoProdId) {
-                        $tipoProdId = TipoProducto::first()?->id ?? 1;
-                    }
-
-                    // Tipo de luminaria
-                    $tipoLumId = null;
-                    if (!empty($fila['tipo_luminaria'])) {
-                        $tipoLumId = TipoLuminaria::where('codigo', $fila['tipo_luminaria'])->value('id');
-                    }
-
-                    $codigo = !empty($fila['codigo']) ? $fila['codigo'] : Producto::generarCodigo();
-                    $tipoSistema = in_array($fila['tipo_sistema'] ?? '', ['simple', 'compuesto', 'componente'])
-                        ? $fila['tipo_sistema']
-                        : 'simple';
-
-                    $existe = Producto::where('codigo', $codigo)->first();
-
+                    // Datos principales del producto
                     $datos = [
                         'nombre'           => $nombre,
+                        'nombre_kyrios'    => $this->norm('nombre_kyrios', $fila['nombre_kyrios'] ?? '') ?: null,
+                        'codigo_fabrica'   => $codigoFabrica,
                         'categoria_id'     => $categoria->id,
                         'marca_id'         => $marcaId,
                         'unidad_medida_id' => $unidadId,
                         'tipo_producto_id' => $tipoProdId,
                         'tipo_luminaria_id'=> $tipoLumId,
-                        'tipo_sistema'     => $tipoSistema,
+                        'tipo_sistema'     => 'simple',
                         'tipo_inventario'  => 'cantidad',
                         'stock_minimo'     => 0,
                         'stock_maximo'     => 9999,
-                        'estado'           => in_array($fila['estado'] ?? 'activo', ['activo', 'inactivo', 'descontinuado'])
-                                             ? ($fila['estado'] ?? 'activo') : 'activo',
-                        'ultimo_costo_compra' => !empty($fila['precio_compra']) ? (float)$fila['precio_compra'] : null,
-                        'costo_promedio'      => !empty($fila['precio_compra']) ? (float)$fila['precio_compra'] : null,
+                        'estado'           => 'activo',
+                        'linea'            => $this->norm('linea', $fila['línea'] ?? '') ?: null,
+                        'procedencia'      => $this->norm('procedencia', $fila['Procedencia'] ?? '') ?: null,
+                        'ficha_tecnica_url'=> $this->norm('ficha_tecnica_url', $fila['Ficha tecnica fabrica'] ?? '') ?: null,
                     ];
 
-                    if ($existe) {
-                        $existe->update($datos);
-                        $producto = $existe;
-                        $log['actualizados']++;
-                    } else {
-                        $datos['codigo'] = $codigo;
-                        $datos['estado_aprobacion'] = 'borrador';
-                        $producto = Producto::create($datos);
-                        $log['creados']++;
-                    }
-
-                    $mapaId[$codigo] = $producto->id;
-
-                    // Stock inicial via increment directo (evitar observer)
-                    $stockInicial = (int)($fila['stock_inicial'] ?? 0);
-                    if ($stockInicial > 0 && !$existe) {
-                        $producto->update(['stock_actual' => $stockInicial]);
-                    }
-
-                    // Especificaciones técnicas
-                    $this->guardarEspecificaciones($producto, $fila);
-
-                } catch (\Throwable $e) {
-                    $log['errores'][] = "Fila {$linea} ('{$nombre}'): " . $e->getMessage();
-                }
-            }
-
-            // ── 2. VARIANTES ───────────────────────────────────────────────────
-            foreach ($secciones['variantes'] as $i => $fila) {
-                $linea = $i + 2;
-                try {
-                    $codigoPadre = $fila['codigo_padre'] ?? '';
-                    if (empty($codigoPadre)) continue;
-
-                    $padreId = $mapaId[$codigoPadre]
-                        ?? Producto::where('codigo', $codigoPadre)->value('id');
-
-                    if (!$padreId) {
-                        $log['errores'][] = "Variante fila {$linea}: producto padre '{$codigoPadre}' no encontrado.";
-                        continue;
-                    }
-
-                    $especificacion = $fila['especificacion'] ?? null;
-
-                    $variante = ProductoVariante::firstOrCreate(
-                        ['producto_id' => $padreId, 'especificacion' => $especificacion ?: null],
-                        [
-                            'sobreprecio'  => (float)($fila['sobreprecio'] ?? 0),
-                            'stock_actual' => (int)($fila['stock_inicial'] ?? 0),
-                            'estado'       => 'activo',
-                        ]
+                    $producto = Producto::updateOrCreate(
+                        ['codigo_fabrica' => $codigoFabrica],
+                        $datos + ['codigo' => Producto::generarCodigo(), 'estado_aprobacion' => 'borrador']
                     );
 
-                    if ($variante->wasRecentlyCreated) {
-                        $log['variantes']++;
+                    if ($producto->wasRecentlyCreated) {
+                        $log['creados']++;
+                    } else {
+                        $log['actualizados']++;
                     }
+
+                    $mapaId[$codigoFabrica] = $producto->id;
+
+                    // Guardar subtablas
+                    $this->guardarEspecificaciones($producto, $fila);
+                    $this->guardarDimensiones($producto, $fila);
+                    $this->guardarMateriales($producto, $fila);
+                    $this->guardarEmbalaje($producto, $fila);
+                    $this->guardarVariante($producto, $fila, $log);
+                    $this->guardarClasificaciones($producto, $fila);
+
                 } catch (\Throwable $e) {
-                    $log['errores'][] = "Variante fila {$linea}: " . $e->getMessage();
+                    $log['errores'][] = "Fila {$linea} ('{$codigoFabrica}'): " . $e->getMessage();
                 }
             }
 
-            // ── 3. COMPONENTES BOM ─────────────────────────────────────────────
-            foreach ($secciones['componentes'] as $i => $fila) {
-                $linea = $i + 2;
-                try {
-                    $codigoPadre = $fila['codigo_padre'] ?? '';
-                    $codigoHijo  = $fila['codigo_hijo']  ?? '';
-                    if (empty($codigoPadre) || empty($codigoHijo)) continue;
+            // BOM: procesar CODIGOS RELACIONADOS en segunda pasada
+            foreach ($filas as $i => $fila) {
+                $codigoFabrica = $this->norm('Código_fabrica', $fila['Código_fabrica'] ?? '');
+                if (!$codigoFabrica || empty($fila['CODIGOS RELACIONADOS'])) continue;
 
-                    $padreId = $mapaId[$codigoPadre]
-                        ?? Producto::where('codigo', $codigoPadre)->value('id');
-                    $hijoId  = $mapaId[$codigoHijo]
-                        ?? Producto::where('codigo', $codigoHijo)->value('id');
+                $padreId = $mapaId[$codigoFabrica]
+                    ?? Producto::where('codigo_fabrica', $codigoFabrica)->value('id');
+                if (!$padreId) continue;
 
-                    if (!$padreId || !$hijoId) {
-                        $log['errores'][] = "Componente fila {$linea}: padre '{$codigoPadre}' o hijo '{$codigoHijo}' no encontrado.";
-                        continue;
-                    }
+                $codigos = preg_split('/[\s,;|]+/', trim($fila['CODIGOS RELACIONADOS']));
+                foreach (array_filter($codigos) as $codigoHijo) {
+                    $codigoHijo = strtoupper(trim($codigoHijo));
+                    $hijoId = $mapaId[$codigoHijo]
+                        ?? Producto::where('codigo_fabrica', $codigoHijo)->value('id');
+                    if (!$hijoId || $hijoId === $padreId) continue;
 
                     ProductoComponente::firstOrCreate(
                         ['padre_id' => $padreId, 'hijo_id' => $hijoId, 'variante_id' => null],
-                        [
-                            'cantidad'    => (float)($fila['cantidad'] ?? 1),
-                            'unidad'      => $fila['unidad'] ?? 'unidad',
-                            'es_opcional' => (bool)(int)($fila['es_opcional'] ?? 0),
-                            'orden'       => (int)($fila['orden'] ?? 0),
-                        ]
+                        ['cantidad' => 1, 'unidad' => 'unidad', 'es_opcional' => false, 'orden' => 0]
                     );
-                    $log['componentes']++;
-                } catch (\Throwable $e) {
-                    $log['errores'][] = "Componente fila {$linea}: " . $e->getMessage();
                 }
             }
 
@@ -376,49 +338,134 @@ class ImportadorProductosController extends Controller
         return $log;
     }
 
-    // ─── Guardar especificaciones y dimensiones técnicas ──────────────────────
+    // ─── Guardar especificaciones técnicas ────────────────────────────────────
 
     private function guardarEspecificaciones(Producto $producto, array $fila): void
     {
-        $camposEspec = ['potencia_w', 'lumenes', 'voltaje', 'temperatura_color_k', 'cri', 'ip'];
-        $tieneEspec  = array_filter(array_intersect_key($fila, array_flip($camposEspec)));
+        $data = [
+            'tipo_fuente'          => $this->norm('tipo_fuente', $fila['tipo_fuente'] ?? '') ?: null,
+            'salida_luz'           => $this->norm('salida_luz', $fila['salida'] ?? '') ?: null,
+            'nivel_potencia'       => $this->norm('nivel_potencia', $fila['nivel_potencia_producto'] ?? '') ?: null,
+            'socket'               => $this->norm('socket', $fila['socket_producto'] ?? '') ?: null,
+            'numero_lamparas'      => $this->normInt($fila['numero_lamparas_producto'] ?? ''),
+            'eficacia_luminosa'    => $this->normNum($fila['W_lumenes_producto'] ?? ''),
+            'real_lumenes'         => $this->normNum($fila['real_lumenes'] ?? ''),
+            'nominal_lumenes'      => $this->normNum($fila['nominal_lumenes'] ?? ''),
+            'tonalidad_luz'        => $this->norm('tonalidad_luz', $fila['tonalidad_luz_lumenes'] ?? '') ?: null,
+            'temperatura_color'    => $this->norm('temperatura_color', $fila['T° color especifica'] ?? '') ?: null,
+            'ip'                   => $this->norm('IP', $fila['IP'] ?? '') ?: null,
+            'cri'                  => $this->normInt($fila['CRI'] ?? ''),
+            'angulo_apertura'      => $this->norm('angulo_apertura', $fila['Angulo de apertura'] ?? '') ?: null,
+            'ik'                   => $this->norm('IK', $fila['IK'] ?? '') ?: null,
+            'voltaje'              => $this->norm('voltaje', $fila['Voltaje'] ?? '') ?: null,
+            'driver'               => $this->norm('driver', $fila['Driver'] ?? '') ?: null,
+            'regulable'            => $this->normBool($fila['Posibilidad de regulación'] ?? ''),
+            'protocolo_regulacion' => $this->norm('protocolo_regulacion', $fila['Protocolo de regulación'] ?? '') ?: null,
+        ];
 
-        if ($tieneEspec) {
+        if (array_filter($data)) {
             ProductoEspecificacion::updateOrCreate(
                 ['producto_id' => $producto->id],
-                [
-                    'potencia'            => !empty($fila['potencia_w'])          ? (float)$fila['potencia_w'] : null,
-                    'lumenes'             => !empty($fila['lumenes'])              ? (int)$fila['lumenes']     : null,
-                    'voltaje'             => !empty($fila['voltaje'])              ? (float)$fila['voltaje']   : null,
-                    'temperatura_color'   => !empty($fila['temperatura_color_k'])  ? (int)$fila['temperatura_color_k'] : null,
-                    'cri'                 => !empty($fila['cri'])                  ? (int)$fila['cri']         : null,
-                    'ip'                  => !empty($fila['ip'])                   ? (int)$fila['ip']          : null,
-                ]
+                $data
             );
         }
+    }
 
-        $camposDim = ['alto_mm', 'ancho_mm', 'diametro_mm'];
-        $tieneDim  = array_filter(array_intersect_key($fila, array_flip($camposDim)));
+    // ─── Guardar dimensiones ──────────────────────────────────────────────────
 
-        if ($tieneDim) {
+    private function guardarDimensiones(Producto $producto, array $fila): void
+    {
+        $diamLado = $this->normNum($fila['diametro_lado'] ?? '');
+
+        $data = [
+            'alto'                 => $this->normNum($fila['alto'] ?? ''),
+            'ancho'                => $this->normNum($fila['ancho_producto'] ?? ''),
+            'diametro'             => $diamLado, // por defecto en diametro
+            'alto_suspendido'      => $this->normNum($fila['alto-suspendido'] ?? ''),
+            'diametro_agujero'     => $this->normNum($fila['diámetro_lado_producto_agujero'] ?? ''),
+            'ancho_agujero'        => $this->normNum($fila['ancho_producto_ajugero'] ?? ''),
+            'profundidad_agujero'  => $this->normNum($fila['profundidad_producto_ajugero'] ?? ''),
+        ];
+
+        if (array_filter($data)) {
             ProductoDimension::updateOrCreate(
                 ['producto_id' => $producto->id],
-                [
-                    'alto'     => !empty($fila['alto_mm'])     ? (float)$fila['alto_mm']     : null,
-                    'ancho'    => !empty($fila['ancho_mm'])     ? (float)$fila['ancho_mm']    : null,
-                    'diametro' => !empty($fila['diametro_mm'])  ? (float)$fila['diametro_mm'] : null,
-                ]
+                $data
             );
         }
+    }
 
-        if (!empty($fila['material_1'])) {
+    // ─── Guardar materiales ───────────────────────────────────────────────────
+
+    private function guardarMateriales(Producto $producto, array $fila): void
+    {
+        $data = [
+            'material_1'      => $this->norm('material_1', $fila['material_1_producto'] ?? '') ?: null,
+            'material_2'      => $this->norm('material_2', $fila['material_2_producto'] ?? '') ?: null,
+            'color_acabado_1' => $this->norm('color_acabado_1', $fila['color_acabado'] ?? '') ?: null,
+        ];
+
+        if (array_filter($data)) {
             ProductoMaterial::updateOrCreate(
                 ['producto_id' => $producto->id],
-                [
-                    'material_1'       => $fila['material_1'],
-                    'color_acabado_1'  => $fila['color_acabado_1'] ?? null,
-                ]
+                $data
             );
+        }
+    }
+
+    // ─── Guardar embalaje ─────────────────────────────────────────────────────
+
+    private function guardarEmbalaje(Producto $producto, array $fila): void
+    {
+        $data = [
+            'peso'             => $this->normNum($fila['PESO'] ?? ''),
+            'volumen'          => $this->normNum($fila['VOLUMEN'] ?? ''),
+            'embalado'         => $this->normBool($fila['EMBALADO'] ?? ''),
+            'medida_embalaje'  => $this->norm('medida_embalaje', $fila['Medida de embalaje'] ?? '') ?: null,
+            'cantidad_por_caja'=> $this->normInt($fila['CANTIDAD POR CAJA'] ?? ''),
+        ];
+
+        if (array_filter($data, fn($v) => $v !== null && $v !== false)) {
+            ProductoEmbalaje::updateOrCreate(
+                ['producto_id' => $producto->id],
+                $data
+            );
+        }
+    }
+
+    // ─── Guardar variante del producto ────────────────────────────────────────
+
+    private function guardarVariante(Producto $producto, array $fila, array &$log): void
+    {
+        $tamano = $this->norm('tamano', $fila['Tamaño'] ?? '') ?: null;
+        if (!$tamano) return;
+
+        $variante = ProductoVariante::firstOrCreate(
+            ['producto_id' => $producto->id, 'tamano' => $tamano, 'especificacion' => null, 'color_id' => null],
+            ['sobreprecio' => 0, 'stock_actual' => 0, 'estado' => 'activo']
+        );
+
+        if ($variante->wasRecentlyCreated) {
+            $log['variantes']++;
+        }
+    }
+
+    // ─── Guardar clasificaciones (ambiente → pivot) ───────────────────────────
+
+    private function guardarClasificaciones(Producto $producto, array $fila): void
+    {
+        $ambiente = $this->norm('ambiente', $fila['ambiente'] ?? '') ?: null;
+        if (!$ambiente) return;
+
+        // Buscar o crear clasificación por nombre
+        $clf = Clasificacion::firstOrCreate(
+            ['nombre' => $ambiente],
+            ['codigo' => strtoupper(substr(Str::slug($ambiente, ''), 0, 10)), 'estado' => 'activo']
+        );
+
+        $ids = $producto->clasificaciones()->pluck('clasificaciones.id')->toArray();
+        if (!in_array($clf->id, $ids)) {
+            $producto->clasificaciones()->attach($clf->id);
         }
     }
 }

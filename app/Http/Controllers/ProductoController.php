@@ -8,8 +8,8 @@ use App\Models\ProductoVariante;
 use App\Models\Categoria;
 use App\Models\Almacen;
 use App\Models\Catalogo\Marca;
-use App\Models\Catalogo\Modelo;
 use App\Models\Catalogo\Color;
+use App\Models\Luminaria\ProductoEmbalaje;
 use App\Models\Catalogo\UnidadMedida;
 use App\Models\Luminaria\TipoProyecto;
 use App\Models\Luminaria\TipoProducto;
@@ -23,6 +23,7 @@ use App\Models\Ubicacion;
 use App\Services\CodigoBarrasService;
 use App\Services\VarianteService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
@@ -125,11 +126,6 @@ class ProductoController extends Controller
      */
 public function create()
 {
-    // Verificar que los modelos existen
-    if (!class_exists('App\Models\Catalogo\Marca')) {
-        dd('El modelo Marca no existe');
-    }
-    
     // Obtener datos de inventario
     $categorias = Categoria::where('estado', 'activo')
         ->with(['marcas' => fn($q) => $q->where('estado', 'activo')])
@@ -139,8 +135,7 @@ public function create()
     
     // Obtener datos del catálogo
     $marcas = Marca::where('estado', 'activo')->orderBy('nombre')->get();
-    $modelos = Modelo::where('estado', 'activo')->with('marca')->orderBy('nombre')->get();
-    $colores = Color::where('estado', 'activo')->orderBy('nombre')->get(); // ✅ YA LO TIENES
+    $colores = Color::where('estado', 'activo')->orderBy('nombre')->get();
     $unidades = UnidadMedida::where('estado', 'activo')->orderBy('nombre')->get(); // ✅ YA LO TIENES
     
     $tiposProyecto   = TipoProyecto::activos()->orderBy('nombre')->get();
@@ -156,7 +151,6 @@ public function create()
         'categorias',
         'almacenes',
         'marcas',
-        'modelos',
         'colores',
         'unidades',
         'tiposProyecto',
@@ -181,8 +175,7 @@ public function create()
         
         // ✅ NUEVO: Foreign Keys desde catálogos
         'marca_id' => 'nullable|exists:marcas,id',           // Cambiado de 'marca'
-        'modelo_id' => 'nullable|exists:modelos,id',         // Cambiado de 'modelo'
-        'color_id' => 'nullable|exists:colores,id',          // ✅ NUEVO
+        'color_id' => 'nullable|exists:colores,id',
         'unidad_medida_id' => 'required|exists:unidades_medida,id', // Cambiado de 'unidad_medida'
         
         // Tipo de producto — FK relacional (siempre requerido)
@@ -378,11 +371,7 @@ public function create()
         // Obtener datos para los selects
         $categorias = Categoria::where('estado', 'activo')->orderBy('nombre')->get();
         $marcas = \App\Models\Catalogo\Marca::where('estado', 'activo')->orderBy('nombre')->get();
-        $modelos = \App\Models\Catalogo\Modelo::where('estado', 'activo')
-                    ->with('marca')
-                    ->orderBy('nombre')
-                    ->get();
-        
+
         // Obtener colores y unidades de medida
         $colores = \App\Models\Catalogo\Color::where('estado', 'activo')
                     ->orderBy('nombre')
@@ -409,7 +398,6 @@ public function create()
             'producto',
             'categorias',
             'marcas',
-            'modelos',
             'colores',
             'unidades',
             'codigosBarras',
@@ -439,9 +427,8 @@ public function create()
         'descripcion' => 'nullable|string',
         'categoria_id' => 'required|exists:categorias,id',
         
-        // ✅ NUEVO: Foreign Keys
+        // Foreign Keys
         'marca_id' => 'nullable|exists:marcas,id',
-        'modelo_id' => 'nullable|exists:modelos,id',
         'color_id' => 'nullable|exists:colores,id',
         'unidad_medida_id' => 'required|exists:unidades_medida,id',
         
@@ -476,6 +463,7 @@ public function create()
         'estado' => 'required|in:activo,inactivo,descontinuado',
 
         // Kyrios / ficha técnica
+        'nombre_kyrios'     => 'nullable|string|max:255|unique:productos,nombre_kyrios,' . $producto->id,
         'codigo_kyrios'     => 'nullable|string|max:100',
         'codigo_fabrica'    => 'nullable|string|max:100',
         'procedencia'       => 'nullable|string|max:100',
@@ -483,11 +471,12 @@ public function create()
         'ficha_tecnica_url' => 'nullable|url|max:500',
         'observaciones'     => 'nullable|string',
 
-        // Especificaciones técnicas
-        'especificacion.vida_util_horas' => 'nullable|integer|min:0',
-
-        // Dimensiones
-        'dimensiones.peso' => 'nullable|numeric|min:0',
+        // Embalaje
+        'embalaje.peso'             => 'nullable|numeric|min:0',
+        'embalaje.volumen'          => 'nullable|numeric|min:0',
+        'embalaje.embalado'         => 'nullable|boolean',
+        'embalaje.medida_embalaje'  => 'nullable|string|max:100',
+        'embalaje.cantidad_por_caja'=> 'nullable|integer|min:1',
 
         // Clasificaciones de uso (array de IDs)
         'clasificacion_ids'   => 'nullable|array',
@@ -501,7 +490,7 @@ public function create()
         'especificacion.driver' => 'nullable|in:incluido,no_incluido',
     ]);
 
-    // Subir nueva imagen si existe
+    // Subir nueva imagen si existe (antes de la transacción)
     if ($request->hasFile('imagen')) {
         if ($producto->imagen) {
             Storage::disk('public')->delete($producto->imagen);
@@ -509,40 +498,41 @@ public function create()
         $validated['imagen'] = $request->file('imagen')->store('productos', 'public');
     }
 
-    // Actualizar producto
-    $producto->update($validated);
+    DB::transaction(function () use ($request, $producto, $validated) {
+        // Actualizar producto
+        $producto->update($validated);
 
-    // Sincronizar clasificaciones de uso (pivot)
-    $clasificacionIds = array_filter((array) $request->input('clasificacion_ids', []));
-    $producto->clasificaciones()->sync($clasificacionIds);
+        // Sincronizar clasificaciones de uso (pivot)
+        $clasificacionIds = array_filter((array) $request->input('clasificacion_ids', []));
+        $producto->clasificaciones()->sync($clasificacionIds);
 
-    // Guardar ficha técnica luminaria
-    $this->guardarFichaTecnica($producto, $request);
+        // Guardar ficha técnica luminaria
+        $this->guardarFichaTecnica($producto, $request);
 
-    // Sincronizar ubicaciones físicas
-    $this->sincronizarUbicaciones($producto, $request);
+        // Guardar embalaje
+        $this->guardarEmbalaje($producto, $request);
 
-    // Sincronizar atributos dinámicos del configurador
-    $atributosInput = $request->input('atributos', []);
-    $producto->sincronizarAtributos($atributosInput);
+        // Sincronizar ubicaciones físicas
+        $this->sincronizarUbicaciones($producto, $request);
 
-    // Actualizar código de barras principal si cambió
-    if ($producto->wasChanged('codigo_barras')) {
-        // Buscar si ya tiene un código principal
-        $principal = $producto->codigosBarras()->where('es_principal', true)->first();
-        
-        if ($principal) {
-            // Actualizar el existente
-            $principal->update(['codigo_barras' => $producto->codigo_barras]);
-        } else {
-            // Crear nuevo
-            $producto->codigosBarras()->create([
-                'codigo_barras' => $producto->codigo_barras,
-                'descripcion' => 'Principal',
-                'es_principal' => true
-            ]);
+        // Sincronizar atributos dinámicos del configurador
+        $atributosInput = $request->input('atributos', []);
+        $producto->sincronizarAtributos($atributosInput);
+
+        // Actualizar código de barras principal si cambió
+        if ($producto->wasChanged('codigo_barras') && $producto->codigo_barras) {
+            $principal = $producto->codigosBarras()->where('es_principal', true)->first();
+            if ($principal) {
+                $principal->update(['codigo_barras' => $producto->codigo_barras]);
+            } else {
+                $producto->codigosBarras()->create([
+                    'codigo_barras' => $producto->codigo_barras,
+                    'descripcion'   => 'Principal',
+                    'es_principal'  => true,
+                ]);
+            }
         }
-    }
+    });
 
     return redirect()
         ->route('inventario.productos.index')
@@ -595,6 +585,24 @@ public function create()
         // Sincronizar tipos de proyecto (pivot multi-valor)
         $tiposProyectoIds = array_filter((array) $request->input('tipo_proyecto_ids', []));
         $producto->tiposProyecto()->sync($tiposProyectoIds);
+    }
+
+    /**
+     * Guardar / actualizar datos de embalaje y logística
+     */
+    private function guardarEmbalaje(Producto $producto, Request $request): void
+    {
+        $data = $request->input('embalaje', []);
+        if (empty(array_filter($data, fn($v) => $v !== null && $v !== ''))) {
+            return;
+        }
+
+        $data['embalado'] = isset($data['embalado']) ? (bool) $data['embalado'] : false;
+
+        $producto->embalaje()->updateOrCreate(
+            ['producto_id' => $producto->id],
+            $data
+        );
     }
 
     /**
@@ -904,7 +912,8 @@ public function storeVariante(Request $request, Producto $producto, VarianteServ
     $validated = $request->validate([
         'nombre'        => 'nullable|string|max:100',
         'color_id'      => 'nullable|exists:colores,id',
-        'especificacion' => 'nullable|string|max:50',
+        'tamano'        => 'nullable|string|max:100',
+        'especificacion' => 'nullable|string|max:100',
         'sobreprecio'   => 'nullable|numeric|min:0',
         'stock_inicial' => 'nullable|integer|min:0',
         'atributos'     => 'nullable|array',
@@ -921,6 +930,7 @@ public function storeVariante(Request $request, Producto $producto, VarianteServ
         // Actualizar campos adicionales
         $variante->update(array_filter([
             'nombre'    => $validated['nombre'] ?? null,
+            'tamano'    => $validated['tamano'] ?? null,
             'atributos' => $validated['atributos'] ?? null,
         ], fn($v) => !is_null($v)));
 
@@ -946,7 +956,8 @@ public function updateVariante(Request $request, \App\Models\ProductoVariante $v
     $validated = $request->validate([
         'nombre'        => 'nullable|string|max:100',
         'color_id'      => 'nullable|exists:colores,id',
-        'especificacion'=> 'nullable|string|max:50',
+        'tamano'        => 'nullable|string|max:100',
+        'especificacion'=> 'nullable|string|max:100',
         'sobreprecio'   => 'nullable|numeric|min:0',
         'stock_minimo'  => 'nullable|integer|min:0',
         'atributos'     => 'nullable|array',
