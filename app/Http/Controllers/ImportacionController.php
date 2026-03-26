@@ -99,7 +99,11 @@ class ImportacionController extends Controller
     public function aprobacion(Request $request)
     {
         $query = Producto::where('estado_aprobacion', 'borrador')
-            ->with(['marca', 'tipoProducto', 'tipoLuminaria'])
+            ->with([
+                'marca', 'tipoProducto', 'tipoLuminaria', 'categoria',
+                'especificacion', 'dimensiones', 'embalaje',
+                'variantes.color', 'clasificaciones', 'tiposProyecto',
+            ])
             ->latest();
 
         if ($buscar = $request->input('buscar')) {

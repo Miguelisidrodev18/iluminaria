@@ -21,6 +21,7 @@ use App\Models\Luminaria\TipoProducto;
 use App\Models\Luminaria\TipoLuminaria;
 use App\Models\Luminaria\ProductoDimension;
 use App\Models\Luminaria\ProductoEmbalaje;
+use App\Models\Luminaria\ProductoEspecificacion;
 use App\Models\Luminaria\ProductoMaterial;
 use App\Models\Luminaria\Clasificacion;
 
@@ -192,7 +193,7 @@ class ImportadorMasivoService
 
                         $marcaId     = $this->resolverMarca($fila['marca_codigo'] ?? '');
                         $tipoProdId  = $this->tiposProducto[strtoupper($this->norm($fila['tipo_producto_codigo'] ?? '') ?? '')] ?? null;
-                        $tipoLumId   = $this->tiposLuminaria[strtoupper($this->norm($fila['tipo_luminaria_codigo'] ?? '') ?? '')] ?? null;
+                        $tipoLumId   = $this->resolverTipoLuminaria($fila['tipo_luminaria_codigo'] ?? '');
                         $unidadId    = $this->resolverUnidadMedida($fila['unidad_medida_codigo'] ?? '');
                         $categoriaId = $this->resolverCategoria($fila['categoria_codigo'] ?? '');
 
@@ -246,6 +247,10 @@ class ImportadorMasivoService
 
     // ── Hoja ATRIBUTOS ────────────────────────────────────────────────────────
 
+    /**
+     * Guarda los campos de la hoja ATRIBUTOS_PRODUCTO en producto_especificaciones
+     * (no en producto_atributos, que es para atributos dinámicos del configurador).
+     */
     private function procesarHojaAtributos(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
     {
         $sheet = $this->hoja($spreadsheet, 'ATRIBUTOS');
@@ -253,26 +258,69 @@ class ImportadorMasivoService
 
         $filas = $this->extraerFilas($sheet);
 
+        // Slugs que antes se guardaban mal en producto_atributos — limpiarlos
+        $slugsEspecificacion = array_unique(array_values(self::ATRIBUTOS_MAP));
+
         foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
-            DB::transaction(function () use ($chunk, $mapa) {
+            DB::transaction(function () use ($chunk, $mapa, $slugsEspecificacion) {
                 foreach ($chunk as $fila) {
+                    $codigo = null;
                     try {
                         $codigo     = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
                         $productoId = $mapa[$codigo] ?? null;
                         if (!$productoId) continue;
 
-                        foreach (self::ATRIBUTOS_MAP as $columna => $slug) {
-                            // Saltar si la columna no existe en esta fila
-                            if (!array_key_exists($columna, $fila)) continue;
+                        // Eliminar entradas antiguas mal guardadas en producto_atributos
+                        ProductoAtributo::where('producto_id', $productoId)
+                            ->whereHas('atributo', fn($q) => $q->whereIn('slug', $slugsEspecificacion))
+                            ->delete();
 
-                            $valor = $this->norm($fila[$columna]);
-                            if ($valor === null || $valor === '') continue;
+                        // Construir array de especificaciones
+                        $specData = [];
 
-                            $atributoId = $this->resolverAtributo($slug);
+                        // Campos string con normalización para dropdowns del formulario
+                        $camposString = [
+                            'socket', 'potencia', 'voltaje', 'ip', 'ik',
+                            'angulo_apertura', 'protocolo_regulacion', 'temperatura_color',
+                        ];
+                        foreach ($camposString as $campo) {
+                            $valor = $this->norm($fila[$campo] ?? '');
+                            if ($valor !== null) $specData[$campo] = $valor;
+                        }
 
-                            ProductoAtributo::updateOrCreate(
-                                ['producto_id' => $productoId, 'atributo_id' => $atributoId],
-                                ['valor_texto' => $valor, 'valor_id' => null]
+                        // Campos enum — deben coincidir exactamente con las opciones del form
+                        if ($v = $this->norm($fila['tipo_fuente'] ?? ''))
+                            $specData['tipo_fuente']    = $this->normTipoFuente($v);
+                        if ($v = $this->norm($fila['nivel_potencia'] ?? ''))
+                            $specData['nivel_potencia'] = $this->normNivelPotencia($v);
+                        if ($v = $this->norm($fila['driver'] ?? ''))
+                            $specData['driver']         = $this->normDriver($v);
+                        if ($v = $this->norm($fila['tonalidad_luz'] ?? ''))
+                            $specData['tonalidad_luz']  = $this->normTonalidad($v);
+
+                        // Campos enteros
+                        $camposInt = ['numero_lamparas', 'vida_util_horas', 'cri'];
+                        foreach ($camposInt as $campo) {
+                            $valor = $this->normInt($fila[$campo] ?? '');
+                            if ($valor !== null) $specData[$campo] = $valor;
+                        }
+
+                        // Campos decimales
+                        $camposDecimal = ['nominal_lumenes', 'real_lumenes', 'eficacia_luminosa'];
+                        foreach ($camposDecimal as $campo) {
+                            $valor = $this->normNum($fila[$campo] ?? '');
+                            if ($valor !== null) $specData[$campo] = $valor;
+                        }
+
+                        // Campo booleano
+                        if (array_key_exists('regulable', $fila) && $fila['regulable'] !== '') {
+                            $specData['regulable'] = $this->normBool($fila['regulable']);
+                        }
+
+                        if ($specData) {
+                            ProductoEspecificacion::updateOrCreate(
+                                ['producto_id' => $productoId],
+                                $specData
                             );
                         }
 
@@ -617,6 +665,15 @@ class ImportadorMasivoService
             ['nombre' => $valor],
             ['estado' => 'activo']
         );
+
+        // Vincular la marca a la categoría de importación para que aparezca en el selector
+        DB::table('categoria_marca')->insertOrIgnore([
+            'categoria_id' => $this->categoriaDefaultId,
+            'marca_id'     => $marca->id,
+            'created_at'   => now(),
+            'updated_at'   => now(),
+        ]);
+
         return $this->marcas[$key] = $marca->id;
     }
 
@@ -680,6 +737,32 @@ class ImportadorMasivoService
         return $this->atributosSlug[$slug] = $atributo->id;
     }
 
+    private function resolverTipoLuminaria(string $valor): ?int
+    {
+        $valor = trim($valor);
+        if (!$valor) return null;
+
+        $key = strtoupper($valor);
+
+        // Cache hit (keyed by codigo uppercase)
+        if (isset($this->tiposLuminaria[$key])) return $this->tiposLuminaria[$key];
+
+        // Try match by nombre (case-insensitive)
+        $id = TipoLuminaria::whereRaw('LOWER(nombre) = ?', [strtolower($valor)])->value('id');
+        if ($id) return $this->tiposLuminaria[$key] = $id;
+
+        // Create new
+        $codigoBase = strtoupper(substr(preg_replace('/[^A-Z0-9]/i', '', $valor), 0, 10));
+        $codigo = $codigoBase;
+        $n = 1;
+        while (TipoLuminaria::where('codigo', $codigo)->exists()) {
+            $codigo = substr($codigoBase, 0, 8) . $n++;
+        }
+
+        $tl = TipoLuminaria::create(['nombre' => $valor, 'codigo' => $codigo, 'activo' => true]);
+        return $this->tiposLuminaria[$key] = $tl->id;
+    }
+
     private function resolverClasificacion(string $valor): int
     {
         $key = strtolower($valor);
@@ -729,6 +812,48 @@ class ImportadorMasivoService
     {
         $v = strtolower(trim((string) $valor));
         return in_array($v, ['1', 'si', 'sí', 'yes', 'true', 'x'], true);
+    }
+
+    private function normTipoFuente(string $v): string
+    {
+        $v = strtolower(trim($v));
+        if (str_contains($v, 'led'))         return 'LED';
+        if (str_contains($v, 'fluorescente')) return 'Fluorescente';
+        if (str_contains($v, 'hal'))         return 'Halógena';
+        if ($v === 'hid')                    return 'HID';
+        if (str_contains($v, 'incand'))      return 'Incandescente';
+        if (str_contains($v, 'fibra'))       return 'Fibra óptica';
+        // Devolver el valor original capitalizado si no coincide
+        return ucfirst($v);
+    }
+
+    private function normNivelPotencia(string $v): string
+    {
+        $v = strtolower(trim($v));
+        if (str_contains($v, 'baja') || str_contains($v, 'low'))    return 'Baja (0–10W)';
+        if (str_contains($v, 'alta') || str_contains($v, 'high'))   return 'Alta (31W+)';
+        if (str_contains($v, 'medi') || str_contains($v, 'med'))    return 'Media (11–30W)';
+        return ucfirst($v);
+    }
+
+    private function normDriver(string $v): string
+    {
+        $v = strtolower(trim($v));
+        if (str_contains($v, 'meanwell') || str_contains($v, 'externo')) return 'externo_meanwell';
+        if (str_contains($v, 'no') || str_contains($v, 'sin'))            return 'no_incluido';
+        if (str_contains($v, 'incluid') || str_contains($v, 'si') || str_contains($v, 'con')) return 'incluido';
+        return $v;
+    }
+
+    private function normTonalidad(string $v): string
+    {
+        $v = strtolower(trim($v));
+        if (str_contains($v, 'cal') || str_contains($v, 'warm')) return 'Cálido';
+        if (str_contains($v, 'neu') || str_contains($v, 'neut')) return 'Neutro';
+        if (str_contains($v, 'fr')  || str_contains($v, 'cool') || str_contains($v, 'cold')) return 'Frío';
+        if (str_contains($v, 'bic'))                              return 'Bicolor';
+        if (str_contains($v, 'multi') || str_contains($v, 'rgb')) return 'Multicolor';
+        return ucfirst($v);
     }
 
     private function normEstado(mixed $valor): string

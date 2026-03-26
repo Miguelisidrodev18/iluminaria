@@ -20,10 +20,6 @@ class TipoProyectoSeeder extends Seeder
             ['nombre' => 'Deportivo',      'icono' => 'fa-running',     'activo' => true],
         ];
 
-        DB::table('tipos_proyecto')->upsert(
-            $tipos,
-            ['nombre'],          // columnas únicas para detectar duplicados
-            ['icono', 'activo']  // columnas a actualizar si ya existe
-        );
+        DB::table('tipos_proyecto')->insertOrIgnore($tipos);
     }
 }
