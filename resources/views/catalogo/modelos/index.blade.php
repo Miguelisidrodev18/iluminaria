@@ -32,13 +32,13 @@
         @endphp
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-4 flex justify-between items-center">
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-[#F7D600] p-4 flex justify-between items-center">
                 <div>
                     <p class="text-xs text-gray-500 uppercase font-medium">Total Modelos</p>
                     <p class="text-3xl font-bold text-gray-800">{{ $total }}</p>
                 </div>
-                <div class="bg-blue-100 p-3 rounded-full">
-                    <i class="fas fa-mobile-alt text-blue-600 text-xl"></i>
+                <div class="bg-[#2B2E2C]/10 p-3 rounded-full">
+                    <i class="fas fa-mobile-alt text-[#2B2E2C] text-xl"></i>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border-l-4 border-green-500 p-4 flex justify-between items-center">
@@ -65,13 +65,13 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                 <h2 class="text-lg font-bold text-gray-800">Lista de Modelos</h2>
                 <a href="{{ route('catalogo.modelos.create') }}"
-                   class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                   class="bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
                     <i class="fas fa-plus"></i>Nuevo Modelo
                 </a>
             </div>
             <form method="GET" action="{{ route('catalogo.modelos.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div>
-                    <select name="marca_id" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <select name="marca_id" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                         <option value="">Todas las marcas</option>
                         @foreach($marcas as $marca)
                             <option value="{{ $marca->id }}" {{ request('marca_id') == $marca->id ? 'selected' : '' }}>
@@ -81,7 +81,7 @@
                     </select>
                 </div>
                 <div>
-                    <select name="categoria_id" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <select name="categoria_id" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                         <option value="">Todas las categorías</option>
                         @foreach($categorias as $categoria)
                             <option value="{{ $categoria->id }}" {{ request('categoria_id') == $categoria->id ? 'selected' : '' }}>
@@ -91,14 +91,14 @@
                     </select>
                 </div>
                 <div>
-                    <select name="estado" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <select name="estado" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                         <option value="">Todos los estados</option>
                         <option value="activo"   {{ request('estado') == 'activo'   ? 'selected' : '' }}>Activo</option>
                         <option value="inactivo" {{ request('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white text-sm px-3 py-2 rounded-lg transition">
+                    <button type="submit" class="flex-1 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white text-sm px-3 py-2 rounded-lg transition">
                         <i class="fas fa-search mr-1"></i>Filtrar
                     </button>
                     @if(request()->hasAny(['marca_id','categoria_id','estado']))
@@ -169,7 +169,7 @@
                         <td colspan="7" class="px-6 py-12 text-center text-gray-400">
                             <i class="fas fa-mobile-alt text-4xl mb-3 block"></i>
                             <p class="font-medium">No se encontraron modelos</p>
-                            <a href="{{ route('catalogo.modelos.create') }}" class="text-blue-600 text-sm mt-1 inline-block hover:underline">
+                            <a href="{{ route('catalogo.modelos.create') }}" class="text-[#2B2E2C] text-sm mt-1 inline-block hover:underline">
                                 Crear el primer modelo
                             </a>
                         </td>

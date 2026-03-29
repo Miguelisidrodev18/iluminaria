@@ -8,7 +8,7 @@
             <h1 class="text-2xl font-bold text-gray-900"><i class="fas fa-folder-open mr-2 text-yellow-500"></i>Tipos de Proyecto</h1>
             <p class="text-sm text-gray-500 mt-1">Clasificación de proyectos de iluminación</p>
         </div>
-        <a href="{{ route('luminarias.tipos-proyecto.create') }}" class="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800">
+        <a href="{{ route('luminarias.tipos-proyecto.create') }}" class="px-4 py-2 bg-[#2B2E2C] text-white rounded-lg hover:bg-[#2B2E2C]">
             <i class="fas fa-plus mr-2"></i>Nuevo tipo
         </a>
     </div>
@@ -37,7 +37,7 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-right space-x-2">
-                        <a href="{{ route('luminarias.tipos-proyecto.edit', $tipo) }}" class="text-blue-600 hover:text-blue-900">
+                        <a href="{{ route('luminarias.tipos-proyecto.edit', $tipo) }}" class="text-[#2B2E2C] hover:text-[#2B2E2C]">
                             <i class="fas fa-edit"></i>
                         </a>
                         <form method="POST" action="{{ route('luminarias.tipos-proyecto.destroy', $tipo) }}" class="inline"

@@ -43,14 +43,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-5">
+                <div class="bg-white rounded-xl shadow-sm border-l-4 border-[#F7D600] p-5">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Aprobados</p>
                             <p class="text-3xl font-bold text-gray-800">{{ $pedidos->where('estado', 'aprobado')->count() }}</p>
                         </div>
-                        <div class="bg-blue-100 rounded-full p-3">
-                            <i class="fas fa-check text-blue-600 text-xl"></i>
+                        <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                            <i class="fas fa-check text-[#2B2E2C] text-xl"></i>
                         </div>
                     </div>
                 </div>
@@ -74,7 +74,7 @@
                         <div class="p-6">
                             <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <h3 class="text-lg font-bold text-blue-900">{{ $pedido->codigo }}</h3>
+                                    <h3 class="text-lg font-bold text-[#2B2E2C]">{{ $pedido->codigo }}</h3>
                                     <p class="text-sm text-gray-500 mt-1">
                                         Solicitado el {{ $pedido->fecha->format('d/m/Y') }}
                                         @if($pedido->fecha_esperada)
@@ -86,7 +86,7 @@
                                 @php
                                     $ep = match($pedido->estado) {
                                         'pendiente' => 'bg-yellow-100 text-yellow-800',
-                                        'aprobado' => 'bg-blue-100 text-blue-800',
+                                        'aprobado' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                         'recibido' => 'bg-green-100 text-green-800',
                                         'cancelado' => 'bg-red-100 text-red-800',
                                         default => 'bg-gray-100 text-gray-800',

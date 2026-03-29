@@ -35,8 +35,8 @@
         {{-- Stats --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
-                    <i class="fas fa-calendar-day text-blue-600 text-xl"></i>
+                <div class="w-12 h-12 bg-[#2B2E2C]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <i class="fas fa-calendar-day text-[#2B2E2C] text-xl"></i>
                 </div>
                 <div>
                     <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ventas hoy</p>
@@ -53,8 +53,8 @@
                 </div>
             </div>
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
-                <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center shrink-0">
-                    <i class="fas fa-receipt text-purple-600 text-xl"></i>
+                <div class="w-12 h-12 bg-[#2B2E2C]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <i class="fas fa-receipt text-[#2B2E2C] text-xl"></i>
                 </div>
                 <div>
                     <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Transacciones</p>
@@ -80,7 +80,7 @@
             {{-- Header --}}
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                    <div class="w-9 h-9 bg-[#F7D600] text-[#2B2E2C] rounded-xl flex items-center justify-center shadow-sm">
                         <i class="fas fa-receipt text-white text-sm"></i>
                     </div>
                     <div>
@@ -89,7 +89,7 @@
                     </div>
                 </div>
                 <a href="{{ route('ventas.create') }}"
-                   class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
+                   class="inline-flex items-center gap-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
                     <i class="fas fa-plus"></i>
                     Nueva Venta
                 </a>
@@ -115,7 +115,7 @@
                         @forelse($ventas as $venta)
                         <tr class="hover:bg-gray-50/70 transition-colors">
                             <td class="px-6 py-4">
-                                <span class="font-mono text-sm font-bold text-blue-600">{{ $venta->codigo }}</span>
+                                <span class="font-mono text-sm font-bold text-[#2B2E2C]">{{ $venta->codigo }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 <span class="text-sm text-gray-700">{{ $venta->fecha->format('d/m/Y') }}</span>
@@ -123,7 +123,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs shrink-0">
+                                    <div class="w-7 h-7 rounded-full bg-[#2B2E2C]/10 flex items-center justify-center text-[#2B2E2C] font-bold text-xs shrink-0">
                                         {{ strtoupper(substr($venta->vendedor->name, 0, 1)) }}
                                     </div>
                                     <span class="text-sm text-gray-800">{{ $venta->vendedor->name }}</span>
@@ -147,7 +147,7 @@
                                     @php
                                         $iconosPago = [
                                             'efectivo'      => 'fa-money-bill-wave text-green-500',
-                                            'transferencia' => 'fa-university text-blue-500',
+                                            'transferencia' => 'fa-university text-[#2B2E2C]',
                                             'yape'          => 'fa-mobile-alt text-purple-500',
                                             'plin'          => 'fa-mobile-alt text-teal-500',
                                         ];
@@ -180,7 +180,7 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <a href="{{ route('ventas.show', $venta) }}"
-                                   class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors">
+                                   class="inline-flex items-center gap-1.5 text-[#2B2E2C] hover:text-[#2B2E2C] font-medium text-sm transition-colors">
                                     <i class="fas fa-eye text-xs"></i> Ver
                                 </a>
                             </td>
@@ -195,7 +195,7 @@
                                     <p class="font-semibold text-gray-500 text-base">No hay ventas registradas</p>
                                     <p class="text-sm mt-1 text-gray-400">Usa el botón "Nueva Venta" para crear la primera</p>
                                     <a href="{{ route('ventas.create') }}"
-                                       class="mt-4 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                                       class="mt-4 inline-flex items-center gap-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
                                         <i class="fas fa-plus"></i> Nueva Venta
                                     </a>
                                 </div>

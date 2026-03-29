@@ -16,7 +16,7 @@
     <div class="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
         <div>
             <div class="flex items-center gap-2 text-sm text-gray-500 mb-0.5">
-                <a href="{{ route('admin.cajas.dashboard') }}" class="hover:text-blue-600">Dashboard Cajas</a>
+                <a href="{{ route('admin.cajas.dashboard') }}" class="hover:text-[#2B2E2C]">Dashboard Cajas</a>
                 <span>/</span>
                 <span class="text-gray-700 font-medium">Apertura Remota</span>
             </div>
@@ -39,7 +39,7 @@
 
         <div class="bg-white rounded-xl shadow-sm p-6 space-y-5">
 
-            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 flex gap-3">
+            <div class="p-4 bg-[#2B2E2C]/10 border border-blue-200 rounded-lg text-sm text-[#2B2E2C] flex gap-3">
                 <i class="fas fa-info-circle mt-0.5 shrink-0"></i>
                 <div>
                     Esta función abre una caja en nombre del cajero seleccionado.
@@ -55,7 +55,7 @@
                         Sucursal <span class="text-red-500">*</span>
                     </label>
                     <select name="sucursal_id" required x-model="sucursalId"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">— Selecciona una sucursal —</option>
                         @foreach($sucursales as $s)
                             <option value="{{ $s->id }}">
@@ -70,7 +70,7 @@
                         Cajero <span class="text-red-500">*</span>
                     </label>
                     <select name="user_id" required x-model="userId"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">— Selecciona un cajero —</option>
                         <template x-for="u in usuariosFiltrados" :key="u.id">
                             <option :value="u.id" x-text="u.name"></option>
@@ -91,14 +91,14 @@
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium text-sm">S/</span>
                         <input type="number" name="monto_inicial" min="0" step="0.50" required
                                value="{{ old('monto_inicial', '0.00') }}"
-                               class="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500">
+                               class="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Observaciones</label>
                     <textarea name="observaciones" rows="2"
-                              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500"
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600]"
                               placeholder="Motivo de la apertura remota (opcional)...">{{ old('observaciones') }}</textarea>
                 </div>
 
@@ -108,7 +108,7 @@
                         Cancelar
                     </a>
                     <button type="submit" :disabled="!sucursalId || !userId"
-                            class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="flex-1 py-2.5 bg-[#F7D600] text-[#2B2E2C] rounded-lg text-sm font-semibold hover:bg-[#e8c900] transition disabled:opacity-50 disabled:cursor-not-allowed">
                         <i class="fas fa-cash-register mr-2"></i> Abrir Caja Remotamente
                     </button>
                 </div>

@@ -48,10 +48,10 @@
         ];
         $tipoLabels = \App\Models\Catalogo\CatalogoAtributo::TIPOS;
         $colorBadge = [
-            'blue'   => 'bg-blue-100 text-blue-700',
+            'blue'   => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
             'green'  => 'bg-green-100 text-green-700',
             'orange' => 'bg-orange-100 text-orange-700',
-            'purple' => 'bg-purple-100 text-purple-700',
+            'purple' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
         ];
     @endphp
 
@@ -109,8 +109,8 @@
                                     <td class="px-5 py-3">
                                         @php
                                             $tipoCls = [
-                                                'select'      => 'bg-blue-50 text-blue-700',
-                                                'multiselect' => 'bg-indigo-50 text-indigo-700',
+                                                'select'      => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
+                                                'multiselect' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                                 'number'      => 'bg-teal-50 text-teal-700',
                                                 'text'        => 'bg-gray-100 text-gray-700',
                                                 'checkbox'    => 'bg-pink-50 text-pink-700',

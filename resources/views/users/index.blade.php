@@ -32,7 +32,7 @@
 
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800">Lista de Usuarios</h2>
-            <a href="{{ route('users.create') }}" class="bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg">
+            <a href="{{ route('users.create') }}" class="bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white font-semibold py-2 px-4 rounded-lg">
                 <i class="fas fa-user-plus mr-2"></i>Nuevo Usuario
             </a>
         </div>
@@ -54,7 +54,7 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4">
                             <div class="flex items-center">
-                                <div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-blue-700 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mr-3" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                                     {{ substr($user->name, 0, 2) }}
                                 </div>
                                 <div>
@@ -67,8 +67,8 @@
                         <td class="px-6 py-4">
                             @if($user->role)
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                    @if($user->role->nombre == 'Administrador') bg-purple-100 text-purple-800
-                                    @elseif($user->role->nombre == 'Almacenero') bg-blue-100 text-blue-800
+                                    @if($user->role->nombre == 'Administrador') bg-[#2B2E2C]/10 text-[#2B2E2C]
+                                    @elseif($user->role->nombre == 'Almacenero') bg-[#2B2E2C]/10 text-[#2B2E2C]
                                     @elseif($user->role->nombre == 'Tienda') bg-green-100 text-green-800
                                     @elseif($user->role->nombre == 'Vendedor') bg-yellow-100 text-yellow-800
                                     @else bg-gray-100 text-gray-800
@@ -88,7 +88,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm space-x-2">
-                            <a href="{{ route('users.show', $user) }}" class="text-blue-600 hover:text-blue-800" title="Ver">
+                            <a href="{{ route('users.show', $user) }}" class="text-[#2B2E2C] hover:text-[#2B2E2C]" title="Ver">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a href="{{ route('users.edit', $user) }}" class="text-yellow-600 hover:text-yellow-800" title="Editar">

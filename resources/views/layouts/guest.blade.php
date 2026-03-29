@@ -18,13 +18,13 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0" style="background: linear-gradient(135deg, #1F2220 0%, #2B2E2C 50%, #333836 100%);">
             <div>
                 <a href="/" class="flex items-center justify-center mb-6">
-                    <i class="fas fa-box text-white text-6xl drop-shadow-lg"></i>
+                    <i class="fas fa-lightbulb text-6xl drop-shadow-lg" style="color: #F7D600;"></i>
                 </a>
                 <h1 class="text-center text-3xl font-bold text-white mb-2 drop-shadow-lg">
-                    Sistema de Importaciones
+                    KYRIOS
                 </h1>
                 <p class="text-center text-white/80 mb-8">
                     Gestión integral de inventario y ventas
@@ -36,7 +36,7 @@
             </div>
 
             <div class="mt-6 text-center text-white/70 text-sm">
-                <p>&copy; {{ date('Y') }} Sistema de Importaciones. Todos los derechos reservados.</p>
+                <p>&copy; {{ date('Y') }} KYRIOS. Todos los derechos reservados.</p>
             </div>
         </div>
     </body>

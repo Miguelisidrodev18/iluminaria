@@ -24,7 +24,7 @@
         <div class="max-w-3xl mx-auto">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <!-- Header del formulario -->
-                <div class="bg-blue-900 px-6 py-4">
+                <div class="bg-[#2B2E2C] px-6 py-4">
                     <h2 class="text-xl font-bold text-white">
                         <i class="fas fa-tag mr-2"></i>
                         Información de la Categoría
@@ -44,7 +44,7 @@
                                 name="nombre" 
                                 id="nombre" 
                                 value="{{ old('nombre') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('nombre') border-red-500 @enderror"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] @error('nombre') border-red-500 @enderror"
                                 placeholder="Ej: Electrónica, Ropa, Alimentos"
                                 required>
                         @error('nombre')
@@ -66,7 +66,7 @@
                                         name="imagen" 
                                         id="imagen" 
                                         accept="image/jpeg,image/jpg,image/png,image/webp"
-                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2B2E2C]/10 file:text-[#2B2E2C] hover:file:bg-[#2B2E2C]/10"
                                         onchange="previewImage(event)">
                                 <p class="mt-1 text-xs text-gray-500">Formatos: JPG, JPEG, PNG, WEBP. Máximo 2MB</p>
                             </div>
@@ -83,7 +83,7 @@
                         </label>
                         <select name="estado" 
                                 id="estado"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('estado') border-red-500 @enderror"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] @error('estado') border-red-500 @enderror"
                                 required>
                             <option value="activo" {{ old('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
                             <option value="inactivo" {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
@@ -94,10 +94,10 @@
                     </div>
 
                     <!-- Nota informativa -->
-                    <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                    <div class="mb-6 bg-[#2B2E2C]/10 border-l-4 border-[#F7D600] p-4 rounded-lg">
                         <div class="flex">
-                            <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-3"></i>
-                            <div class="text-sm text-blue-700">
+                            <i class="fas fa-info-circle text-[#2B2E2C] mt-0.5 mr-3"></i>
+                            <div class="text-sm text-[#2B2E2C]">
                                 <p class="font-medium">Nota:</p>
                                 <p class="mt-1">El código de la categoría se generará automáticamente al guardar.</p>
                             </div>
@@ -110,7 +110,7 @@
                             <i class="fas fa-times mr-2"></i>
                             Cancelar
                         </a>
-                        <button type="submit" class="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors">
+                        <button type="submit" class="px-6 py-2 bg-[#2B2E2C] text-white rounded-lg hover:bg-[#2B2E2C] transition-colors">
                             <i class="fas fa-save mr-2"></i>
                             Guardar Categoría
                         </button>

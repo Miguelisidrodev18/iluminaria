@@ -26,7 +26,7 @@
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800">Lista de Clientes</h2>
             @if($canCreate)
-                <a href="{{ route('clientes.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                <a href="{{ route('clientes.create') }}" class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-4 rounded-lg transition-colors">
                     <i class="fas fa-plus mr-2"></i>Nuevo Cliente
                 </a>
             @endif

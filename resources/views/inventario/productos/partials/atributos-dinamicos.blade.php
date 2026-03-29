@@ -80,10 +80,10 @@
                 $icono  = $grupoIconos[$grupo] ?? 'fa-tag';
                 $label  = $grupoLabels[$grupo] ?? ucfirst($grupo);
                 $colorClasses = [
-                    'blue'   => ['header' => 'bg-blue-50 border-blue-200',   'icon' => 'text-blue-600',  'badge' => 'bg-blue-100 text-blue-700'],
+                    'blue'   => ['header' => 'bg-[#2B2E2C]/10 border-blue-200',   'icon' => 'text-[#2B2E2C]',  'badge' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]'],
                     'green'  => ['header' => 'bg-green-50 border-green-200', 'icon' => 'text-green-600', 'badge' => 'bg-green-100 text-green-700'],
                     'orange' => ['header' => 'bg-orange-50 border-orange-200','icon' => 'text-orange-600','badge' => 'bg-orange-100 text-orange-700'],
-                    'purple' => ['header' => 'bg-purple-50 border-purple-200','icon' => 'text-purple-600','badge' => 'bg-purple-100 text-purple-700'],
+                    'purple' => ['header' => 'bg-[#2B2E2C]/10 border-purple-200','icon' => 'text-[#2B2E2C]','badge' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]'],
                     'gray'   => ['header' => 'bg-gray-50 border-gray-200',   'icon' => 'text-gray-600',  'badge' => 'bg-gray-100 text-gray-700'],
                 ][$color] ?? [];
             @endphp
@@ -140,8 +140,8 @@
                                             <button type="button"
                                                     @click="toggle({{ $valor->id }}); $nextTick(() => generarNombre())"
                                                     :class="seleccionados.includes({{ $valor->id }})
-                                                        ? 'bg-indigo-600 text-white border-indigo-600'
-                                                        : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'"
+                                                        ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]'
+                                                        : 'bg-white text-gray-600 border-gray-300 hover:border-[#F7D600]'"
                                                     class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border transition-all">
                                                 @if($valor->color_hex)
                                                     <span class="w-3 h-3 rounded-full border border-white/50 shrink-0"
@@ -212,7 +212,7 @@
                 <i class="fas fa-database text-4xl mb-3 opacity-30"></i>
                 <p class="text-sm">No hay atributos configurados.</p>
                 <p class="text-xs mt-1">
-                    <a href="{{ route('admin.atributos.create') }}" class="text-indigo-500 hover:underline">
+                    <a href="{{ route('admin.atributos.create') }}" class="text-[#2B2E2C] hover:underline">
                         Agregar atributos desde el panel admin
                     </a>
                 </p>

@@ -21,9 +21,9 @@
 
         <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-6 py-4">
+                <div class="px-6 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h1 class="text-xl font-bold text-white">Editar Color</h1>
-                    <p class="text-blue-200 text-sm">Modificar información del color</p>
+                    <p class="text-white/70 text-sm">Modificar información del color</p>
                 </div>
 
                 <form action="{{ route('catalogo.colores.update', $color) }}" method="POST" class="p-6 space-y-5">
@@ -38,7 +38,7 @@
                         <input type="text" name="nombre" id="nombre"
                                value="{{ old('nombre', $color->nombre) }}" required
                                placeholder="Ej: Rojo Intenso, Azul Marino, Negro Mate"
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('nombre') border-red-500 @enderror">
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition @error('nombre') border-red-500 @enderror">
                         @error('nombre')
                             <p class="mt-1 text-xs text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                         @enderror
@@ -53,7 +53,7 @@
                             <input type="text" name="codigo_color" id="codigo_color"
                                    value="{{ old('codigo_color', $color->codigo_color) }}"
                                    placeholder="Ej: COL-001"
-                                   class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                   class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <button type="button" onclick="sugerirCodigo()"
                                     class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-xs text-gray-600 transition whitespace-nowrap">
                                 <i class="fas fa-magic mr-1"></i>Sugerir
@@ -69,7 +69,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Color Visual</label>
                         <div class="flex items-start gap-4">
-                            @php $hexVal = old('codigo_hex', $color->codigo_hex ?? '#3b82f6'); @endphp
+                            @php $hexVal = old('codigo_hex', $color->codigo_hex ?? '#F7D600'); @endphp
                             <input type="color" id="colorPicker" value="{{ $hexVal }}"
                                    oninput="syncColor(this.value)"
                                    class="w-16 h-12 rounded-lg border border-gray-300 cursor-pointer p-0.5">
@@ -79,7 +79,7 @@
                                        placeholder="#RRGGBB (opcional)"
                                        maxlength="7"
                                        oninput="syncFromHex(this.value)"
-                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('codigo_hex') border-red-500 @enderror">
+                                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition @error('codigo_hex') border-red-500 @enderror">
                                 <p class="mt-1 text-xs text-gray-400">Código hexadecimal del color (ej: #FF5733)</p>
                                 @error('codigo_hex')
                                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
@@ -102,7 +102,7 @@
                     {{-- Estado --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                        <select name="estado" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        <select name="estado" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <option value="activo"   {{ old('estado', $color->estado) == 'activo'   ? 'selected' : '' }}>Activo</option>
                             <option value="inactivo" {{ old('estado', $color->estado) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                         </select>
@@ -113,7 +113,7 @@
                            class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm">
                             Cancelar
                         </a>
-                        <button type="submit" class="px-5 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition">
+                        <button type="submit" class="px-5 py-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white rounded-lg text-sm font-medium transition">
                             <i class="fas fa-save mr-2"></i>Actualizar Color
                         </button>
                     </div>

@@ -47,12 +47,12 @@
         <div class="bg-white shadow-sm sticky top-0 z-10">
             <div class="px-6 py-3 flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-800">
-                    <i class="fas fa-store text-blue-900 mr-2"></i>
+                    <i class="fas fa-store text-[#2B2E2C] mr-2"></i>
                     Panel de Tienda
                 </h1>
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center space-x-2">
-                        <div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-blue-700 rounded-full flex items-center justify-center text-white font-bold">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold" style="background-color: #F7D600; color: #2B2E2C;">
                             {{ substr(auth()->user()->name, 0, 2) }}
                         </div>
                         <div>
@@ -104,14 +104,14 @@
 
             {{-- KPIs --}}
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale border-l-4 border-blue-900">
+                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale border-l-4 border-[#2B2E2C]">
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-sm text-gray-500">Ventas del Día</p>
                             <p class="text-2xl font-bold text-gray-900">S/ {{ number_format($ventas_dia, 2) }}</p>
                         </div>
-                        <div class="bg-blue-100 p-3 rounded-lg">
-                            <i class="fas fa-dollar-sign text-blue-900 text-2xl"></i>
+                        <div class="bg-[#2B2E2C]/10 p-3 rounded-lg">
+                            <i class="fas fa-dollar-sign text-[#2B2E2C] text-2xl"></i>
                         </div>
                     </div>
                     @if($ventas_dia > 0)
@@ -121,7 +121,7 @@
                                 $meta_diaria = 5000; // Meta ejemplo
                                 $porcentaje = min(($ventas_dia / $meta_diaria) * 100, 100);
                             @endphp
-                            <div class="bg-blue-900 h-2 rounded-full" style="width: {{ $porcentaje }}%"></div>
+                            <div class="bg-[#2B2E2C] h-2 rounded-full" style="width: {{ $porcentaje }}%"></div>
                         </div>
                         <p class="text-xs text-gray-500 mt-1">{{ round($porcentaje) }}% de la meta diaria</p>
                     </div>
@@ -151,8 +151,8 @@
                             <p class="text-sm text-gray-500">Transacciones Hoy</p>
                             <p class="text-2xl font-bold text-gray-900">{{ $transacciones_dia }}</p>
                         </div>
-                        <div class="bg-purple-100 p-3 rounded-lg">
-                            <i class="fas fa-receipt text-purple-600 text-2xl"></i>
+                        <div class="bg-[#2B2E2C]/10 p-3 rounded-lg">
+                            <i class="fas fa-receipt text-[#2B2E2C] text-2xl"></i>
                         </div>
                     </div>
                 </div>
@@ -174,7 +174,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div class="bg-white rounded-xl shadow-lg p-6 chart-card">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">
-                        <i class="fas fa-chart-line text-blue-900 mr-2"></i>
+                        <i class="fas fa-chart-line text-[#2B2E2C] mr-2"></i>
                         Ventas por Hora
                     </h3>
                     <div class="chart-wrapper">
@@ -187,10 +187,10 @@
                 <div class="bg-white rounded-xl shadow-lg p-6 chart-card">
                     <h3 class="text-lg font-bold text-gray-900 mb-4 flex justify-between items-center">
                         <span>
-                            <i class="fas fa-history text-blue-900 mr-2"></i>
+                            <i class="fas fa-history text-[#2B2E2C] mr-2"></i>
                             Últimas Ventas
                         </span>
-                        <a href="{{ route('ventas.index') }}" class="text-sm text-blue-900 hover:text-blue-700">
+                        <a href="{{ route('ventas.index') }}" class="text-sm text-[#2B2E2C] hover:text-[#2B2E2C]">
                             Ver todas <i class="fas fa-arrow-right ml-1"></i>
                         </a>
                     </h3>
@@ -229,7 +229,7 @@
 
             {{-- Accesos Rápidos --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="{{ route('ventas.create') }}" class="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl p-6 hover-scale flex items-center justify-between group">
+                <a href="{{ route('ventas.create') }}" class="text-white rounded-xl p-6 hover-scale flex items-center justify-between group" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <div>
                         <i class="fas fa-cart-plus text-3xl mb-2 opacity-80"></i>
                         <h4 class="text-lg font-semibold">Nueva Venta</h4>
@@ -282,7 +282,7 @@
                     datasets: [{
                         label: 'Ventas por Hora',
                         data: ventasHora,
-                        backgroundColor: '#1e3a8a',
+                        backgroundColor: '#F7D600',
                         borderRadius: 8
                     }]
                 },

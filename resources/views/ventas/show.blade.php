@@ -56,7 +56,7 @@
                     <div class="flex gap-3">
                         @if($venta->tipo_comprobante !== 'cotizacion')
                         <a href="{{ route('ventas.pdf', [$venta, 'formato' => 'ticket']) }}" target="_blank"
-                           class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-2.5 text-sm font-semibold transition flex items-center justify-center gap-2">
+                           class="flex-1 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] rounded-xl py-2.5 text-sm font-semibold transition flex items-center justify-center gap-2">
                             <i class="fas fa-receipt"></i> Ticket
                         </a>
                         @endif
@@ -66,7 +66,7 @@
                         </button>
                     </div>
                     <a href="{{ route('ventas.create') }}"
-                       class="block mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium transition">
+                       class="block mt-3 text-sm text-[#2B2E2C] hover:text-[#2B2E2C] font-medium transition">
                         <i class="fas fa-plus-circle mr-1"></i> Nueva Venta
                     </a>
                 </div>
@@ -90,7 +90,7 @@
         <div class="flex items-start justify-between mb-6 no-print">
             <div>
                 <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
-                    <a href="{{ route('ventas.index') }}" class="hover:text-blue-600 transition-colors">Ventas</a>
+                    <a href="{{ route('ventas.index') }}" class="hover:text-[#2B2E2C] transition-colors">Ventas</a>
                     <i class="fas fa-chevron-right text-xs"></i>
                     <span class="text-gray-700 font-medium">{{ $venta->codigo }}</span>
                 </div>
@@ -100,11 +100,11 @@
             <div class="flex items-center gap-2 flex-wrap">
                 @if($venta->tipo_comprobante !== 'cotizacion')
                 <a href="{{ route('ventas.pdf', [$venta, 'formato' => 'a4']) }}" target="_blank"
-                   class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+                   class="inline-flex items-center gap-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
                     <i class="fas fa-file-pdf"></i> PDF A4
                 </a>
                 <a href="{{ route('ventas.pdf', [$venta, 'formato' => 'ticket']) }}" target="_blank"
-                   class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+                   class="inline-flex items-center gap-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
                     <i class="fas fa-receipt"></i> Ticket 80mm
                 </a>
                 <button onclick="window.print()"
@@ -120,7 +120,7 @@
                 @if($venta->tipo_comprobante === 'cotizacion' && in_array(auth()->user()->role->nombre, ['Administrador', 'Tienda']))
                 <div x-data="{ showConvertir: false }">
                     <button @click="showConvertir = true"
-                            class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
+                            class="inline-flex items-center gap-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors shadow-sm">
                         <i class="fas fa-file-invoice"></i> Convertir a Venta
                     </button>
                     <div x-show="showConvertir" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
@@ -135,12 +135,12 @@
                                 <div class="mb-4">
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de Comprobante *</label>
                                     <div class="grid grid-cols-2 gap-2">
-                                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl p-3 cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50">
-                                            <input type="radio" name="tipo_comprobante" value="boleta" class="text-purple-600" required checked>
+                                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl p-3 cursor-pointer hover:border-purple-400 hover:bg-[#2B2E2C]/10 transition-all has-[:checked]:border-purple-500 has-[:checked]:bg-[#2B2E2C]/10">
+                                            <input type="radio" name="tipo_comprobante" value="boleta" class="text-[#2B2E2C]" required checked>
                                             <span class="text-sm font-medium">Boleta</span>
                                         </label>
-                                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl p-3 cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50">
-                                            <input type="radio" name="tipo_comprobante" value="factura" class="text-purple-600">
+                                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl p-3 cursor-pointer hover:border-purple-400 hover:bg-[#2B2E2C]/10 transition-all has-[:checked]:border-purple-500 has-[:checked]:bg-[#2B2E2C]/10">
+                                            <input type="radio" name="tipo_comprobante" value="factura" class="text-[#2B2E2C]">
                                             <span class="text-sm font-medium">Factura</span>
                                         </label>
                                     </div>
@@ -149,8 +149,8 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Método de Pago *</label>
                                     <div class="grid grid-cols-2 gap-2">
                                         @foreach(['efectivo' => 'fa-money-bill-wave', 'transferencia' => 'fa-university', 'yape' => 'fa-mobile-alt', 'plin' => 'fa-mobile-alt'] as $metodo => $icono)
-                                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl p-3 cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50">
-                                            <input type="radio" name="metodo_pago" value="{{ $metodo }}" class="text-purple-600" required>
+                                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl p-3 cursor-pointer hover:border-purple-400 hover:bg-[#2B2E2C]/10 transition-all has-[:checked]:border-purple-500 has-[:checked]:bg-[#2B2E2C]/10">
+                                            <input type="radio" name="metodo_pago" value="{{ $metodo }}" class="text-[#2B2E2C]" required>
                                             <i class="fas {{ $icono }} text-gray-500 text-sm"></i>
                                             <span class="text-sm font-medium capitalize">{{ $metodo }}</span>
                                         </label>
@@ -167,7 +167,7 @@
                                         Cancelar
                                     </button>
                                     <button type="submit"
-                                            class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-xl font-bold text-sm transition-colors">
+                                            class="flex-1 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white py-2.5 rounded-xl font-bold text-sm transition-colors">
                                         <i class="fas fa-check mr-1"></i> Convertir
                                     </button>
                                 </div>
@@ -235,7 +235,7 @@
                 'pendiente'   => ['bg-amber-50 text-amber-700 border-amber-200', 'fa-clock', 'Pago Pendiente'],
                 'pagado'      => ['bg-green-50 text-green-700 border-green-200', 'fa-check-circle', 'Pagado'],
                 'cancelado'   => ['bg-red-50 text-red-700 border-red-200', 'fa-times-circle', 'Cancelado'],
-                'cotizacion'  => ['bg-purple-50 text-purple-700 border-purple-200', 'fa-file-contract', 'Cotización'],
+                'cotizacion'  => ['bg-[#2B2E2C]/10 text-[#2B2E2C] border-purple-200', 'fa-file-contract', 'Cotización'],
             ];
             [$badgeClass, $badgeIcon, $badgeLabel] = $estadoConfig[$venta->estado_pago] ?? ['bg-gray-50 text-gray-700 border-gray-200', 'fa-circle', ucfirst($venta->estado_pago)];
         @endphp
@@ -252,15 +252,15 @@
             {{-- Venta --}}
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div class="flex items-center gap-2 mb-5">
-                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-receipt text-blue-600"></i>
+                    <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-receipt text-[#2B2E2C]"></i>
                     </div>
                     <h3 class="font-bold text-gray-700 uppercase tracking-wider">Venta</h3>
                 </div>
                 <dl class="space-y-3">
                     <div class="flex justify-between items-center">
                         <dt class="text-sm text-gray-400">Código</dt>
-                        <dd class="font-mono font-bold text-blue-600">{{ $venta->codigo }}</dd>
+                        <dd class="font-mono font-bold text-[#2B2E2C]">{{ $venta->codigo }}</dd>
                     </div>
                     <div class="flex justify-between items-center">
                         <dt class="text-sm text-gray-400">Fecha</dt>
@@ -284,8 +284,8 @@
             {{-- Cliente --}}
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div class="flex items-center gap-2 mb-5">
-                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-user text-indigo-600"></i>
+                    <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user text-[#2B2E2C]"></i>
                     </div>
                     <h3 class="font-bold text-gray-700 uppercase tracking-wider">Cliente</h3>
                 </div>
@@ -368,8 +368,8 @@
         {{-- Products table --}}
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-                <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-box text-purple-600"></i>
+                <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-box text-[#2B2E2C]"></i>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold text-gray-900">{{ $venta->tipo_comprobante === 'cotizacion' ? 'Productos cotizados' : 'Productos vendidos' }}</h3>
@@ -402,7 +402,7 @@
                                             <span class="w-3 h-3 rounded-full border border-gray-300 shrink-0"
                                                   style="background-color: {{ $detalle->variante->color->codigo_hex }}"></span>
                                         @endif
-                                        <span class="text-xs text-indigo-600 font-medium">{{ $detalle->variante->nombre_completo }}</span>
+                                        <span class="text-xs text-[#2B2E2C] font-medium">{{ $detalle->variante->nombre_completo }}</span>
                                         <span class="text-xs text-gray-400 font-mono">({{ $detalle->variante->sku }})</span>
                                     </span>
                                 @elseif($detalle->producto->categoria)
@@ -411,7 +411,7 @@
                             </td>
                             <td class="px-6 py-5">
                                 @if($detalle->imei)
-                                    <span class="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 border border-purple-200 text-sm px-3 py-1 rounded-full font-mono font-semibold">
+                                    <span class="inline-flex items-center gap-1.5 bg-[#2B2E2C]/10 text-[#2B2E2C] border border-purple-200 text-sm px-3 py-1 rounded-full font-mono font-semibold">
                                         <i class="fas fa-microchip text-xs"></i>
                                         {{ $detalle->imei->codigo_imei }}
                                     </span>
@@ -445,7 +445,7 @@
                         <tr>
                             <td colspan="4" class="px-6 py-4"></td>
                             <td class="px-6 py-4 text-right text-lg font-bold text-gray-900">Total</td>
-                            <td class="px-6 py-4 text-right text-2xl font-bold text-blue-600">S/ {{ number_format($venta->total, 2) }}</td>
+                            <td class="px-6 py-4 text-right text-2xl font-bold text-[#2B2E2C]">S/ {{ number_format($venta->total, 2) }}</td>
                         </tr>
                     </tfoot>
                 </table>

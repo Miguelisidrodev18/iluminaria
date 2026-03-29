@@ -27,8 +27,8 @@
     {{-- ── STATS ── --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                <i class="fas fa-boxes text-blue-600 text-base"></i>
+            <div class="w-10 h-10 rounded-xl bg-[#2B2E2C]/10 flex items-center justify-center shrink-0">
+                <i class="fas fa-boxes text-[#2B2E2C] text-base"></i>
             </div>
             <div>
                 <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Total</p>
@@ -55,8 +55,8 @@
             </div>
         </a>
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
-                <i class="fas fa-percentage text-purple-600 text-base"></i>
+            <div class="w-10 h-10 rounded-xl bg-[#2B2E2C]/10 flex items-center justify-center shrink-0">
+                <i class="fas fa-percentage text-[#2B2E2C] text-base"></i>
             </div>
             <div>
                 <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Margen prom.</p>
@@ -79,11 +79,11 @@
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                 <input type="text" name="buscar" value="{{ request('buscar') }}"
                        placeholder="Buscar por nombre o código..."
-                       class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                       class="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
             </div>
             <input type="hidden" name="categoria_id" id="categoriaHidden" value="{{ request('categoria_id') }}">
             <button type="submit"
-                    class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                    class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] text-sm font-medium rounded-lg hover:bg-[#e8c900] transition-colors flex items-center gap-2">
                 <i class="fas fa-search text-xs"></i> Buscar
             </button>
             @if(request()->hasAny(['buscar','categoria_id','tab']))
@@ -99,13 +99,13 @@
             <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide mr-1">Categoría:</span>
             <a href="{{ route('precios.index', array_merge(request()->except('categoria_id','page'), [])) }}"
                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border transition-colors
-                   {{ !request('categoria_id') ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600' }}">
+                   {{ !request('categoria_id') ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-[#2B2E2C]' }}">
                 Todas
             </a>
             @foreach($categorias as $cat)
             <a href="{{ route('precios.index', array_merge(request()->except('categoria_id','page'), ['categoria_id' => $cat->id])) }}"
                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border transition-colors
-                   {{ request('categoria_id') == $cat->id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600' }}">
+                   {{ request('categoria_id') == $cat->id ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-[#2B2E2C]' }}">
                 {{ $cat->nombre }}
             </a>
             @endforeach
@@ -116,10 +116,10 @@
     <div class="flex items-center gap-1 mb-4 bg-white rounded-xl border border-gray-100 shadow-sm p-1 w-fit">
         <a href="{{ route('precios.index', request()->except('tab','page')) }}"
            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
-               {{ !request('tab') ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+               {{ !request('tab') ? 'bg-[#F7D600] text-[#2B2E2C] shadow-sm' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
             <i class="fas fa-list text-xs"></i>
             Todos los productos
-            <span class="text-xs {{ !request('tab') ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-500' }} px-1.5 py-0.5 rounded-full font-semibold">
+            <span class="text-xs {{ !request('tab') ? 'bg-[#F7D600] text-[#2B2E2C]' : 'bg-gray-100 text-gray-500' }} px-1.5 py-0.5 rounded-full font-semibold">
                 {{ $totalProductos }}
             </span>
         </a>
@@ -172,13 +172,13 @@
                         $precio = $producto->precios->first();
                         $tienePrecio = $precio && (float)$precio->precio > 0;
                     @endphp
-                    <tr class="hover:bg-blue-50/20 transition-colors group">
+                    <tr class="hover:bg-[#2B2E2C]/10/20 transition-colors group">
 
                         {{-- Producto --}}
                         <td class="px-5 py-3.5">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl {{ $tienePrecio ? 'bg-blue-100' : 'bg-red-50' }} flex items-center justify-center shrink-0">
-                                    <i class="fas fa-box {{ $tienePrecio ? 'text-blue-600' : 'text-red-400' }} text-sm"></i>
+                                <div class="w-9 h-9 rounded-xl {{ $tienePrecio ? 'bg-[#2B2E2C]/10' : 'bg-red-50' }} flex items-center justify-center shrink-0">
+                                    <i class="fas fa-box {{ $tienePrecio ? 'text-[#2B2E2C]' : 'text-red-400' }} text-sm"></i>
                                 </div>
                                 <div class="min-w-0">
                                     <p class="text-sm font-semibold text-gray-900 truncate max-w-xs">{{ $producto->nombre }}</p>
@@ -206,7 +206,7 @@
                         {{-- Precio venta --}}
                         <td class="px-5 py-3.5 text-right">
                             @if($tienePrecio)
-                                <span class="text-sm font-bold text-blue-700">S/ {{ number_format($precio->precio, 2) }}</span>
+                                <span class="text-sm font-bold text-[#2B2E2C]">S/ {{ number_format($precio->precio, 2) }}</span>
                                 @if($precio->incluye_igv)
                                 <br><span class="text-xs text-emerald-600 font-medium">c/IGV</span>
                                 @endif
@@ -253,14 +253,14 @@
                             <div class="flex items-center justify-center gap-1.5">
                                 <a href="{{ route('precios.show', $producto) }}"
                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
-                                       {{ !$tienePrecio ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-50 text-blue-700 hover:bg-blue-100' }}"
+                                       {{ !$tienePrecio ? 'bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900]' : 'bg-[#2B2E2C]/10 text-[#2B2E2C] hover:bg-[#2B2E2C]/10' }}"
                                    title="{{ !$tienePrecio ? 'Asignar precio' : 'Gestionar precio' }}">
                                     <i class="fas fa-{{ !$tienePrecio ? 'plus' : 'tags' }} text-xs"></i>
                                     {{ !$tienePrecio ? 'Asignar' : 'Gestionar' }}
                                 </a>
                                 @if($tienePrecio)
                                 <a href="{{ route('precios.historial', $producto) }}"
-                                   class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-purple-100 hover:text-purple-600 transition-colors"
+                                   class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-[#2B2E2C]/10 hover:text-[#2B2E2C] transition-colors"
                                    title="Historial">
                                     <i class="fas fa-history text-xs"></i>
                                 </a>
@@ -285,7 +285,7 @@
                                     <p class="text-base font-semibold text-gray-700">Sin resultados</p>
                                     <p class="text-sm text-gray-400">Intenta ajustar los filtros de búsqueda.</p>
                                 @endif
-                                <a href="{{ route('precios.index') }}" class="text-sm text-blue-600 hover:underline mt-1">Ver todos los productos</a>
+                                <a href="{{ route('precios.index') }}" class="text-sm text-[#2B2E2C] hover:underline mt-1">Ver todos los productos</a>
                             </div>
                         </td>
                     </tr>

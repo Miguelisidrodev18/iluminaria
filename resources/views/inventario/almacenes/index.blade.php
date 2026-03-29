@@ -38,14 +38,14 @@
 
         <!-- Estadísticas -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-900">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#2B2E2C]">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 font-medium">Total Almacenes</p>
                         <p class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['total'] }}</p>
                     </div>
-                    <div class="bg-blue-100 rounded-full p-3">
-                        <i class="fas fa-warehouse text-blue-900 text-2xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-warehouse text-[#2B2E2C] text-2xl"></i>
                     </div>
                 </div>
             </div>
@@ -68,8 +68,8 @@
                         <p class="text-sm text-gray-600 font-medium">Principal</p>
                         <p class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['principal'] }}</p>
                     </div>
-                    <div class="bg-purple-100 rounded-full p-3">
-                        <i class="fas fa-star text-purple-600 text-2xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-star text-[#2B2E2C] text-2xl"></i>
                     </div>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                     <!-- Tipo -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
-                        <select name="tipo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <select name="tipo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]">
                             <option value="">Todos los tipos</option>
                             <option value="principal" {{ request('tipo') == 'principal' ? 'selected' : '' }}>Principal</option>
                             <option value="sucursal" {{ request('tipo') == 'sucursal' ? 'selected' : '' }}>Sucursal</option>
@@ -105,7 +105,7 @@
                     <!-- Estado -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                        <select name="estado" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <select name="estado" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]">
                             <option value="">Todos los estados</option>
                             <option value="activo" {{ request('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
                             <option value="inactivo" {{ request('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
@@ -114,7 +114,7 @@
 
                     <!-- Botones -->
                     <div class="flex items-end">
-                        <button type="submit" class="w-full bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800">
+                        <button type="submit" class="w-full bg-[#2B2E2C] text-white px-6 py-2 rounded-lg hover:bg-[#2B2E2C]">
                             <i class="fas fa-search mr-2"></i>Filtrar
                         </button>
                     </div>
@@ -127,11 +127,11 @@
             <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-bold text-gray-900">
-                        <i class="fas fa-list mr-2 text-blue-900"></i>
+                        <i class="fas fa-list mr-2 text-[#2B2E2C]"></i>
                         Listado de Almacenes
                     </h2>
                     @if($canCreate)
-                        <a href="{{ route('inventario.almacenes.create') }}" class="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors flex items-center">
+                        <a href="{{ route('inventario.almacenes.create') }}" class="bg-[#2B2E2C] text-white px-4 py-2 rounded-md hover:bg-[#2B2E2C] transition-colors flex items-center">
                             <i class="fas fa-plus mr-2"></i>
                             Nuevo Almacén
                         </a>
@@ -170,11 +170,11 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($almacen->tipo === 'principal')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2B2E2C]/10 text-[#2B2E2C]">
                                         <i class="fas fa-star mr-1"></i>Principal
                                     </span>
                                 @elseif($almacen->tipo === 'sucursal')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2B2E2C]/10 text-[#2B2E2C]">
                                         <i class="fas fa-building mr-1"></i>Sucursal
                                     </span>
                                 @else
@@ -210,12 +210,12 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex items-center justify-center space-x-2">
-                                    <a href="{{ route('inventario.almacenes.show', $almacen) }}" class="text-purple-600 hover:text-purple-900" title="Ver detalle">
+                                    <a href="{{ route('inventario.almacenes.show', $almacen) }}" class="text-[#2B2E2C] hover:text-[#2B2E2C]" title="Ver detalle">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     
                                     @if($canEdit)
-                                        <a href="{{ route('inventario.almacenes.edit', $almacen) }}" class="text-blue-600 hover:text-blue-900" title="Editar">
+                                        <a href="{{ route('inventario.almacenes.edit', $almacen) }}" class="text-[#2B2E2C] hover:text-[#2B2E2C]" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     @endif
@@ -239,7 +239,7 @@
                                     <i class="fas fa-warehouse text-6xl mb-4"></i>
                                     <p class="text-lg font-medium">No hay almacenes registrados</p>
                                     @if($canCreate)
-                                        <a href="{{ route('inventario.almacenes.create') }}" class="mt-4 bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800">
+                                        <a href="{{ route('inventario.almacenes.create') }}" class="mt-4 bg-[#2B2E2C] text-white px-4 py-2 rounded-md hover:bg-[#2B2E2C]">
                                             <i class="fas fa-plus mr-2"></i>
                                             Crear Almacén
                                         </a>

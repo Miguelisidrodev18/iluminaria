@@ -25,7 +25,7 @@
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-                <i class="fas fa-file-invoice text-blue-600"></i>
+                <i class="fas fa-file-invoice text-[#2B2E2C]"></i>
                 Documentos SUNAT emitidos en esta sucursal
             </h3>
             <span class="text-sm text-gray-500">{{ $ventas->total() }} comprobante(s)</span>
@@ -47,7 +47,7 @@
                     @forelse($ventas as $venta)
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-mono font-medium text-gray-900">
-                                <a href="{{ route('ventas.show', $venta) }}" class="text-blue-600 hover:underline">
+                                <a href="{{ route('ventas.show', $venta) }}" class="text-[#2B2E2C] hover:underline">
                                     {{ $venta->numero_documento ?? $venta->codigo }}
                                 </a>
                             </td>

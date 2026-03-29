@@ -21,9 +21,9 @@
 
         <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-6 py-4">
+                <div class="px-6 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h1 class="text-xl font-bold text-white">Editar Motivo</h1>
-                    <p class="text-blue-200 text-sm">Modificar motivo de movimiento de inventario</p>
+                    <p class="text-white/70 text-sm">Modificar motivo de movimiento de inventario</p>
                 </div>
 
                 <form action="{{ route('catalogo.motivos.update', $motivo) }}" method="POST" class="p-6 space-y-5">
@@ -41,7 +41,7 @@
                                 $tipos = [
                                     'ingreso'       => ['icono' => 'fa-arrow-down',     'label' => 'Ingreso',       'color' => 'peer-checked:border-green-500 peer-checked:bg-green-50 peer-checked:text-green-700'],
                                     'salida'        => ['icono' => 'fa-arrow-up',        'label' => 'Salida',        'color' => 'peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700'],
-                                    'transferencia' => ['icono' => 'fa-exchange-alt',    'label' => 'Transferencia', 'color' => 'peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700'],
+                                    'transferencia' => ['icono' => 'fa-exchange-alt',    'label' => 'Transferencia', 'color' => 'peer-checked:border-[#F7D600] peer-checked:bg-[#2B2E2C]/10 peer-checked:text-[#2B2E2C]'],
                                     'ajuste'        => ['icono' => 'fa-sliders-h',       'label' => 'Ajuste',        'color' => 'peer-checked:border-amber-500 peer-checked:bg-amber-50 peer-checked:text-amber-700'],
                                     'otros'         => ['icono' => 'fa-ellipsis-h',      'label' => 'Otros',         'color' => 'peer-checked:border-gray-400 peer-checked:bg-gray-50 peer-checked:text-gray-700'],
                                 ];
@@ -71,7 +71,7 @@
                             <input type="text" name="codigo" id="codigo"
                                    value="{{ old('codigo', $motivo->codigo) }}"
                                    placeholder="Ej: ING-001, SAL-002"
-                                   class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                   class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <button type="button" onclick="sugerirCodigo()"
                                     class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-xs text-gray-600 transition whitespace-nowrap">
                                 <i class="fas fa-magic mr-1"></i>Sugerir
@@ -91,7 +91,7 @@
                         <input type="text" name="nombre" id="nombre"
                                value="{{ old('nombre', $motivo->nombre) }}" required
                                placeholder="Ej: Compra de mercadería, Venta al cliente..."
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                         @error('nombre')
                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
@@ -102,7 +102,7 @@
                         <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                         <textarea name="descripcion" id="descripcion" rows="2"
                                   placeholder="Descripción del motivo de movimiento..."
-                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">{{ old('descripcion', $motivo->descripcion) }}</textarea>
+                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">{{ old('descripcion', $motivo->descripcion) }}</textarea>
                     </div>
 
                     {{-- Comportamiento --}}
@@ -112,7 +112,7 @@
                             <input type="hidden" name="afecta_stock" value="0">
                             <input type="checkbox" name="afecta_stock" id="afecta_stock" value="1"
                                    {{ old('afecta_stock', $motivo->afecta_stock) ? 'checked' : '' }}
-                                   class="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                   class="mt-0.5 w-4 h-4 rounded border-gray-300 text-[#2B2E2C] focus:ring-[#F7D600]">
                             <div>
                                 <span class="text-sm font-medium text-gray-700">Afecta stock</span>
                                 <p class="text-xs text-gray-400">Activa si este motivo modifica las cantidades de inventario</p>
@@ -133,7 +133,7 @@
                     {{-- Estado --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                        <select name="estado" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        <select name="estado" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <option value="activo"   {{ old('estado', $motivo->estado) == 'activo'   ? 'selected' : '' }}>Activo</option>
                             <option value="inactivo" {{ old('estado', $motivo->estado) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                         </select>
@@ -144,7 +144,7 @@
                            class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm">
                             Cancelar
                         </a>
-                        <button type="submit" class="px-5 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition">
+                        <button type="submit" class="px-5 py-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white rounded-lg text-sm font-medium transition">
                             <i class="fas fa-save mr-2"></i>Actualizar Motivo
                         </button>
                     </div>

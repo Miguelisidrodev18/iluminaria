@@ -18,7 +18,7 @@
         <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 flex items-center">
-                    <i class="fas fa-credit-card mr-3 text-blue-900"></i>
+                    <i class="fas fa-credit-card mr-3 text-[#2B2E2C]"></i>
                     Cuentas por Pagar
                 </h1>
                 <p class="text-sm text-gray-500 mt-0.5">Gestión de obligaciones con proveedores</p>
@@ -44,7 +44,7 @@
         {{-- ===== TARJETAS DE ESTADÍSTICAS ===== --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
-            <div class="bg-white rounded-2xl shadow-sm p-5 border-l-4 border-blue-500">
+            <div class="bg-white rounded-2xl shadow-sm p-5 border-l-4 border-[#F7D600]">
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="text-xs text-gray-500 uppercase font-medium tracking-wide">Pendiente</p>
@@ -52,8 +52,8 @@
                             S/ {{ number_format($stats['total_pendiente'] ?? 0, 2) }}
                         </p>
                     </div>
-                    <div class="bg-blue-100 p-2.5 rounded-xl">
-                        <i class="fas fa-clock text-blue-600 text-lg"></i>
+                    <div class="bg-[#2B2E2C]/10 p-2.5 rounded-xl">
+                        <i class="fas fa-clock text-[#2B2E2C] text-lg"></i>
                     </div>
                 </div>
             </div>
@@ -146,7 +146,7 @@
 
                 <div class="flex gap-2">
                     <button type="submit"
-                            class="flex-1 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-1.5">
+                            class="flex-1 px-4 py-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-1.5">
                         <i class="fas fa-search"></i>Filtrar
                     </button>
                     @if(request()->hasAny(['proveedor_id','estado','fecha_desde','fecha_hasta']))
@@ -166,7 +166,7 @@
 
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <h2 class="text-base font-semibold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-list text-blue-900"></i>
+                    <i class="fas fa-list text-[#2B2E2C]"></i>
                     Listado de Cuentas
                 </h2>
                 <span class="text-sm text-gray-500">
@@ -240,7 +240,7 @@
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center gap-2">
                                     <div class="flex-1 bg-gray-100 rounded-full h-2">
-                                        <div class="h-2 rounded-full {{ $pct >= 100 ? 'bg-green-500' : ($pct > 0 ? 'bg-blue-500' : 'bg-gray-200') }}"
+                                        <div class="h-2 rounded-full {{ $pct >= 100 ? 'bg-green-500' : ($pct > 0 ? 'bg-[#F7D600] text-[#2B2E2C]' : 'bg-gray-200') }}"
                                              style="width: {{ $pct }}%"></div>
                                     </div>
                                     <span class="text-xs text-gray-500 w-8 text-right">{{ $pct }}%</span>
@@ -272,7 +272,7 @@
                             <td class="px-5 py-3.5 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <a href="{{ route('cuentas-por-pagar.show', $cuenta) }}"
-                                       class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-medium transition"
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#2B2E2C]/10 hover:bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-lg text-xs font-medium transition"
                                        title="Ver detalle y gestionar pagos">
                                         <i class="fas fa-eye"></i>Gestionar
                                     </a>

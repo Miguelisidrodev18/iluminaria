@@ -17,14 +17,14 @@
     <div class="bg-white shadow-sm sticky top-0 z-10">
         <div class="px-6 py-3 flex justify-between items-center">
             <h1 class="text-xl font-bold text-gray-800">
-                <i class="fas fa-clipboard-list text-blue-900 mr-2"></i>
+                <i class="fas fa-clipboard-list text-[#2B2E2C] mr-2"></i>
                 Mis Solicitudes de Traslado
             </h1>
             <div class="flex items-center gap-3">
-                <a href="{{ route('tienda.inventario.ver') }}" class="text-sm text-blue-700 hover:underline flex items-center gap-1">
+                <a href="{{ route('tienda.inventario.ver') }}" class="text-sm text-[#2B2E2C] hover:underline flex items-center gap-1">
                     <i class="fas fa-boxes"></i> Ver inventario
                 </a>
-                <div class="w-9 h-9 bg-gradient-to-r from-blue-900 to-blue-700 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     {{ substr(auth()->user()->name, 0, 2) }}
                 </div>
             </div>
@@ -43,7 +43,7 @@
         <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <select name="estado" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <select name="estado" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]">
                     <option value="">Todos</option>
                     <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
                     <option value="aprobado" {{ request('estado') == 'aprobado' ? 'selected' : '' }}>Aprobado</option>
@@ -53,7 +53,7 @@
                 </select>
             </div>
             <div class="flex items-end">
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                <button type="submit" class="bg-[#F7D600] text-[#2B2E2C] px-4 py-2 rounded-lg hover:bg-[#e8c900]">
                     Filtrar
                 </button>
                 <a href="{{ route('tienda.inventario.solicitudes') }}" class="ml-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
@@ -94,9 +94,9 @@
                         @if($solicitud->estado == 'pendiente')
                             <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Pendiente</span>
                         @elseif($solicitud->estado == 'aprobado')
-                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Aprobado</span>
+                            <span class="px-2 py-1 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full text-xs">Aprobado</span>
                         @elseif($solicitud->estado == 'en_transito')
-                            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">En tránsito</span>
+                            <span class="px-2 py-1 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full text-xs">En tránsito</span>
                         @elseif($solicitud->estado == 'completado')
                             <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Completado</span>
                         @elseif($solicitud->estado == 'cancelado')

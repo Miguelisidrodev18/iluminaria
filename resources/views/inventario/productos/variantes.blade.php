@@ -16,9 +16,9 @@
     <div class="md:ml-64 p-4 md:p-8">
         {{-- Breadcrumb --}}
         <div class="flex items-center text-sm text-gray-500 mb-4">
-            <a href="{{ route('inventario.productos.index') }}" class="hover:text-blue-900">Productos</a>
+            <a href="{{ route('inventario.productos.index') }}" class="hover:text-[#2B2E2C]">Productos</a>
             <i class="fas fa-chevron-right mx-2 text-xs"></i>
-            <a href="{{ route('inventario.productos.show', $producto) }}" class="hover:text-blue-900 truncate max-w-xs">{{ $producto->nombre }}</a>
+            <a href="{{ route('inventario.productos.show', $producto) }}" class="hover:text-[#2B2E2C] truncate max-w-xs">{{ $producto->nombre }}</a>
             <i class="fas fa-chevron-right mx-2 text-xs"></i>
             <span class="text-gray-700 font-medium">Variantes</span>
         </div>
@@ -40,7 +40,7 @@
             {{-- ─── INFO DEL PRODUCTO BASE ─────────────────────────── --}}
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl shadow-md overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-5 py-4">
+                    <div class="px-5 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <h2 class="text-base font-bold text-white flex items-center gap-2">
                             <i class="fas fa-box"></i> Producto Base
                         </h2>
@@ -58,7 +58,7 @@
                             <div>
                                 <p class="text-xs text-gray-400 uppercase tracking-wide">Tipo</p>
                                 <span class="px-2 py-0.5 rounded-full text-xs font-semibold
-                                    {{ $producto->tipo_inventario === 'serie' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
+                                    {{ $producto->tipo_inventario === 'serie' ? 'bg-[#2B2E2C]/10 text-[#2B2E2C]' : 'bg-green-100 text-green-800' }}">
                                     {{ $producto->tipo_inventario === 'serie' ? 'Serie/IMEI' : 'Cantidad' }}
                                 </span>
                             </div>
@@ -93,7 +93,7 @@
                 <div class="bg-white rounded-2xl shadow-md overflow-hidden mt-4"
                      x-data="{ abierto: {{ $errors->any() ? 'true' : 'false' }} }">
                     <button @click="abierto = !abierto"
-                            class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 px-5 py-4 flex items-center justify-between">
+                            class="w-full bg-gradient-to-r from-[#1F2220] to-indigo-500 px-5 py-4 flex items-center justify-between">
                         <span class="text-base font-bold text-white flex items-center gap-2">
                             <i class="fas fa-plus-circle"></i> Nueva Variante
                         </span>
@@ -111,7 +111,7 @@
                                     Color <span class="text-gray-400 text-xs">(opcional)</span>
                                 </label>
                                 <select name="color_id"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] text-sm">
                                     <option value="">Sin color específico</option>
                                     @foreach($colores as $color)
                                         <option value="{{ $color->id }}"
@@ -132,7 +132,7 @@
                                 </label>
                                 <input type="text" name="capacidad" value="{{ old('capacidad') }}"
                                        placeholder="Ej: 64GB, 128GB, 256GB"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] text-sm">
                                 @error('capacidad')
                                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
@@ -146,12 +146,12 @@
                                 </label>
                                 <input type="number" name="stock_inicial" value="{{ old('stock_inicial', 0) }}"
                                        min="0"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] text-sm">
                             </div>
                             @endif
 
                             <button type="submit"
-                                    class="w-full px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-sm transition">
+                                    class="w-full px-4 py-2.5 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] rounded-lg font-semibold text-sm transition">
                                 <i class="fas fa-plus mr-2"></i>Agregar Variante
                             </button>
                         </form>

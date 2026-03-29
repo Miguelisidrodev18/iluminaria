@@ -31,14 +31,14 @@
 
                     {{-- Drop zone --}}
                     <div id="drop-zone"
-                         class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-400 transition-colors">
+                         class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-[#F7D600] transition-colors">
                         <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-3 block"></i>
                         <p class="text-sm text-gray-600 mb-2">
                             Arrastra tu archivo o
-                            <span class="text-indigo-600 font-medium cursor-pointer hover:underline">haz clic aquí</span>
+                            <span class="text-[#2B2E2C] font-medium cursor-pointer hover:underline">haz clic aquí</span>
                         </p>
                         <p class="text-xs text-gray-400">Excel (.xlsx, .xls) — máx. 20 MB</p>
-                        <p id="nombre-archivo" class="hidden mt-2 text-sm text-indigo-700 font-medium"></p>
+                        <p id="nombre-archivo" class="hidden mt-2 text-sm text-[#2B2E2C] font-medium"></p>
                         <input type="file" id="archivo" name="archivo"
                                accept=".xlsx,.xls" class="hidden" required />
                     </div>
@@ -75,7 +75,7 @@
                     {{-- Barra --}}
                     <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                         <div id="barra-progreso"
-                             class="h-3 rounded-full transition-all duration-500 bg-indigo-500"
+                             class="h-3 rounded-full transition-all duration-500 bg-[#F7D600] text-[#2B2E2C]"
                              style="width: 0%"></div>
                     </div>
 
@@ -134,7 +134,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-3 border-b border-gray-100 bg-gray-50">
                     <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-                        <i class="fas fa-info-circle text-blue-500"></i>
+                        <i class="fas fa-info-circle text-[#2B2E2C]"></i>
                         Estructura del Excel (6 hojas)
                     </h3>
                 </div>
@@ -241,11 +241,11 @@
 
         // ── Drag & Drop ──────────────────────────────────────────────────
         dropZone.addEventListener('click', () => inputFile.click());
-        dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('border-indigo-400'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-indigo-400'));
+        dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('border-[#F7D600]'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[#F7D600]'));
         dropZone.addEventListener('drop', e => {
             e.preventDefault();
-            dropZone.classList.remove('border-indigo-400');
+            dropZone.classList.remove('border-[#F7D600]');
             if (e.dataTransfer.files.length) {
                 inputFile.files = e.dataTransfer.files;
                 mostrarNombre(e.dataTransfer.files[0].name);
@@ -341,13 +341,13 @@
             if (data.estado === 'completado') {
                 icon.classList.add('fa-check-circle');
                 titulo.textContent = 'Importación completada';
-                barra.classList.replace('bg-indigo-500', 'bg-green-500');
+                barra.classList.replace('bg-[#F7D600] text-[#2B2E2C]', 'bg-green-500');
                 document.getElementById('bloque-finalizado').style.display = 'flex';
             } else {
                 icon.classList.add('fa-times-circle');
                 icon.style.color = '#ef4444';
                 titulo.textContent = 'Importación con errores';
-                barra.classList.replace('bg-indigo-500', 'bg-red-500');
+                barra.classList.replace('bg-[#F7D600] text-[#2B2E2C]', 'bg-red-500');
             }
 
             btnImportar.disabled = false;

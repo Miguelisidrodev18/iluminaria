@@ -26,7 +26,7 @@
                         <i class="fas fa-arrow-left mr-2"></i>Volver
                     </a>
                     @can('editar_producto')
-                        <a href="{{ route('inventario.productos.edit', $producto) }}" class="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm">
+                        <a href="{{ route('inventario.productos.edit', $producto) }}" class="px-4 py-2 bg-[#2B2E2C] text-white rounded-lg hover:bg-[#2B2E2C] text-sm">
                             <i class="fas fa-edit mr-2"></i>Editar
                         </a>
                     @endcan
@@ -198,7 +198,7 @@
             <div class="lg:col-span-2 space-y-6">
                 <!-- Tarjeta de clasificación -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="bg-blue-900 px-6 py-3">
+                    <div class="bg-[#2B2E2C] px-6 py-3">
                         <h3 class="text-white font-semibold">
                             <i class="fas fa-tags mr-2"></i>
                             Clasificación
@@ -305,7 +305,7 @@
                             @if($producto->ficha_tecnica_url)
                             <div class="mt-2">
                                 <a href="{{ $producto->ficha_tecnica_url }}" target="_blank"
-                                   class="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
+                                   class="inline-flex items-center gap-1 text-sm text-[#2B2E2C] hover:underline">
                                     <i class="fas fa-file-pdf"></i> Ver ficha técnica PDF
                                 </a>
                             </div>
@@ -358,7 +358,7 @@
                         @if($dim)
                         <div>
                             <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-                                <i class="fas fa-ruler-combined text-blue-500"></i> Dimensiones (mm)
+                                <i class="fas fa-ruler-combined text-[#2B2E2C]"></i> Dimensiones (mm)
                             </h4>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                 @foreach([
@@ -409,7 +409,7 @@
                         @if($clas)
                         <div>
                             <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-                                <i class="fas fa-tags text-purple-600"></i> Clasificación de Uso
+                                <i class="fas fa-tags text-[#2B2E2C]"></i> Clasificación de Uso
                             </h4>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                 @php
@@ -421,7 +421,7 @@
                                     <p class="text-xs text-gray-500">Instalación</p>
                                     <div class="flex flex-wrap gap-1 mt-1">
                                         @foreach($instalaciones as $inst)
-                                            <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                                            <span class="px-2 py-0.5 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded text-xs">
                                                 {{ ucfirst($inst) }}
                                             </span>
                                         @endforeach
@@ -433,7 +433,7 @@
                                     <p class="text-xs text-gray-500">Estilo</p>
                                     <div class="flex flex-wrap gap-1 mt-1">
                                         @foreach($estilos as $est)
-                                            <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">{{ $est }}</span>
+                                            <span class="px-2 py-0.5 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded text-xs">{{ $est }}</span>
                                         @endforeach
                                     </div>
                                 </div>
@@ -458,11 +458,11 @@
 
                 <!-- Variantes -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden" x-data>
-                    <div class="bg-indigo-700 px-6 py-3 flex items-center justify-between">
+                    <div class="bg-[#2B2E2C] px-6 py-3 flex items-center justify-between">
                         <h3 class="text-white font-semibold">
                             <i class="fas fa-layer-group mr-2"></i>Variantes del Producto
                         </h3>
-                        <span class="text-indigo-200 text-sm">{{ $producto->variantes->count() }} variante(s)</span>
+                        <span class="text-white/60 text-sm">{{ $producto->variantes->count() }} variante(s)</span>
                     </div>
                     <div class="p-6">
 
@@ -511,7 +511,7 @@
                                         @can('editar_producto')
                                         <td class="py-2 text-right">
                                             <button type="button" @click="editando = !editando"
-                                                    class="text-blue-500 hover:text-blue-700 mr-2 transition-colors">
+                                                    class="text-[#2B2E2C] hover:text-[#2B2E2C] mr-2 transition-colors">
                                                 <i class="fas fa-pencil-alt text-xs"></i>
                                             </button>
                                             <form method="POST" action="{{ route('inventario.productos.variantes.destroy', $variante) }}"
@@ -529,7 +529,7 @@
                                     <tr x-show="editando" x-cloak>
                                         <td colspan="6" class="py-3 px-2">
                                             <form method="POST" action="{{ route('inventario.productos.variantes.update', $variante) }}"
-                                                  class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+                                                  class="bg-[#2B2E2C]/10 border border-gray-200 rounded-xl p-4">
                                                 @csrf @method('PUT')
                                                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-3">
                                                     <div>
@@ -558,7 +558,7 @@
                                                 </div>
                                                 <div class="flex gap-2">
                                                     <button type="submit"
-                                                            class="px-4 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700">
+                                                            class="px-4 py-1.5 bg-[#F7D600] text-[#2B2E2C] text-xs font-medium rounded-lg hover:bg-[#e8c900]">
                                                         <i class="fas fa-check mr-1"></i>Guardar
                                                     </button>
                                                     <button type="button" @click="editando = false"
@@ -582,7 +582,7 @@
                         @can('editar_producto')
                         <div x-data="{ abierto: false }">
                             <button type="button" @click="abierto = !abierto"
-                                    class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                                    class="text-sm text-[#2B2E2C] hover:text-[#2B2E2C] font-medium">
                                 <i class="fas fa-plus mr-1"></i>
                                 <span x-text="abierto ? 'Cancelar' : 'Agregar variante'"></span>
                             </button>
@@ -617,7 +617,7 @@
                                         </div>
                                     </div>
                                     <button type="submit"
-                                            class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+                                            class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] text-sm font-medium rounded-lg hover:bg-[#e8c900]">
                                         <i class="fas fa-plus mr-1"></i>Agregar Variante
                                     </button>
                                 </form>
@@ -639,14 +639,14 @@
                     <div class="p-6">
                         <div class="flex flex-wrap gap-3">
                             <a href="{{ route('inventario.productos.codigos-barras', $producto) }}"
-                               class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                               class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] rounded-lg hover:bg-[#e8c900]">
                                 <i class="fas fa-barcode mr-2"></i>
                                 Códigos de Barras
                             </a>
 
                             @if($producto->tipo_inventario === 'cantidad')
                                 <a href="{{ route('inventario.movimientos.create', ['producto_id' => $producto->id]) }}"
-                                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                   class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] rounded-lg hover:bg-[#e8c900]">
                                     <i class="fas fa-exchange-alt mr-2"></i>
                                     Movimiento de Stock
                                 </a>
@@ -696,7 +696,7 @@
                     </div>
                     @if($producto->movimientos->count() >= 10)
                     <div class="px-6 py-3 bg-gray-50 border-t">
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-900">Ver todos los movimientos →</a>
+                        <a href="#" class="text-sm text-[#2B2E2C] hover:text-[#2B2E2C]">Ver todos los movimientos →</a>
                     </div>
                     @endif
                 </div>

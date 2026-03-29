@@ -41,14 +41,14 @@
 
         <!-- Estadísticas -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-900">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#2B2E2C]">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 font-medium">Total Categorías</p>
                         <p class="text-3xl font-bold text-gray-900 mt-2">{{ $categorias->count() }}</p>
                     </div>
-                    <div class="bg-blue-100 rounded-full p-3">
-                        <i class="fas fa-tags text-blue-900 text-2xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-tags text-[#2B2E2C] text-2xl"></i>
                     </div>
                 </div>
             </div>
@@ -96,11 +96,11 @@
             <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-bold text-gray-900">
-                        <i class="fas fa-list mr-2 text-blue-900"></i>
+                        <i class="fas fa-list mr-2 text-[#2B2E2C]"></i>
                         Listado de Categorías
                     </h2>
                     @if($canCreate)
-                        <a href="{{ route('inventario.categorias.create') }}" class="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors flex items-center">
+                        <a href="{{ route('inventario.categorias.create') }}" class="bg-[#2B2E2C] text-white px-4 py-2 rounded-md hover:bg-[#2B2E2C] transition-colors flex items-center">
                             <i class="fas fa-plus mr-2"></i>
                             Nueva Categoría
                         </a>
@@ -139,7 +139,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2B2E2C]/10 text-[#2B2E2C]">
                                     <i class="fas fa-box mr-1"></i>
                                     {{ $categoria->productos_count }}
                                 </span>
@@ -160,7 +160,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex items-center justify-center space-x-2">
                                     @if($canEdit)
-                                        <a href="{{ route('inventario.categorias.edit', $categoria) }}" class="text-blue-600 hover:text-blue-900" title="Editar">
+                                        <a href="{{ route('inventario.categorias.edit', $categoria) }}" class="text-[#2B2E2C] hover:text-[#2B2E2C]" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                     @endif
@@ -185,7 +185,7 @@
                                     <p class="text-lg font-medium">No hay categorías registradas</p>
                                     <p class="text-sm mt-2">Comienza creando tu primera categoría</p>
                                     @if($canCreate)
-                                        <a href="{{ route('inventario.categorias.create') }}" class="mt-4 bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors">
+                                        <a href="{{ route('inventario.categorias.create') }}" class="mt-4 bg-[#2B2E2C] text-white px-4 py-2 rounded-md hover:bg-[#2B2E2C] transition-colors">
                                             <i class="fas fa-plus mr-2"></i>
                                             Crear Categoría
                                         </a>

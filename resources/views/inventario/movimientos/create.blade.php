@@ -176,7 +176,7 @@ $catalogoJson = $productos->map(fn($p) => [
 
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <a href="{{ route('inventario.movimientos.index') }}" class="hover:text-blue-700 transition-colors">Movimientos</a>
+        <a href="{{ route('inventario.movimientos.index') }}" class="hover:text-[#2B2E2C] transition-colors">Movimientos</a>
         <i class="fas fa-chevron-right text-xs text-gray-400"></i>
         <span class="text-gray-800 font-medium">Nuevo Movimiento</span>
     </nav>
@@ -225,7 +225,7 @@ $catalogoJson = $productos->map(fn($p) => [
 
                 {{-- Tipo de movimiento --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="bg-linear-to-r from-blue-900 to-blue-700 px-5 py-3">
+                    <div class="px-5 py-3" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <h2 class="text-sm font-semibold text-white flex items-center gap-2">
                             <i class="fas fa-list-ul"></i> Tipo de Movimiento
                         </h2>
@@ -272,7 +272,7 @@ $catalogoJson = $productos->map(fn($p) => [
                             <span class="text-gray-500">Tipo inventario</span>
                             <span class="font-medium">
                                 <template x-if="esCelular">
-                                    <span class="text-blue-700 font-semibold">
+                                    <span class="text-[#2B2E2C] font-semibold">
                                         <i class="fas fa-mobile-alt mr-1"></i> Celular (IMEI)
                                     </span>
                                 </template>
@@ -336,7 +336,7 @@ $catalogoJson = $productos->map(fn($p) => [
                                            :readonly="!!productoId"
                                            :class="productoId ? 'bg-gray-50 text-gray-500 cursor-default' : ''"
                                            placeholder="Buscar por nombre o código..."
-                                           class="w-full pl-9 pr-9 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                           class="w-full pl-9 pr-9 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] transition-colors">
                                     <button x-show="productoId" type="button" @click="limpiarProducto()"
                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors">
                                         <i class="fas fa-times text-sm"></i>
@@ -348,7 +348,7 @@ $catalogoJson = $productos->map(fn($p) => [
                                      class="absolute z-30 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-y-auto">
                                     <template x-for="p in resultados" :key="p.id">
                                         <button type="button" @click="seleccionar(p)"
-                                                class="w-full text-left px-4 py-2.5 hover:bg-blue-50 border-b border-gray-50 last:border-0 transition-colors">
+                                                class="w-full text-left px-4 py-2.5 hover:bg-[#2B2E2C]/10 border-b border-gray-50 last:border-0 transition-colors">
                                             <div class="flex items-center justify-between">
                                                 <div>
                                                     <p class="text-sm font-medium text-gray-900" x-text="p.nombre"></p>
@@ -376,7 +376,7 @@ $catalogoJson = $productos->map(fn($p) => [
                                 Almacén <span class="text-red-500">*</span>
                             </label>
                             <select name="almacen_id" x-model="almacenId" @change="onAlmacenChange()"
-                                    class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                                 <option value="">— Selecciona un almacén —</option>
                                 @foreach($almacenes as $alm)
                                     <option value="{{ $alm->id }}" {{ old('almacen_id') == $alm->id ? 'selected' : '' }}>
@@ -397,7 +397,7 @@ $catalogoJson = $productos->map(fn($p) => [
 
                             {{-- Ingreso de celular = bloquear --}}
                             <div x-show="esIngresoCelular"
-                                 class="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-700">
+                                 class="flex items-center gap-3 bg-[#2B2E2C]/10 border border-blue-200 rounded-xl px-4 py-3 text-sm text-[#2B2E2C]">
                                 <i class="fas fa-info-circle shrink-0"></i>
                                 <span>Los ingresos de celulares se registran en el módulo de <strong>Compras</strong>.</span>
                             </div>
@@ -409,7 +409,7 @@ $catalogoJson = $productos->map(fn($p) => [
                                 <div x-show="!cargandoImeis">
                                     <select name="imei_id" x-model="imeiId"
                                             :disabled="imeis.length === 0"
-                                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400">
+                                            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] disabled:bg-gray-50 disabled:text-gray-400">
                                         <option value="">— Selecciona un IMEI —</option>
                                         <template x-for="imei in imeis" :key="imei.id">
                                             <option :value="imei.id"
@@ -434,7 +434,7 @@ $catalogoJson = $productos->map(fn($p) => [
                                 Cantidad <span class="text-red-500">*</span>
                             </label>
                             <input type="number" name="cantidad" x-model="cantidad" min="1"
-                                   class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                   class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600]">
                             @error('cantidad')
                                 <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                             @enderror
@@ -442,7 +442,7 @@ $catalogoJson = $productos->map(fn($p) => [
 
                         {{-- Campos de transferencia --}}
                         <template x-if="esTransferencia">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-purple-50 border border-purple-200 rounded-xl">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-[#2B2E2C]/10 border border-purple-200 rounded-xl">
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
                                         Almacén Destino <span class="text-red-500">*</span>
@@ -484,7 +484,7 @@ $catalogoJson = $productos->map(fn($p) => [
                                    value="{{ old('motivo') }}"
                                    placeholder="Ej: Compra a proveedor, ajuste de inventario físico..."
                                    required
-                                   class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                   class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600]">
                             @error('motivo')
                                 <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                             @enderror
@@ -497,7 +497,7 @@ $catalogoJson = $productos->map(fn($p) => [
                             </label>
                             <textarea name="observaciones" rows="2"
                                       placeholder="Información adicional..."
-                                      class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 resize-none">{{ old('observaciones') }}</textarea>
+                                      class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] resize-none">{{ old('observaciones') }}</textarea>
                         </div>
 
                         {{-- Error general --}}
@@ -512,7 +512,7 @@ $catalogoJson = $productos->map(fn($p) => [
                             </a>
                             <button type="submit"
                                     :disabled="enviando"
-                                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-900 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+                                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#2B2E2C] text-white text-sm font-semibold rounded-xl hover:bg-[#2B2E2C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
                                 <i x-show="!enviando" class="fas fa-save"></i>
                                 <i x-show="enviando" class="fas fa-spinner fa-spin"></i>
                                 <span x-text="enviando ? 'Guardando...' : 'Registrar Movimiento'"></span>

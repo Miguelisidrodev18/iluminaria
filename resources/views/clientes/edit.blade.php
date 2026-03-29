@@ -18,7 +18,7 @@
         />
         <div class="max-w-2xl mx-auto">
             <div class="flex items-center mb-6">
-                <a href="{{ route('clientes.index') }}" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fas fa-arrow-left"></i></a>
+                <a href="{{ route('clientes.index') }}" class="text-[#2B2E2C] hover:text-[#2B2E2C] mr-4"><i class="fas fa-arrow-left"></i></a>
                 <h2 class="text-2xl font-bold text-gray-800">Editar Cliente</h2>
             </div>
 
@@ -70,7 +70,7 @@
                     </div>
                     <div class="flex justify-end gap-3 mt-6">
                         <a href="{{ route('clientes.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-lg">Cancelar</a>
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg"><i class="fas fa-save mr-2"></i>Actualizar</button>
+                        <button type="submit" class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-6 rounded-lg"><i class="fas fa-save mr-2"></i>Actualizar</button>
                     </div>
                 </form>
             </div>

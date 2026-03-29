@@ -17,20 +17,20 @@
         <!-- Breadcrumb + título -->
         <div class="mb-6">
             <div class="flex items-center text-sm text-gray-500 mb-2">
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-blue-900">Dashboard</a>
+                <a href="{{ route('admin.dashboard') }}" class="hover:text-[#2B2E2C]">Dashboard</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
-                <a href="{{ route('cuentas-por-pagar.index') }}" class="hover:text-blue-900">Cuentas por Pagar</a>
+                <a href="{{ route('cuentas-por-pagar.index') }}" class="hover:text-[#2B2E2C]">Cuentas por Pagar</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
                 <span class="text-gray-700 font-medium">Factura {{ $cuenta->numero_factura }}</span>
             </div>
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold text-gray-900 flex items-center">
-                    <i class="fas fa-credit-card mr-3 text-blue-900"></i>
+                    <i class="fas fa-credit-card mr-3 text-[#2B2E2C]"></i>
                     Detalle de Cuenta por Pagar
                 </h1>
                 <div class="flex gap-2">
                     <a href="{{ route('compras.show', $cuenta->compra_id) }}"
-                       class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
+                       class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] rounded-lg hover:bg-[#e8c900] text-sm">
                         <i class="fas fa-file-invoice mr-1"></i>Ver Compra
                     </a>
                     <a href="{{ route('cuentas-por-pagar.index') }}"
@@ -62,7 +62,7 @@
 
                 <!-- Estado de la cuenta -->
                 <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-5 py-4">
+                    <div class="px-5 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <h2 class="text-base font-bold text-white flex items-center">
                             <i class="fas fa-info-circle mr-2"></i>Estado de la Cuenta
                         </h2>
@@ -152,7 +152,7 @@
                             <i class="fas fa-credit-card mr-2"></i>Registrar Pago Libre
                         </button>
                         <button onclick="document.getElementById('seccionCuotas').scrollIntoView({behavior:'smooth'})"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition text-sm flex items-center justify-center">
+                                class="w-full bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-medium py-2.5 px-4 rounded-lg transition text-sm flex items-center justify-center">
                             <i class="fas fa-th-list mr-2"></i>Gestionar Cuotas
                         </button>
                     </div>
@@ -192,7 +192,7 @@
                         @php
                             $dias = now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($cuenta->fecha_vencimiento)->startOfDay(), false);
                         @endphp
-                        <div class="mt-4 p-3 rounded-lg {{ $dias < 0 ? 'bg-red-50 text-red-700' : ($dias <= 7 ? 'bg-yellow-50 text-yellow-700' : 'bg-blue-50 text-blue-700') }}">
+                        <div class="mt-4 p-3 rounded-lg {{ $dias < 0 ? 'bg-red-50 text-red-700' : ($dias <= 7 ? 'bg-yellow-50 text-yellow-700' : 'bg-[#2B2E2C]/10 text-[#2B2E2C]') }}">
                             @if($dias < 0)
                                 <i class="fas fa-exclamation-triangle mr-2"></i>Vencida hace {{ abs($dias) }} días
                             @elseif($dias == 0)
@@ -209,7 +209,7 @@
                 {{-- SECCIÓN DE CUOTAS                    --}}
                 {{-- ===================================== --}}
                 <div id="seccionCuotas" class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-700 to-blue-600 px-5 py-4 flex items-center justify-between">
+                    <div class="px-5 py-4 flex items-center justify-between" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <h2 class="text-base font-bold text-white flex items-center">
                             <i class="fas fa-th-list mr-2"></i>
                             Programación de Cuotas
@@ -223,8 +223,8 @@
                     </div>
 
                     {{-- Formulario para generar cuotas (oculto por defecto si ya hay cuotas) --}}
-                    <div id="formGenerarCuotas" class="{{ $cuenta->cuotas->count() > 0 ? 'hidden' : '' }} p-5 bg-blue-50 border-b border-blue-100">
-                        <p class="text-sm text-blue-700 mb-3">
+                    <div id="formGenerarCuotas" class="{{ $cuenta->cuotas->count() > 0 ? 'hidden' : '' }} p-5 bg-[#2B2E2C]/10 border-b border-blue-100">
+                        <p class="text-sm text-[#2B2E2C] mb-3">
                             <i class="fas fa-info-circle mr-1"></i>
                             Días de crédito: <strong>{{ $cuenta->dias_credito ?? 30 }}</strong> días.
                             El sistema calculará las fechas y montos automáticamente.
@@ -235,10 +235,10 @@
                                     Número de cuotas
                                 </label>
                                 <input type="number" id="inputNumCuotas" min="1" max="48" value="3"
-                                       class="w-full px-4 py-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                       class="w-full px-4 py-2 border-2 border-blue-300 rounded-lg focus:border-[#F7D600] focus:ring-2 focus:ring-blue-200">
                             </div>
                             <button onclick="generarCuotas()"
-                                    class="px-5 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 font-medium text-sm flex items-center gap-2">
+                                    class="px-5 py-2 bg-[#2B2E2C] text-white rounded-lg hover:bg-[#2B2E2C] font-medium text-sm flex items-center gap-2">
                                 <i class="fas fa-calculator"></i> Calcular y guardar
                             </button>
                         </div>
@@ -318,7 +318,7 @@
                                         @if($cuota->pago && $cuota->pago->comprobante_path)
                                             <a href="{{ Storage::url($cuota->pago->comprobante_path) }}"
                                                target="_blank"
-                                               class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs">
+                                               class="inline-flex items-center gap-1 text-[#2B2E2C] hover:text-[#2B2E2C] text-xs">
                                                 <img src="{{ Storage::url($cuota->pago->comprobante_path) }}"
                                                      alt="voucher"
                                                      class="w-8 h-8 object-cover rounded border border-blue-200">
@@ -399,7 +399,7 @@
                                     </td>
                                     <td class="px-4 py-3">
                                         @if($pago->numero_cuota && $pago->total_cuotas)
-                                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">
+                                            <span class="px-2 py-0.5 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full text-xs">
                                                 {{ $pago->numero_cuota }}/{{ $pago->total_cuotas }}
                                             </span>
                                         @else
@@ -415,8 +415,8 @@
                                                     class="inline-flex flex-col items-center group" title="Ver voucher">
                                                 <img src="{{ Storage::url($pago->comprobante_path) }}"
                                                      alt="voucher"
-                                                     class="w-10 h-10 object-cover rounded-lg border-2 border-blue-200 group-hover:border-blue-500 transition">
-                                                <span class="text-xs text-blue-600 mt-0.5 group-hover:underline">Ver</span>
+                                                     class="w-10 h-10 object-cover rounded-lg border-2 border-blue-200 group-hover:border-[#F7D600] transition">
+                                                <span class="text-xs text-[#2B2E2C] mt-0.5 group-hover:underline">Ver</span>
                                             </button>
                                         @else
                                             <span class="text-gray-300 text-xs">Sin voucher</span>
@@ -553,11 +553,11 @@
     {{-- ================================================== --}}
     <div id="modalPagoLibre" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4 rounded-t-2xl flex items-center justify-between">
+            <div class="px-6 py-4 rounded-t-2xl flex items-center justify-between" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                 <h3 class="text-lg font-bold text-white flex items-center">
                     <i class="fas fa-credit-card mr-2"></i>Registrar Pago
                 </h3>
-                <button type="button" onclick="cerrarModalPagoLibre()" class="text-white hover:text-blue-200">
+                <button type="button" onclick="cerrarModalPagoLibre()" class="text-white hover:text-white/70">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -571,14 +571,14 @@
                         </label>
                         <input type="number" name="monto" id="montoLibre" step="0.01" min="0.01"
                                max="{{ $cuenta->saldo_pendiente }}" value="{{ $cuenta->saldo_pendiente }}"
-                               class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required>
+                               class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-blue-100" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             Fecha de pago <span class="text-red-500">*</span>
                         </label>
                         <input type="date" name="fecha_pago" value="{{ now()->format('Y-m-d') }}"
-                               class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required>
+                               class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-blue-100" required>
                     </div>
                 </div>
 
@@ -587,7 +587,7 @@
                         Método de pago <span class="text-red-500">*</span>
                     </label>
                     <select name="metodo_pago"
-                            class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required>
+                            class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-blue-100" required>
                         <option value="transferencia">Transferencia</option>
                         <option value="cheque">Cheque</option>
                         <option value="efectivo">Efectivo</option>
@@ -598,7 +598,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Referencia</label>
                     <input type="text" name="referencia"
-                           class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                           class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-blue-100"
                            placeholder="N° operación">
                 </div>
 
@@ -607,7 +607,7 @@
                         Voucher
                         <span class="text-gray-400 text-xs font-normal">(opcional)</span>
                     </label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-400 transition cursor-pointer"
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-[#F7D600] transition cursor-pointer"
                          onclick="document.getElementById('voucherLibreInput').click()">
                         <div id="voucherLibrePreview" class="hidden mb-2">
                             <img id="voucherLibreImg" src="" alt="preview" class="max-h-28 mx-auto rounded-lg object-contain">
@@ -616,7 +616,7 @@
                             <i class="fas fa-cloud-upload-alt text-3xl text-gray-300 mb-1"></i>
                             <p class="text-sm text-gray-500">Toca para seleccionar foto</p>
                         </div>
-                        <p id="voucherLibreNombre" class="text-xs text-blue-600 mt-1 hidden"></p>
+                        <p id="voucherLibreNombre" class="text-xs text-[#2B2E2C] mt-1 hidden"></p>
                     </div>
                     <input type="file" name="comprobante" id="voucherLibreInput" accept="image/*"
                            class="hidden" onchange="previewVoucherLibre(this)">
@@ -625,7 +625,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
                     <textarea name="observaciones" rows="2"
-                              class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                              class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-blue-100"
                               placeholder="Notas..."></textarea>
                 </div>
             </form>
@@ -635,7 +635,7 @@
                     Cancelar
                 </button>
                 <button type="button" id="btnEnviarPagoLibre" onclick="enviarPagoLibre()"
-                        class="px-5 py-2.5 bg-blue-700 text-white rounded-xl hover:bg-blue-800 font-medium text-sm flex items-center gap-2">
+                        class="px-5 py-2.5 bg-[#2B2E2C] text-white rounded-xl hover:bg-[#2B2E2C] font-medium text-sm flex items-center gap-2">
                     <i class="fas fa-check"></i> Registrar
                 </button>
             </div>

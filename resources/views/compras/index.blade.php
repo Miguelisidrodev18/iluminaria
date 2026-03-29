@@ -30,14 +30,14 @@
 
         {{-- Estadísticas --}}
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-5">
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-[#F7D600] p-5">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500">Total Compras</p>
                         <p class="text-3xl font-bold text-gray-800">{{ $compras->count() }}</p>
                     </div>
-                    <div class="bg-blue-100 rounded-full p-3">
-                        <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-shopping-cart text-[#2B2E2C] text-xl"></i>
                     </div>
                 </div>
             </div>
@@ -69,8 +69,8 @@
                         <p class="text-sm text-gray-500">Total Invertido</p>
                         <p class="text-2xl font-bold text-gray-800">S/ {{ number_format($compras->sum('total'), 2) }}</p>
                     </div>
-                    <div class="bg-purple-100 rounded-full p-3">
-                        <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-dollar-sign text-[#2B2E2C] text-xl"></i>
                     </div>
                 </div>
             </div>
@@ -80,9 +80,9 @@
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-800">
-                    <i class="fas fa-list mr-2 text-blue-600"></i>Historial de Compras
+                    <i class="fas fa-list mr-2 text-[#2B2E2C]"></i>Historial de Compras
                 </h3>
-                <a href="{{ route('compras.create') }}" class="bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm">
+                <a href="{{ route('compras.create') }}" class="bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm">
                     <i class="fas fa-plus mr-2"></i>Nueva Compra
                 </a>
             </div>
@@ -109,7 +109,7 @@
                                 $cuenta = $compra->cuentaPorPagar;
                             @endphp
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 text-sm font-mono font-semibold text-blue-700">{{ $compra->codigo }}</td>
+                                <td class="px-6 py-4 text-sm font-mono font-semibold text-[#2B2E2C]">{{ $compra->codigo }}</td>
                                 <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $compra->proveedor->razon_social ?? '-' }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-500">{{ $compra->numero_factura }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-500">{{ $compra->fecha->format('d/m/Y') }}</td>
@@ -118,8 +118,8 @@
                                 <td class="px-6 py-4">
                                     @php
                                         $tc = match($compra->tipo_compra ?? 'local') {
-                                            'local'       => ['label' => 'Local',       'class' => 'bg-blue-100 text-blue-800',   'icon' => 'fa-store'],
-                                            'nacional'    => ['label' => 'Nacional',    'class' => 'bg-indigo-100 text-indigo-800', 'icon' => 'fa-flag'],
+                                            'local'       => ['label' => 'Local',       'class' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',   'icon' => 'fa-store'],
+                                            'nacional'    => ['label' => 'Nacional',    'class' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]', 'icon' => 'fa-flag'],
                                             'importacion' => ['label' => 'Importación', 'class' => 'bg-orange-100 text-orange-800', 'icon' => 'fa-ship'],
                                             default       => ['label' => ucfirst($compra->tipo_compra ?? 'local'), 'class' => 'bg-gray-100 text-gray-800', 'icon' => 'fa-tag'],
                                         };
@@ -138,7 +138,7 @@
                                             'completado' => 'bg-green-100 text-green-800',
                                             'pendiente' => 'bg-yellow-100 text-yellow-800',
                                             'anulado' => 'bg-red-100 text-red-800',
-                                            'registrado' => 'bg-blue-100 text-blue-800',
+                                            'registrado' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                             default => 'bg-gray-100 text-gray-800',
                                         };
                                     @endphp
@@ -203,7 +203,7 @@
                                 <td class="px-6 py-4 text-sm">
                                     <div class="flex items-center space-x-2">
                                         <a href="{{ route('compras.show', $compra) }}" 
-                                           class="text-blue-600 hover:text-blue-800" 
+                                           class="text-[#2B2E2C] hover:text-[#2B2E2C]" 
                                            title="Ver detalle de compra">
                                             <i class="fas fa-eye"></i>
                                         </a>
@@ -222,7 +222,7 @@
                                 <td colspan="10" class="px-6 py-12 text-center text-gray-500">
                                     <i class="fas fa-shopping-cart text-4xl mb-3 text-gray-300 block"></i>
                                     <p>No hay compras registradas</p>
-                                    <a href="{{ route('compras.create') }}" class="text-blue-600 hover:underline mt-2 inline-block text-sm">Registrar primera compra</a>
+                                    <a href="{{ route('compras.create') }}" class="text-[#2B2E2C] hover:underline mt-2 inline-block text-sm">Registrar primera compra</a>
                                 </td>
                             </tr>
                         @endforelse

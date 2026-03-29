@@ -16,7 +16,7 @@
     <div class="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
         <div>
             <div class="flex items-center gap-2 text-sm text-gray-500 mb-0.5">
-                <a href="{{ route('admin.cajas.dashboard') }}" class="hover:text-blue-600">Dashboard Cajas</a>
+                <a href="{{ route('admin.cajas.dashboard') }}" class="hover:text-[#2B2E2C]">Dashboard Cajas</a>
                 <span>/</span>
                 <span class="text-gray-700 font-medium">Alertas</span>
             </div>

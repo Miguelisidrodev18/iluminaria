@@ -33,13 +33,13 @@
 
         {{-- Stats --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-4 flex justify-between items-center">
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-[#F7D600] p-4 flex justify-between items-center">
                 <div>
                     <p class="text-xs text-gray-500 uppercase font-medium">Total Unidades</p>
                     <p class="text-3xl font-bold text-gray-800">{{ $total }}</p>
                 </div>
-                <div class="bg-blue-100 p-3 rounded-full">
-                    <i class="fas fa-ruler text-blue-600 text-xl"></i>
+                <div class="bg-[#2B2E2C]/10 p-3 rounded-full">
+                    <i class="fas fa-ruler text-[#2B2E2C] text-xl"></i>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border-l-4 border-green-500 p-4 flex justify-between items-center">
@@ -67,7 +67,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                 <h2 class="text-lg font-bold text-gray-800">Lista de Unidades</h2>
                 <a href="{{ route('catalogo.unidades.create') }}"
-                   class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                   class="bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
                     <i class="fas fa-plus"></i>Nueva Unidad
                 </a>
             </div>
@@ -75,17 +75,17 @@
                 <div>
                     <input type="text" name="buscar" value="{{ request('buscar') }}"
                            placeholder="Buscar por nombre o abreviatura..."
-                           class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                           class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                 </div>
                 <div>
-                    <select name="estado" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <select name="estado" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                         <option value="">Todos los estados</option>
                         <option value="activo"   {{ request('estado') == 'activo'   ? 'selected' : '' }}>Activo</option>
                         <option value="inactivo" {{ request('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white text-sm px-3 py-2 rounded-lg transition">
+                    <button type="submit" class="flex-1 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white text-sm px-3 py-2 rounded-lg transition">
                         <i class="fas fa-search mr-1"></i>Filtrar
                     </button>
                     @if(request()->hasAny(['buscar','estado']))
@@ -114,14 +114,14 @@
                     @forelse($unidades as $unidad)
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4 font-medium text-gray-900">{{ $unidad->nombre }}</td>
-                        <td class="px-6 py-4 font-mono text-sm font-bold text-blue-700">{{ $unidad->abreviatura }}</td>
+                        <td class="px-6 py-4 font-mono text-sm font-bold text-[#2B2E2C]">{{ $unidad->abreviatura }}</td>
                         <td class="px-6 py-4">
                             @php
                                 $tipoColors = [
-                                    'unidad'    => 'bg-blue-100 text-blue-700',
+                                    'unidad'    => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                     'peso'      => 'bg-amber-100 text-amber-700',
                                     'volumen'   => 'bg-cyan-100 text-cyan-700',
-                                    'longitud'  => 'bg-purple-100 text-purple-700',
+                                    'longitud'  => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                     'otros'     => 'bg-gray-100 text-gray-600',
                                 ];
                                 $color = $tipoColors[$unidad->categoria] ?? 'bg-gray-100 text-gray-600';
@@ -165,7 +165,7 @@
                         <td colspan="6" class="px-6 py-12 text-center text-gray-400">
                             <i class="fas fa-ruler text-4xl mb-3 block"></i>
                             <p class="font-medium">No se encontraron unidades de medida</p>
-                            <a href="{{ route('catalogo.unidades.create') }}" class="text-blue-600 text-sm mt-1 inline-block hover:underline">
+                            <a href="{{ route('catalogo.unidades.create') }}" class="text-[#2B2E2C] text-sm mt-1 inline-block hover:underline">
                                 Crear la primera unidad
                             </a>
                         </td>

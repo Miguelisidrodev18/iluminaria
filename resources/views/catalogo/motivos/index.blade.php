@@ -32,13 +32,13 @@
         @endphp
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-4 flex justify-between items-center">
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-[#F7D600] p-4 flex justify-between items-center">
                 <div>
                     <p class="text-xs text-gray-500 uppercase font-medium">Total Motivos</p>
                     <p class="text-3xl font-bold text-gray-800">{{ $total }}</p>
                 </div>
-                <div class="bg-blue-100 p-3 rounded-full">
-                    <i class="fas fa-exchange-alt text-blue-600 text-xl"></i>
+                <div class="bg-[#2B2E2C]/10 p-3 rounded-full">
+                    <i class="fas fa-exchange-alt text-[#2B2E2C] text-xl"></i>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border-l-4 border-green-500 p-4 flex justify-between items-center">
@@ -65,7 +65,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                 <h2 class="text-lg font-bold text-gray-800">Lista de Motivos</h2>
                 <a href="{{ route('catalogo.motivos.create') }}"
-                   class="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                   class="bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
                     <i class="fas fa-plus"></i>Nuevo Motivo
                 </a>
             </div>
@@ -73,10 +73,10 @@
                 <div>
                     <input type="text" name="buscar" value="{{ request('buscar') }}"
                            placeholder="Buscar por nombre o código..."
-                           class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                           class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                 </div>
                 <div>
-                    <select name="tipo" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <select name="tipo" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                         <option value="">Todos los tipos</option>
                         <option value="ingreso"       {{ request('tipo') == 'ingreso'       ? 'selected' : '' }}>Ingreso</option>
                         <option value="salida"        {{ request('tipo') == 'salida'        ? 'selected' : '' }}>Salida</option>
@@ -86,14 +86,14 @@
                     </select>
                 </div>
                 <div>
-                    <select name="estado" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <select name="estado" class="w-full rounded-lg border-gray-300 shadow-sm text-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                         <option value="">Todos los estados</option>
                         <option value="activo"   {{ request('estado') == 'activo'   ? 'selected' : '' }}>Activo</option>
                         <option value="inactivo" {{ request('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white text-sm px-3 py-2 rounded-lg transition">
+                    <button type="submit" class="flex-1 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white text-sm px-3 py-2 rounded-lg transition">
                         <i class="fas fa-search mr-1"></i>Filtrar
                     </button>
                     @if(request()->hasAny(['buscar','tipo','estado']))
@@ -129,7 +129,7 @@
                                 $tipoColors = [
                                     'ingreso'       => 'bg-green-100 text-green-700',
                                     'salida'        => 'bg-red-100 text-red-700',
-                                    'transferencia' => 'bg-blue-100 text-blue-700',
+                                    'transferencia' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                     'ajuste'        => 'bg-amber-100 text-amber-700',
                                     'otros'         => 'bg-gray-100 text-gray-600',
                                 ];
@@ -189,7 +189,7 @@
                         <td colspan="7" class="px-6 py-12 text-center text-gray-400">
                             <i class="fas fa-exchange-alt text-4xl mb-3 block"></i>
                             <p class="font-medium">No se encontraron motivos de movimiento</p>
-                            <a href="{{ route('catalogo.motivos.create') }}" class="text-blue-600 text-sm mt-1 inline-block hover:underline">
+                            <a href="{{ route('catalogo.motivos.create') }}" class="text-[#2B2E2C] text-sm mt-1 inline-block hover:underline">
                                 Crear el primer motivo
                             </a>
                         </td>

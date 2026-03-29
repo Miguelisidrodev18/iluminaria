@@ -22,7 +22,7 @@
                 <span class="text-gray-700 font-medium">Kardex Valorizado</span>
             </div>
             <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <i class="fas fa-book-open text-blue-500"></i>
+                <i class="fas fa-book-open text-[#2B2E2C]"></i>
                 Kardex Valorizado
             </h1>
             <p class="text-sm text-gray-500">Historial de movimientos con valorización por costo promedio</p>
@@ -42,7 +42,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="lg:col-span-2">
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Producto</label>
-                    <select name="producto_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="producto_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">— Seleccionar producto —</option>
                         @foreach($productosList as $prod)
                             <option value="{{ $prod->id }}" {{ $productoId == $prod->id ? 'selected' : '' }}>{{ $prod->nombre }}</option>
@@ -52,16 +52,16 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Desde</label>
                     <input type="date" name="desde" value="{{ $desde }}"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Hasta</label>
                     <input type="date" name="hasta" value="{{ $hasta }}"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Tipo</label>
-                    <select name="tipo_movimiento" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="tipo_movimiento" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">Todos</option>
                         @foreach($tiposMovimiento as $tipo)
                             <option value="{{ $tipo }}" {{ $tipoMov == $tipo ? 'selected' : '' }}>{{ ucfirst($tipo) }}</option>
@@ -70,7 +70,7 @@
                 </div>
             </div>
             <div class="flex gap-2 mt-4">
-                <button type="submit" class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition">
+                <button type="submit" class="flex items-center gap-2 px-5 py-2.5 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] rounded-lg text-sm font-semibold transition">
                     <i class="fas fa-search"></i> Consultar
                 </button>
                 <a href="{{ route('inventario.reportes.kardex') }}"
@@ -105,7 +105,7 @@
                         <span><i class="fas fa-tag mr-1"></i>{{ $productoSel->categoria?->nombre ?? '—' }}</span>
                         <span><i class="fas fa-trademark mr-1"></i>{{ $productoSel->marca?->nombre ?? '—' }}</span>
                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold
-                            {{ $productoSel->tipo_inventario === 'serie' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                            {{ $productoSel->tipo_inventario === 'serie' ? 'bg-[#2B2E2C]/10 text-[#2B2E2C]' : 'bg-[#2B2E2C]/10 text-[#2B2E2C]' }}">
                             {{ ucfirst($productoSel->tipo_inventario) }}
                         </span>
                     </div>
@@ -142,10 +142,10 @@
                     <p class="text-2xl font-bold text-gray-800 mt-1">{{ number_format($resumenKardex['total_salidas_qty']) }}</p>
                     <p class="text-xs text-red-600 mt-1">S/ {{ number_format($resumenKardex['total_salidas_val'], 2) }}</p>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-[#F7D600]">
                     <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo Final (Qty)</p>
                     <p class="text-2xl font-bold text-gray-800 mt-1">{{ number_format($resumenKardex['saldo_final_qty']) }}</p>
-                    <p class="text-xs text-blue-500 mt-1">unidades en stock</p>
+                    <p class="text-xs text-[#2B2E2C] mt-1">unidades en stock</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-purple-500">
                     <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo Valorizado</p>
@@ -171,7 +171,7 @@
                                 {{-- Salidas --}}
                                 <th colspan="2" class="text-center px-4 py-3 text-xs font-semibold text-red-600 uppercase tracking-wider bg-red-50">Salida</th>
                                 {{-- Saldo --}}
-                                <th colspan="2" class="text-center px-4 py-3 text-xs font-semibold text-blue-600 uppercase tracking-wider bg-blue-50">Saldo</th>
+                                <th colspan="2" class="text-center px-4 py-3 text-xs font-semibold text-[#2B2E2C] uppercase tracking-wider bg-[#2B2E2C]/10">Saldo</th>
                             </tr>
                             <tr class="bg-gray-50 border-b border-gray-100">
                                 <th colspan="6"></th>
@@ -179,8 +179,8 @@
                                 <th class="text-right px-4 py-2 text-xs text-green-600 bg-green-50">Valor</th>
                                 <th class="text-right px-4 py-2 text-xs text-red-600 bg-red-50">Qty</th>
                                 <th class="text-right px-4 py-2 text-xs text-red-600 bg-red-50">Valor</th>
-                                <th class="text-right px-4 py-2 text-xs text-blue-600 bg-blue-50">Qty</th>
-                                <th class="text-right px-4 py-2 text-xs text-blue-600 bg-blue-50">Valor</th>
+                                <th class="text-right px-4 py-2 text-xs text-[#2B2E2C] bg-[#2B2E2C]/10">Qty</th>
+                                <th class="text-right px-4 py-2 text-xs text-[#2B2E2C] bg-[#2B2E2C]/10">Valor</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -194,7 +194,7 @@
                                         'salida'        => 'bg-red-100 text-red-700',
                                         'merma'         => 'bg-rose-100 text-rose-700',
                                         'ajuste'        => 'bg-yellow-100 text-yellow-700',
-                                        'transferencia' => 'bg-purple-100 text-purple-700',
+                                        'transferencia' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                         default         => 'bg-gray-100 text-gray-600',
                                     };
                                 @endphp
@@ -226,10 +226,10 @@
                                         {{ $esSalida ? 'S/ '.number_format($m['salida_val'], 2) : '—' }}
                                     </td>
                                     {{-- Saldo --}}
-                                    <td class="px-4 py-3 text-right bg-blue-50/40 font-bold text-blue-700">
+                                    <td class="px-4 py-3 text-right bg-[#2B2E2C]/10/40 font-bold text-[#2B2E2C]">
                                         {{ number_format($m['saldo_qty']) }}
                                     </td>
-                                    <td class="px-4 py-3 text-right bg-blue-50/40 text-blue-700 font-mono text-xs font-semibold">
+                                    <td class="px-4 py-3 text-right bg-[#2B2E2C]/10/40 text-[#2B2E2C] font-mono text-xs font-semibold">
                                         S/ {{ number_format($m['saldo_val'], 2) }}
                                     </td>
                                 </tr>
@@ -244,8 +244,8 @@
                                 <td class="px-4 py-3 text-right font-bold text-green-700 bg-green-50/40 font-mono text-xs">S/ {{ number_format($resumenKardex['total_ingresos_val'], 2) }}</td>
                                 <td class="px-4 py-3 text-right font-bold text-red-700 bg-red-50/40">{{ number_format($resumenKardex['total_salidas_qty']) }}</td>
                                 <td class="px-4 py-3 text-right font-bold text-red-700 bg-red-50/40 font-mono text-xs">S/ {{ number_format($resumenKardex['total_salidas_val'], 2) }}</td>
-                                <td class="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/40">{{ number_format($resumenKardex['saldo_final_qty']) }}</td>
-                                <td class="px-4 py-3 text-right font-bold text-blue-700 bg-blue-50/40 font-mono text-xs">S/ {{ number_format($resumenKardex['saldo_final_val'], 2) }}</td>
+                                <td class="px-4 py-3 text-right font-bold text-[#2B2E2C] bg-[#2B2E2C]/10/40">{{ number_format($resumenKardex['saldo_final_qty']) }}</td>
+                                <td class="px-4 py-3 text-right font-bold text-[#2B2E2C] bg-[#2B2E2C]/10/40 font-mono text-xs">S/ {{ number_format($resumenKardex['saldo_final_val'], 2) }}</td>
                             </tr>
                         </tfoot>
                     </table>

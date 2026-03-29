@@ -23,14 +23,14 @@
 <body class="font-sans antialiased bg-gray-100">
     <div class="min-h-screen">
         <!-- Navigation -->
-        <nav class="bg-white border-b border-gray-100 shadow-sm">
+        <nav class="border-b shadow-sm" style="background-color: #2B2E2C; border-color: #3A3E3B;">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <!-- Logo y Título -->
                     <div class="flex items-center">
                         <a href="{{ route('dashboard') }}" class="flex items-center">
-                            <i class="fas fa-box text-indigo-600 text-2xl mr-3"></i>
-                            <span class="text-xl font-bold text-gray-800">Sistema de Importaciones</span>
+                            <i class="fas fa-lightbulb text-2xl mr-3" style="color: #F7D600;"></i>
+                            <span class="text-xl font-bold text-white">KYRIOS</span>
                         </a>
                     </div>
 
@@ -38,10 +38,10 @@
                     <div class="flex items-center space-x-4">
                         <!-- Rol Badge -->
                         <span class="px-3 py-1 text-xs font-semibold rounded-full
-                            @if(auth()->user()->role->nombre == 'Administrador') bg-red-100 text-red-800
+                            @if(auth()->user()->role->nombre == 'Administrador') bg-[#F7D600]/20 text-[#F7D600]
                             @elseif(auth()->user()->role->nombre == 'Vendedor') bg-green-100 text-green-800
-                            @elseif(auth()->user()->role->nombre == 'Almacenero') bg-blue-100 text-blue-800
-                            @else bg-purple-100 text-purple-800
+                            @elseif(auth()->user()->role->nombre == 'Almacenero') bg-[#F7D600]/20 text-[#F7D600]
+                            @else bg-[#F7D600]/10 text-[#F7D600]
                             @endif">
                             <i class="fas fa-user-tag mr-1"></i>
                             {{ auth()->user()->role->nombre }}
@@ -49,7 +49,7 @@
 
                         <!-- Dropdown de Usuario -->
                         <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none">
+                            <button @click="open = !open" class="flex items-center space-x-2 text-white hover:text-[#F7D600] focus:outline-none">
                                 <i class="fas fa-user-circle text-2xl"></i>
                                 <span class="font-medium">{{ auth()->user()->name }}</span>
                                 <i class="fas fa-chevron-down text-xs"></i>

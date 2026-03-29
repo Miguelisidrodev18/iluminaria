@@ -31,7 +31,7 @@
         {{-- Navegación rápida --}}
         <div class="flex flex-wrap gap-3 mb-6">
             <a href="{{ route('traslados.index') }}"
-               class="text-sm text-gray-600 hover:text-blue-700 flex items-center gap-1">
+               class="text-sm text-gray-600 hover:text-[#2B2E2C] flex items-center gap-1">
                 <i class="fas fa-exchange-alt"></i> Historial
             </a>
             <span class="text-gray-300">|</span>
@@ -45,12 +45,12 @@
             </span>
             <span class="text-gray-300">|</span>
             <a href="{{ route('traslados.stock') }}"
-               class="text-sm text-gray-600 hover:text-blue-700 flex items-center gap-1">
+               class="text-sm text-gray-600 hover:text-[#2B2E2C] flex items-center gap-1">
                 <i class="fas fa-boxes"></i> Stock por Almacén
             </a>
             <span class="text-gray-300">|</span>
             <a href="{{ route('traslados.create') }}"
-               class="text-sm text-gray-600 hover:text-blue-700 flex items-center gap-1">
+               class="text-sm text-gray-600 hover:text-[#2B2E2C] flex items-center gap-1">
                 <i class="fas fa-plus-circle"></i> Nuevo Traslado
             </a>
         </div>
@@ -72,11 +72,11 @@
                     <div class="flex-1 min-w-0">
                         {{-- Badges de estado --}}
                         <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                            <span class="font-mono font-bold text-blue-700 text-sm bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-200">
+                            <span class="font-mono font-bold text-[#2B2E2C] text-sm bg-[#2B2E2C]/10 px-2.5 py-0.5 rounded-lg border border-[#2B2E2C]/30">
                                 <i class="fas fa-file-alt mr-1 text-blue-400 text-xs"></i>{{ $traslado->numero_guia ?? 'Sin guía' }}
                             </span>
                             @if($esSerie)
-                                <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-purple-100 text-purple-700 rounded-full">
+                                <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full">
                                     <i class="fas fa-barcode mr-1"></i>IMEI
                                 </span>
                             @endif
@@ -112,7 +112,7 @@
                                 <i class="fas fa-cubes text-xs mr-1"></i>
                                 <strong class="text-gray-700">{{ $traslado->cantidad }}</strong> unid.
                                 @if($esSerie)
-                                    <span class="text-purple-600 text-xs">({{ $traslado->imeis_disponibles->count() }} IMEIs disp.)</span>
+                                    <span class="text-[#2B2E2C] text-xs">({{ $traslado->imeis_disponibles->count() }} IMEIs disp.)</span>
                                 @endif
                             </span>
                             <span class="text-gray-300">·</span>
@@ -127,7 +127,7 @@
                         <button type="button"
                                 @click="detalleAbierto = !detalleAbierto"
                                 class="flex items-center gap-1.5 px-3.5 py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-info-circle text-blue-400 text-xs"></i>
+                            <i class="fas fa-info-circle text-[#F7D600] text-xs"></i>
                             <span x-text="detalleAbierto ? 'Ocultar' : 'Ver detalle'"></span>
                             <i class="fas fa-chevron-down text-xs transition-transform duration-200" :class="{ 'rotate-180': detalleAbierto }"></i>
                         </button>
@@ -174,7 +174,7 @@
                                 <dt class="text-gray-500 flex items-center gap-1.5">
                                     <i class="fas fa-file-alt text-blue-400 w-4 text-center"></i>N° Guía
                                 </dt>
-                                <dd class="font-mono font-bold text-blue-700 text-sm">{{ $traslado->numero_guia ?? '—' }}</dd>
+                                <dd class="font-mono font-bold text-[#2B2E2C] text-sm">{{ $traslado->numero_guia ?? '—' }}</dd>
                             </div>
                             <div class="flex justify-between items-center text-sm">
                                 <dt class="text-gray-500 flex items-center gap-1.5">
@@ -240,11 +240,11 @@
 
                             {{-- 1. Creado --}}
                             <li class="mb-5 ml-5">
-                                <span class="absolute -left-3.25 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 ring-4 ring-white shadow">
+                                <span class="absolute -left-3.25 flex h-6 w-6 items-center justify-center rounded-full bg-[#F7D600] text-[#2B2E2C] ring-4 ring-white shadow">
                                     <i class="fas fa-plus text-white" style="font-size:9px"></i>
                                 </span>
                                 <div class="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
-                                    <p class="text-xs font-bold text-blue-700">Traslado registrado</p>
+                                    <p class="text-xs font-bold text-[#2B2E2C]">Traslado registrado</p>
                                     <p class="text-xs text-gray-500 mt-0.5">
                                         Por <strong>{{ $traslado->usuario->name }}</strong>
                                     </p>
@@ -312,16 +312,16 @@
                 @if($esSerie && $traslado->imeis_disponibles->isNotEmpty())
                     <div class="px-6 pb-5">
                         <div class="bg-white border border-purple-200 rounded-xl p-4">
-                            <p class="text-xs font-bold text-purple-700 mb-2 flex items-center gap-1.5">
+                            <p class="text-xs font-bold text-[#2B2E2C] mb-2 flex items-center gap-1.5">
                                 <i class="fas fa-barcode text-purple-500"></i>
                                 IMEIs disponibles en {{ $traslado->almacen->nombre }}
-                                <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                <span class="bg-[#2B2E2C]/10 text-[#2B2E2C] text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                                     {{ $traslado->imeis_disponibles->count() }}
                                 </span>
                             </p>
                             <div class="flex flex-wrap gap-1.5">
                                 @foreach($traslado->imeis_disponibles as $imei)
-                                    <span class="font-mono text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2 py-1 rounded-lg">
+                                    <span class="font-mono text-xs bg-[#2B2E2C]/10 text-[#2B2E2C] border border-purple-200 px-2 py-1 rounded-lg">
                                         {{ $imei->codigo_imei }}
                                     </span>
                                 @endforeach
@@ -348,12 +348,12 @@
              class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
 
-                <div class="bg-linear-to-r from-blue-900 to-blue-700 px-6 py-4 rounded-t-2xl flex items-center justify-between">
+                <div class="px-6 py-4 rounded-t-2xl flex items-center justify-between" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <div>
                         <h3 class="text-base font-bold text-white flex items-center gap-2">
                             <i class="fas fa-barcode"></i>Seleccionar IMEIs a enviar
                         </h3>
-                        <p class="text-blue-200 text-xs mt-0.5">
+                        <p class="text-white/70 text-xs mt-0.5">
                             {{ $traslado->producto->nombre }} —
                             {{ $traslado->almacen->nombre }} → {{ $traslado->almacenDestino->nombre ?? '—' }}
                         </p>
@@ -368,8 +368,8 @@
                       id="form-imei-{{ $traslado->id }}">
                     @csrf
 
-                    <div class="px-6 py-3 bg-blue-50 border-b border-blue-100 text-sm text-blue-800 flex flex-wrap gap-3 items-center">
-                        <span class="font-mono font-semibold text-blue-700">
+                    <div class="px-6 py-3 bg-[#2B2E2C]/10 border-b border-[#2B2E2C]/20 text-sm text-[#2B2E2C] flex flex-wrap gap-3 items-center">
+                        <span class="font-mono font-semibold text-[#2B2E2C]">
                             <i class="fas fa-file-alt mr-1 text-blue-400 text-xs"></i>{{ $traslado->numero_guia ?? 'Sin guía' }}
                         </span>
                         <span class="text-gray-300">·</span>
@@ -391,14 +391,14 @@
                         @else
                             <div class="space-y-2">
                                 @foreach($traslado->imeis_disponibles as $imei)
-                                    <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-colors group">
+                                    <label class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-[#F7D600] hover:bg-[#2B2E2C]/10 cursor-pointer transition-colors group">
                                         <input type="checkbox"
                                                name="imei_ids[]"
                                                value="{{ $imei->id }}"
-                                               class="imei-check-{{ $traslado->id }} w-4 h-4 accent-blue-600 cursor-pointer"
+                                               class="imei-check-{{ $traslado->id }} w-4 h-4 cursor-pointer" style="accent-color: #F7D600;"
                                                onchange="actualizarContador({{ $traslado->id }}, {{ $traslado->cantidad }})">
                                         <div class="flex-1 min-w-0">
-                                            <span class="font-mono text-sm font-semibold text-gray-800 group-hover:text-blue-700">
+                                            <span class="font-mono text-sm font-semibold text-gray-800 group-hover:text-[#2B2E2C]">
                                                 {{ $imei->codigo_imei }}
                                             </span>
                                             @if($imei->serie)
@@ -437,7 +437,7 @@
             <p class="text-lg font-semibold text-gray-600">No hay traslados pendientes</p>
             <p class="text-sm text-gray-400 mt-1">Todos los traslados han sido confirmados</p>
             <a href="{{ route('traslados.create') }}"
-               class="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold rounded-lg transition-colors">
+               class="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white text-sm font-semibold rounded-lg transition-colors">
                 <i class="fas fa-plus-circle"></i>Nuevo Traslado
             </a>
         </div>

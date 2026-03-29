@@ -38,7 +38,7 @@
         <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Sucursal</label>
-                <select name="sucursal_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                <select name="sucursal_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     <option value="">Todas</option>
                     @foreach($sucursales as $s)
                         <option value="{{ $s->id }}" {{ request('sucursal_id') == $s->id ? 'selected' : '' }}>
@@ -49,7 +49,7 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Usuario</label>
-                <select name="user_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                <select name="user_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     <option value="">Todos</option>
                     @foreach($usuarios as $u)
                         <option value="{{ $u->id }}" {{ request('user_id') == $u->id ? 'selected' : '' }}>
@@ -60,7 +60,7 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Estado</label>
-                <select name="estado" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                <select name="estado" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     <option value="">Todos</option>
                     <option value="abierta" {{ request('estado') === 'abierta' ? 'selected' : '' }}>Abierta</option>
                     <option value="cerrada" {{ request('estado') === 'cerrada' ? 'selected' : '' }}>Cerrada</option>
@@ -69,15 +69,15 @@
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Desde</label>
                 <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}"
-                       class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                       class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
             </div>
             <div class="flex flex-col">
                 <label class="block text-xs font-medium text-gray-500 mb-1">Hasta</label>
                 <div class="flex gap-2">
                     <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}"
-                           class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                           class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     <button type="submit"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium">
+                            class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] px-3 py-2 rounded-lg text-sm font-medium">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -132,7 +132,7 @@
                     <td class="px-4 py-3 text-right text-sm">
                         @if($caja->diferencia_cierre !== null)
                             @php $dif = (float) $caja->diferencia_cierre; @endphp
-                            <span class="font-semibold {{ abs($dif) < 0.01 ? 'text-green-600' : ($dif > 0 ? 'text-blue-600' : 'text-red-600') }}">
+                            <span class="font-semibold {{ abs($dif) < 0.01 ? 'text-green-600' : ($dif > 0 ? 'text-[#2B2E2C]' : 'text-red-600') }}">
                                 {{ $dif >= 0 ? '+' : '' }}S/ {{ number_format($dif, 2) }}
                             </span>
                         @else
@@ -158,7 +158,7 @@
                             </a>
                         @else
                             <a href="{{ route('caja.show', $caja) }}"
-                               class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-3 py-1.5 rounded-lg flex items-center gap-1 justify-center">
+                               class="text-xs bg-[#2B2E2C]/10 hover:bg-[#2B2E2C]/10 text-[#2B2E2C] font-medium px-3 py-1.5 rounded-lg flex items-center gap-1 justify-center">
                                 <i class="fas fa-eye"></i> Detalle
                             </a>
                         @endif
@@ -169,7 +169,7 @@
                     <td colspan="{{ $isAdmin ? 9 : 6 }}" class="px-4 py-16 text-center text-gray-400">
                         <i class="fas fa-cash-register text-4xl mb-3 block text-gray-200"></i>
                         No hay cajas registradas.
-                        <a href="{{ route('caja.abrir') }}" class="text-blue-600 hover:underline ml-1">Abrir la primera</a>
+                        <a href="{{ route('caja.abrir') }}" class="text-[#2B2E2C] hover:underline ml-1">Abrir la primera</a>
                     </td>
                 </tr>
                 @endforelse

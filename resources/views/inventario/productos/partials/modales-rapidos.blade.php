@@ -28,8 +28,8 @@
         {{-- Header --}}
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
             <h3 id="modalMarcaTitulo" class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-trademark text-blue-700 text-sm"></i>
+                <span class="w-8 h-8 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-trademark text-[#2B2E2C] text-sm"></i>
                 </span>
                 Nueva Marca
             </h3>
@@ -47,7 +47,7 @@
                 </label>
                 <input type="text" id="modalMarcaNombre" autocomplete="off"
                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg
-                              focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                              focus:ring-2 focus:ring-[#F7D600] focus:border-transparent
                               text-sm transition"
                        placeholder="Ej: Samsung, Apple, Xiaomi...">
             </div>
@@ -65,8 +65,8 @@
                 Cancelar
             </button>
             <button type="button" id="btnGuardarMarca" onclick="guardarMarcaRapida()"
-                    class="px-4 py-2 text-sm font-medium text-white bg-blue-900 rounded-lg
-                           hover:bg-blue-800 transition flex items-center gap-1.5">
+                    class="px-4 py-2 text-sm font-medium text-white bg-[#2B2E2C] rounded-lg
+                           hover:bg-[#2B2E2C] transition flex items-center gap-1.5">
                 <i class="fas fa-save"></i>
                 Guardar
             </button>
@@ -86,8 +86,8 @@
 
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
             <h3 id="modalModeloTitulo" class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <span class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-mobile-alt text-indigo-700 text-sm"></i>
+                <span class="w-8 h-8 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-mobile-alt text-[#2B2E2C] text-sm"></i>
                 </span>
                 Nuevo Modelo
             </h3>
@@ -99,9 +99,9 @@
 
         <div class="px-6 py-5 space-y-4">
             {{-- Marca actual (solo lectura) --}}
-            <div class="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2">
-                <i class="fas fa-trademark text-indigo-400 text-sm"></i>
-                <span class="text-sm text-indigo-700">
+            <div class="flex items-center gap-2 bg-[#2B2E2C]/10 border border-gray-200 rounded-lg px-3 py-2">
+                <i class="fas fa-trademark text-gray-400 text-sm"></i>
+                <span class="text-sm text-[#2B2E2C]">
                     Marca: <strong id="modalModeloMarcaNombre" class="font-semibold"></strong>
                 </span>
             </div>
@@ -112,7 +112,7 @@
                 </label>
                 <input type="text" id="modalModeloNombre" autocomplete="off"
                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg
-                              focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                              focus:ring-2 focus:ring-[#F7D600] focus:border-transparent
                               text-sm transition"
                        placeholder="Ej: Galaxy S24, iPhone 15 Pro...">
             </div>
@@ -129,8 +129,8 @@
                 Cancelar
             </button>
             <button type="button" id="btnGuardarModelo" onclick="guardarModeloRapido()"
-                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-700 rounded-lg
-                           hover:bg-indigo-600 transition flex items-center gap-1.5">
+                    class="px-4 py-2 text-sm font-medium text-white bg-[#2B2E2C] rounded-lg
+                           hover:bg-[#F7D600] text-[#2B2E2C] transition flex items-center gap-1.5">
                 <i class="fas fa-save"></i>
                 Guardar
             </button>
@@ -178,13 +178,13 @@
                     Color (opcional)
                 </label>
                 <div class="flex items-center gap-3">
-                    <input type="color" id="modalColorHex" value="#3b82f6"
+                    <input type="color" id="modalColorHex" value="#F7D600"
                            class="h-11 w-14 rounded-lg cursor-pointer border-2 border-gray-200 p-0.5"
                            oninput="document.getElementById('modalColorPreview').style.backgroundColor = this.value">
                     <div id="modalColorPreview"
                          class="flex-1 h-11 rounded-lg border-2 border-gray-200 shadow-inner transition-colors"
-                         style="background-color:#3b82f6;"></div>
-                    <span id="modalColorHexLabel" class="text-xs font-mono text-gray-500 w-16">#3b82f6</span>
+                         style="background-color:#F7D600;"></div>
+                    <span id="modalColorHexLabel" class="text-xs font-mono text-gray-500 w-16">#F7D600</span>
                 </div>
             </div>
 
@@ -426,9 +426,9 @@ async function guardarModeloRapido() {
 // ── MODAL COLOR ───────────────────────────────────────────────
 function abrirModalColor() {
     document.getElementById('modalColorNombre').value = '';
-    document.getElementById('modalColorHex').value    = '#3b82f6';
-    document.getElementById('modalColorPreview').style.backgroundColor = '#3b82f6';
-    document.getElementById('modalColorHexLabel').textContent = '#3b82f6';
+    document.getElementById('modalColorHex').value    = '#F7D600';
+    document.getElementById('modalColorPreview').style.backgroundColor = '#F7D600';
+    document.getElementById('modalColorHexLabel').textContent = '#F7D600';
     resetError('modalColorError');
     abrirModal('modalColor');
     setTimeout(() => document.getElementById('modalColorNombre').focus(), 50);

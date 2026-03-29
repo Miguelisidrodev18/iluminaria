@@ -31,22 +31,22 @@
         <div class="border-b border-gray-200">
             <nav class="flex -mb-px">
                 <button @click="tab = 'datos'"
-                    :class="tab === 'datos' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    :class="tab === 'datos' ? 'border-[#F7D600] text-[#2B2E2C]' : 'border-transparent text-gray-500 hover:text-gray-700'"
                     class="flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors">
                     <i class="fas fa-building"></i> Datos Iniciales
                 </button>
                 <button @click="tab = 'graficos'"
-                    :class="tab === 'graficos' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    :class="tab === 'graficos' ? 'border-[#F7D600] text-[#2B2E2C]' : 'border-transparent text-gray-500 hover:text-gray-700'"
                     class="flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors">
                     <i class="fas fa-image"></i> Gráficos / Logos
                 </button>
                 <button @click="tab = 'redes'"
-                    :class="tab === 'redes' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    :class="tab === 'redes' ? 'border-[#F7D600] text-[#2B2E2C]' : 'border-transparent text-gray-500 hover:text-gray-700'"
                     class="flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors">
                     <i class="fas fa-share-alt"></i> Redes Sociales
                 </button>
                 <button @click="tab = 'api'"
-                    :class="tab === 'api' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                    :class="tab === 'api' ? 'border-[#F7D600] text-[#2B2E2C]' : 'border-transparent text-gray-500 hover:text-gray-700'"
                     class="flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors">
                     <i class="fas fa-plug"></i> Integración API / SUNAT
                 </button>
@@ -66,12 +66,12 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">RUC *</label>
                         <div class="flex gap-2">
                             <input type="text" name="ruc" x-model="ruc" maxlength="11"
-                                class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('ruc') border-red-500 @enderror"
+                                class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] @error('ruc') border-red-500 @enderror"
                                 placeholder="20XXXXXXXXX"
                                 @keydown.enter.prevent="consultarRuc()">
                             <button type="button" @click="consultarRuc()"
                                 :disabled="buscando || ruc.length !== 11"
-                                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+                                class="flex items-center gap-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] disabled:opacity-50 disabled:cursor-not-allowed font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
                                 <i class="fas fa-search" x-show="!buscando"></i>
                                 <i class="fas fa-spinner fa-spin" x-show="buscando"></i>
                                 <span x-text="buscando ? 'Consultando...' : 'Buscar en SUNAT'"></span>
@@ -90,17 +90,17 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Razón Social *</label>
                         <input type="text" name="razon_social" x-model="razon_social" maxlength="200"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('razon_social') border-red-500 @enderror">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] @error('razon_social') border-red-500 @enderror">
                         @error('razon_social')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Comercial</label>
                         <input type="text" name="nombre_comercial" x-model="nombre_comercial" maxlength="200"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Régimen Tributario</label>
-                        <select name="regimen" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <select name="regimen" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                             @foreach(['RER' => 'Régimen Especial de Renta', 'RG' => 'Régimen General', 'RMT' => 'Régimen MYPE Tributario', 'RUS' => 'Nuevo RUS'] as $val => $lbl)
                                 <option value="{{ $val }}" {{ old('regimen', $empresa->regimen) === $val ? 'selected' : '' }}>{{ $lbl }}</option>
                             @endforeach
@@ -109,42 +109,42 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Dirección Fiscal</label>
                         <input type="text" name="direccion" x-model="direccion" maxlength="300"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
                         <input type="text" name="departamento" x-model="departamento"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Provincia</label>
                         <input type="text" name="provincia" x-model="provincia"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Distrito</label>
                         <input type="text" name="distrito" x-model="distrito"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Ubigeo</label>
                         <input type="text" name="ubigeo" x-model="ubigeo" maxlength="6"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                         <input type="text" name="telefono" value="{{ old('telefono', $empresa->telefono) }}" maxlength="20"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" name="email" value="{{ old('email', $empresa->email) }}" maxlength="150"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Sitio Web</label>
                         <input type="url" name="web" value="{{ old('web', $empresa->web) }}" maxlength="200"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                             placeholder="https://www.ejemplo.com">
                     </div>
                 </div>
@@ -161,7 +161,7 @@
                             </div>
                         @endif
                         <input type="file" name="logo" accept="image/*"
-                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2B2E2C]/10 file:text-[#2B2E2C] hover:file:bg-[#2B2E2C]/10">
                         <p class="text-xs text-gray-400 mt-1">PNG, JPG — máx. 2MB. Aparece en el encabezado del sistema.</p>
                     </div>
                     <div>
@@ -172,7 +172,7 @@
                             </div>
                         @endif
                         <input type="file" name="logo_pdf" accept="image/*"
-                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2B2E2C]/10 file:text-[#2B2E2C] hover:file:bg-[#2B2E2C]/10">
                         <p class="text-xs text-gray-400 mt-1">PNG, JPG — máx. 2MB. Aparece en boletas, facturas y guías.</p>
                     </div>
                 </div>
@@ -182,24 +182,24 @@
             <div x-show="tab === 'redes'" class="p-6">
                 <div class="space-y-5">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+                        <div class="w-10 h-10 rounded-lg bg-[#F7D600] text-[#2B2E2C] flex items-center justify-center flex-shrink-0">
                             <i class="fab fa-facebook-f text-white"></i>
                         </div>
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
                             <input type="text" name="facebook" value="{{ old('facebook', $empresa->facebook) }}" maxlength="200"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                                 placeholder="https://facebook.com/mi-empresa">
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-[#333836] flex items-center justify-center flex-shrink-0">
                             <i class="fab fa-instagram text-white"></i>
                         </div>
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
                             <input type="text" name="instagram" value="{{ old('instagram', $empresa->instagram) }}" maxlength="200"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                                 placeholder="https://instagram.com/mi-empresa">
                         </div>
                     </div>
@@ -210,7 +210,7 @@
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700 mb-1">TikTok</label>
                             <input type="text" name="tiktok" value="{{ old('tiktok', $empresa->tiktok) }}" maxlength="200"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                                 placeholder="https://tiktok.com/@mi-empresa">
                         </div>
                     </div>
@@ -222,25 +222,25 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
                         <h3 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                            <i class="fas fa-file-invoice text-blue-600"></i> Credenciales SUNAT (Clave SOL)
+                            <i class="fas fa-file-invoice text-[#2B2E2C]"></i> Credenciales SUNAT (Clave SOL)
                         </h3>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Usuario SOL</label>
                         <input type="text" name="sunat_usuario_sol" value="{{ old('sunat_usuario_sol', $empresa->sunat_usuario_sol) }}" maxlength="100"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                             placeholder="MODDATOS">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Clave SOL</label>
                         <input type="password" name="sunat_clave_sol" maxlength="100"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                             placeholder="Dejar vacío para no cambiar">
                         <p class="text-xs text-gray-400 mt-1">Se almacenará de forma segura. Dejar vacío para mantener la clave actual.</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Modo SUNAT</label>
-                        <select name="sunat_modo" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <select name="sunat_modo" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                             <option value="beta" {{ old('sunat_modo', $empresa->sunat_modo) === 'beta' ? 'selected' : '' }}>Beta / Pruebas</option>
                             <option value="produccion" {{ old('sunat_modo', $empresa->sunat_modo) === 'produccion' ? 'selected' : '' }}>Producción</option>
                         </select>
@@ -254,13 +254,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">URL del API</label>
                         <input type="url" name="api_url" value="{{ old('api_url', $empresa->api_url) }}" maxlength="300"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                             placeholder="https://api.mifacturador.pe">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">API Key / Token</label>
                         <input type="password" name="api_key" maxlength="300"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                             placeholder="Dejar vacío para no cambiar">
                     </div>
                 </div>
@@ -269,7 +269,7 @@
             {{-- Botón guardar --}}
             <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3">
                 <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
+                    class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
                     <i class="fas fa-save"></i> Guardar Cambios
                 </button>
             </div>

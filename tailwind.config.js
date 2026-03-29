@@ -15,6 +15,14 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                kyrios: {
+                    dark: '#2B2E2C',
+                    darker: '#333836',
+                    hover: '#3A3E3B',
+                    yellow: '#F7D600',
+                }
+            },
         },
     },
     plugins: [],

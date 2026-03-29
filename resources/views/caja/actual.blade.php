@@ -39,10 +39,10 @@
 
     {{-- Tarjetas de resumen --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl p-5 text-white shadow-lg">
-            <p class="text-blue-200 text-xs font-medium uppercase tracking-wide">Saldo en Sistema</p>
+        <div class="rounded-xl p-5 text-white shadow-lg" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
+            <p class="text-white/70 text-xs font-medium uppercase tracking-wide">Saldo en Sistema</p>
             <p class="text-3xl font-bold mt-1">S/ {{ number_format($arqueo['saldo_esperado'], 2) }}</p>
-            <p class="text-blue-200 text-xs mt-1">Inicial: S/ {{ number_format($arqueo['monto_inicial'], 2) }}</p>
+            <p class="text-white/70 text-xs mt-1">Inicial: S/ {{ number_format($arqueo['monto_inicial'], 2) }}</p>
         </div>
 
         <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
@@ -77,15 +77,15 @@
                 <p class="text-xs text-gray-500">Efectivo</p>
                 <p class="text-lg font-bold text-green-700">S/ {{ number_format($arqueo['ventas_efectivo'], 2) }}</p>
             </div>
-            <div class="text-center p-3 bg-purple-50 rounded-lg border border-purple-100">
-                <i class="fas fa-mobile-alt text-purple-600 text-xl mb-1"></i>
+            <div class="text-center p-3 bg-[#2B2E2C]/10 rounded-lg border border-purple-100">
+                <i class="fas fa-mobile-alt text-[#2B2E2C] text-xl mb-1"></i>
                 <p class="text-xs text-gray-500">Yape</p>
-                <p class="text-lg font-bold text-purple-700">S/ {{ number_format($arqueo['ventas_yape'], 2) }}</p>
+                <p class="text-lg font-bold text-[#2B2E2C]">S/ {{ number_format($arqueo['ventas_yape'], 2) }}</p>
             </div>
-            <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <i class="fas fa-mobile text-blue-600 text-xl mb-1"></i>
+            <div class="text-center p-3 bg-[#2B2E2C]/10 rounded-lg border border-blue-100">
+                <i class="fas fa-mobile text-[#2B2E2C] text-xl mb-1"></i>
                 <p class="text-xs text-gray-500">Plin</p>
-                <p class="text-lg font-bold text-blue-700">S/ {{ number_format($arqueo['ventas_plin'], 2) }}</p>
+                <p class="text-lg font-bold text-[#2B2E2C]">S/ {{ number_format($arqueo['ventas_plin'], 2) }}</p>
             </div>
             <div class="text-center p-3 bg-orange-50 rounded-lg border border-orange-100">
                 <i class="fas fa-university text-orange-600 text-xl mb-1"></i>
@@ -143,7 +143,7 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
             <h3 class="font-semibold text-gray-800">
-                <i class="fas fa-list-alt mr-2 text-blue-800"></i> Movimientos del día
+                <i class="fas fa-list-alt mr-2 text-[#2B2E2C]"></i> Movimientos del día
             </h3>
             <span class="text-xs text-gray-400">{{ $caja->movimientos->count() }} registro(s)</span>
         </div>
@@ -174,7 +174,7 @@
                         <td class="px-4 py-3">
                             <p class="text-sm font-medium text-gray-800">{{ $mov->concepto }}</p>
                             @if($mov->venta_id)
-                                <p class="text-xs text-blue-500">Venta #{{ $mov->venta_id }}</p>
+                                <p class="text-xs text-[#2B2E2C]">Venta #{{ $mov->venta_id }}</p>
                             @endif
                             @if($mov->referencia)
                                 <p class="text-xs text-gray-400">Ref: {{ $mov->referencia }}</p>
@@ -386,7 +386,7 @@
                     <span class="font-medium">S/ {{ number_format($arqueo['total_egresos'], 2) }}</span>
                 </div>
                 @endif
-                <div class="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-blue-900">
+                <div class="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold text-[#2B2E2C]">
                     <span>Saldo esperado (efectivo):</span>
                     <span>S/ {{ number_format($arqueo['saldo_esperado'], 2) }}</span>
                 </div>
@@ -426,10 +426,10 @@
                 {{-- Diferencia en tiempo real --}}
                 <div x-show="montoReal !== ''" class="rounded-lg p-3 text-center"
                      :class="Math.abs(parseFloat(montoReal) - saldoSistema) < 0.01 ? 'bg-green-50 border border-green-200' :
-                             (parseFloat(montoReal) - saldoSistema) > 0 ? 'bg-blue-50 border border-blue-200' : 'bg-red-50 border border-red-200'">
+                             (parseFloat(montoReal) - saldoSistema) > 0 ? 'bg-[#2B2E2C]/10 border border-blue-200' : 'bg-red-50 border border-red-200'">
                     <p class="text-sm font-medium"
                        :class="Math.abs(parseFloat(montoReal) - saldoSistema) < 0.01 ? 'text-green-700' :
-                               (parseFloat(montoReal) - saldoSistema) > 0 ? 'text-blue-700' : 'text-red-700'">
+                               (parseFloat(montoReal) - saldoSistema) > 0 ? 'text-[#2B2E2C]' : 'text-red-700'">
                         <span x-show="Math.abs(parseFloat(montoReal) - saldoSistema) < 0.01">
                             <i class="fas fa-check-circle mr-1"></i> Cuadra perfectamente
                         </span>

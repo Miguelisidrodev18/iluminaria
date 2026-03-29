@@ -29,7 +29,7 @@
                 <a href="{{ route('traslados.pendientes') }}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg">
                     <i class="fas fa-clock mr-2"></i>Pendientes
                 </a>
-                <a href="{{ route('traslados.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">
+                <a href="{{ route('traslados.create') }}" class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-4 rounded-lg">
                     <i class="fas fa-plus mr-2"></i>Nuevo Traslado
                 </a>
             </div>
@@ -52,7 +52,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($traslados as $traslado)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 text-sm font-mono font-semibold text-blue-600">{{ $traslado->numero_guia ?? '-' }}</td>
+                            <td class="px-6 py-4 text-sm font-mono font-semibold text-[#2B2E2C]">{{ $traslado->numero_guia ?? '-' }}</td>
                             <td class="px-6 py-4 text-sm">{{ $traslado->producto->nombre }}</td>
                             <td class="px-6 py-4 text-sm">{{ $traslado->almacen->nombre }}</td>
                             <td class="px-6 py-4 text-sm">{{ $traslado->almacenDestino->nombre ?? '-' }}</td>
@@ -65,7 +65,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-sm">
-                                <a href="{{ route('traslados.show', $traslado) }}" class="text-blue-600 hover:text-blue-800"><i class="fas fa-eye"></i></a>
+                                <a href="{{ route('traslados.show', $traslado) }}" class="text-[#2B2E2C] hover:text-[#2B2E2C]"><i class="fas fa-eye"></i></a>
                             </td>
                         </tr>
                     @empty

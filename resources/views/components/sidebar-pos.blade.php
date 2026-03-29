@@ -23,7 +23,7 @@
 
 {{-- Mobile hamburger --}}
 <button onclick="document.getElementById('pos-sidebar-overlay').style.display='block'; document.getElementById('pos-sidebar').classList.remove('-translate-x-full');"
-        class="md:hidden fixed top-3 left-3 z-50 bg-blue-600 text-white p-2 rounded-lg shadow-lg">
+        class="md:hidden fixed top-3 left-3 z-50 bg-[#F7D600] text-[#2B2E2C] p-2 rounded-lg shadow-lg">
     <i class="fas fa-bars text-sm"></i>
 </button>
 
@@ -55,7 +55,7 @@
                 <img src="{{ $empresa->logo_url }}" alt="Logo"
                      class="h-8 w-8 rounded-lg object-contain bg-white/10 p-0.5 shrink-0">
             @else
-                <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+                <div class="h-8 w-8 rounded-lg bg-[#F7D600] text-[#2B2E2C] flex items-center justify-center shrink-0">
                     <i class="fas fa-store text-white text-xs"></i>
                 </div>
             @endif
@@ -69,7 +69,7 @@
             @if($empresa?->logo_url)
                 <img src="{{ $empresa->logo_url }}" alt="Logo" class="h-8 w-8 rounded-lg object-contain bg-white/10 p-0.5">
             @else
-                <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                <div class="h-8 w-8 rounded-lg bg-[#F7D600] text-[#2B2E2C] flex items-center justify-center">
                     <i class="fas fa-store text-xs"></i>
                 </div>
             @endif
@@ -85,7 +85,7 @@
     <div class="shrink-0 border-b border-white/10 py-3"
          :class="collapsed ? 'px-2' : 'px-3'">
         <div class="flex items-center gap-2" :class="collapsed ? 'justify-center' : ''">
-            <div class="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+            <div class="w-8 h-8 rounded-full bg-linear-to-br from-[#1F2220] to-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
                 {{ $iniciales }}
             </div>
             <div class="min-w-0" x-show="!collapsed">
@@ -132,7 +132,7 @@
                class="flex items-center rounded-xl py-2.5 transition-all duration-150 group relative"
                :class="collapsed ? 'justify-center px-2' : 'gap-3 px-3'"
                @class([
-                   'bg-blue-600 text-white shadow-lg shadow-blue-600/20' => $item['active'],
+                   'bg-[#F7D600] text-[#2B2E2C] shadow-lg shadow-blue-600/20' => $item['active'],
                    'text-gray-400 hover:bg-white/8 hover:text-white' => !$item['active'],
                ])>
                 <i class="fas {{ $item['icon'] }} w-4 text-center text-sm shrink-0"></i>

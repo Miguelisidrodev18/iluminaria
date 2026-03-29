@@ -49,14 +49,14 @@
             </div>
 
             <!-- Productos en Catálogo -->
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-900">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#2B2E2C]">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 font-medium">Mi Catálogo</p>
                         <p class="text-3xl font-bold text-gray-900 mt-2">{{ $productos_catalogo }}</p>
                     </div>
-                    <div class="bg-blue-100 rounded-full p-3">
-                        <i class="fas fa-box-open text-blue-900 text-2xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-box-open text-[#2B2E2C] text-2xl"></i>
                     </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@
         <!-- Órdenes Recientes -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 class="text-xl font-bold text-gray-900 mb-4">
-                <i class="fas fa-shopping-cart mr-2 text-blue-900"></i>
+                <i class="fas fa-shopping-cart mr-2 text-[#2B2E2C]"></i>
                 Órdenes Recientes
             </h2>
             <div class="text-center py-12 text-gray-500">
@@ -92,18 +92,18 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">
-                    <i class="fas fa-box-open mr-2 text-blue-900"></i>
+                    <i class="fas fa-box-open mr-2 text-[#2B2E2C]"></i>
                     Mi Catálogo
                 </h2>
-                <a href="#" class="block p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-center">
-                    <i class="fas fa-plus-circle text-blue-900 text-2xl mb-2"></i>
-                    <p class="font-medium text-blue-900">Agregar Producto al Catálogo</p>
+                <a href="#" class="block p-4 bg-[#2B2E2C]/10 border border-blue-200 rounded-lg hover:bg-[#2B2E2C]/10 transition-colors text-center">
+                    <i class="fas fa-plus-circle text-[#2B2E2C] text-2xl mb-2"></i>
+                    <p class="font-medium text-[#2B2E2C]">Agregar Producto al Catálogo</p>
                 </a>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">
-                    <i class="fas fa-file-alt mr-2 text-blue-900"></i>
+                    <i class="fas fa-file-alt mr-2 text-[#2B2E2C]"></i>
                     Información
                 </h2>
                 <div class="space-y-2 text-sm text-gray-600">

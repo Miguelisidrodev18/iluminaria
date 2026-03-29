@@ -22,18 +22,18 @@
         <div class="max-w-4xl mx-auto">
             <div class="bg-white rounded-lg shadow-md overflow-hidden" x-data="proveedorForm()">
                 {{-- Búsqueda SUNAT --}}
-                <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4">
+                <div class="px-6 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h2 class="text-xl font-bold text-white">
                         <i class="fas fa-search mr-2"></i>Búsqueda por RUC (SUNAT)
                     </h2>
                 </div>
-                <div class="p-6 bg-blue-50 border-b border-blue-100">
+                <div class="p-6 bg-[#2B2E2C]/10 border-b border-[#2B2E2C]/20">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Consultar datos del proveedor</label>
                     <div class="flex gap-3">
                         <input type="text" x-model="rucBuscar" maxlength="11" placeholder="Ingrese RUC de 11 dígitos"
-                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]">
                         <button type="button" @click="consultarSunat()" :disabled="cargando"
-                                class="bg-blue-900 hover:bg-blue-800 text-white px-6 py-2 rounded-lg font-semibold disabled:opacity-50 transition-colors">
+                                class="bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white px-6 py-2 rounded-lg font-semibold disabled:opacity-50 transition-colors">
                             <span x-show="!cargando"><i class="fas fa-search mr-2"></i>Buscar en SUNAT</span>
                             <span x-show="cargando"><i class="fas fa-spinner fa-spin mr-2"></i>Buscando...</span>
                         </button>
@@ -58,7 +58,7 @@
                 </div>
 
                 {{-- Información del Proveedor --}}
-                <div class="bg-blue-900 px-6 py-4">
+                <div class="bg-[#2B2E2C] px-6 py-4">
                     <h2 class="text-xl font-bold text-white">
                         <i class="fas fa-building mr-2"></i>Información del Proveedor
                     </h2>
@@ -73,7 +73,7 @@
                             </label>
                             <input type="text" name="ruc" x-model="ruc" maxlength="11" required
                                    placeholder="11 dígitos"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('ruc') border-red-500 @enderror"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] @error('ruc') border-red-500 @enderror"
                                    value="{{ old('ruc') }}">
                             @error('ruc')
                                 <p class="text-red-600 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -86,7 +86,7 @@
                             </label>
                             <input type="text" name="razon_social" x-model="razonSocial" required
                                    placeholder="Nombre de la empresa"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('razon_social') border-red-500 @enderror"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] @error('razon_social') border-red-500 @enderror"
                                    value="{{ old('razon_social') }}">
                             @error('razon_social')
                                 <p class="text-red-600 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -97,7 +97,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Comercial</label>
                             <input type="text" name="nombre_comercial" x-model="nombreComercial"
                                    placeholder="Nombre comercial (opcional)"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('nombre_comercial') }}">
                         </div>
 
@@ -105,7 +105,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
                             <input type="text" name="direccion" x-model="direccion"
                                    placeholder="Dirección fiscal"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('direccion') }}">
                         </div>
 
@@ -113,7 +113,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
                             <input type="text" name="telefono" maxlength="20"
                                    placeholder="Número de teléfono"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('telefono') }}">
                         </div>
 
@@ -121,7 +121,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <input type="email" name="email"
                                    placeholder="correo@ejemplo.com"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('email') }}">
                         </div>
 
@@ -129,7 +129,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de Contacto</label>
                             <input type="text" name="contacto_nombre"
                                    placeholder="Persona de contacto"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('contacto_nombre') }}">
                         </div>
 
@@ -138,7 +138,7 @@
                                 Estado <span class="text-red-500">*</span>
                             </label>
                             <select name="estado"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]">
                                 <option value="activo" {{ old('estado', 'activo') === 'activo' ? 'selected' : '' }}>Activo</option>
                                 <option value="inactivo" {{ old('estado') === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                             </select>
@@ -151,7 +151,7 @@
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </a>
                         <button type="submit"
-                                class="px-6 py-3 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 transition-colors">
+                                class="px-6 py-3 bg-[#2B2E2C] text-white rounded-lg font-semibold hover:bg-[#2B2E2C] transition-colors">
                             <i class="fas fa-save mr-2"></i>Guardar Proveedor
                         </button>
                     </div>

@@ -83,7 +83,7 @@
                         <span class="font-medium">S/ {{ number_format($arqueo['total_egresos'], 2) }}</span>
                     </div>
                     @endif
-                    <div class="border-t border-gray-200 pt-2 mt-1 flex justify-between font-bold text-blue-900">
+                    <div class="border-t border-gray-200 pt-2 mt-1 flex justify-between font-bold text-[#2B2E2C]">
                         <span>Saldo esperado (efectivo)</span>
                         <span>S/ {{ number_format($arqueo['saldo_esperado'], 2) }}</span>
                     </div>
@@ -96,14 +96,14 @@
                         </div>
                         @php $dif = (float) $caja->diferencia_cierre; @endphp
                         <div class="flex justify-between py-1 font-bold
-                            {{ abs($dif) < 0.01 ? 'text-green-700' : ($dif > 0 ? 'text-blue-700' : 'text-red-700') }}">
+                            {{ abs($dif) < 0.01 ? 'text-green-700' : ($dif > 0 ? 'text-[#2B2E2C]' : 'text-red-700') }}">
                             <span>Diferencia</span>
                             <span>{{ $dif >= 0 ? '+' : '' }}S/ {{ number_format($dif, 2) }}</span>
                         </div>
                         @if(abs($dif) < 0.01)
                             <p class="text-xs text-green-600 text-right mt-1"><i class="fas fa-check-circle mr-1"></i>Cuadra perfectamente</p>
                         @elseif($dif > 0)
-                            <p class="text-xs text-blue-600 text-right mt-1"><i class="fas fa-arrow-up mr-1"></i>Sobrante</p>
+                            <p class="text-xs text-[#2B2E2C] text-right mt-1"><i class="fas fa-arrow-up mr-1"></i>Sobrante</p>
                         @else
                             <p class="text-xs text-red-600 text-right mt-1"><i class="fas fa-arrow-down mr-1"></i>Faltante</p>
                         @endif
@@ -119,8 +119,8 @@
                 </h3>
                 <div class="space-y-3">
                     @foreach(['ventas_efectivo' => ['Efectivo', 'text-green-700', 'bg-green-50'],
-                              'ventas_yape'     => ['Yape',     'text-purple-700', 'bg-purple-50'],
-                              'ventas_plin'     => ['Plin',     'text-blue-700',   'bg-blue-50'],
+                              'ventas_yape'     => ['Yape',     'text-[#2B2E2C]', 'bg-[#2B2E2C]/10'],
+                              'ventas_plin'     => ['Plin',     'text-[#2B2E2C]',   'bg-[#2B2E2C]/10'],
                               'ventas_transferencia' => ['Transferencia', 'text-orange-700', 'bg-orange-50']] as $key => [$label, $color, $bg])
                     <div class="flex items-center justify-between p-2 rounded-lg {{ $bg }}">
                         <span class="text-sm {{ $color }} font-medium">{{ $label }}</span>
@@ -181,7 +181,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-semibold text-gray-800">
-                        <i class="fas fa-list-alt mr-2 text-blue-800"></i> Movimientos
+                        <i class="fas fa-list-alt mr-2 text-[#2B2E2C]"></i> Movimientos
                     </h3>
                     <span class="text-xs text-gray-400">{{ $caja->movimientos->count() }} registro(s)</span>
                 </div>
@@ -210,7 +210,7 @@
                                 <td class="px-4 py-3">
                                     <p class="text-sm font-medium text-gray-800">{{ $mov->concepto }}</p>
                                     @if($mov->venta_id)
-                                        <p class="text-xs text-blue-500">Venta #{{ $mov->venta_id }}</p>
+                                        <p class="text-xs text-[#2B2E2C]">Venta #{{ $mov->venta_id }}</p>
                                     @endif
                                     @if($mov->referencia)
                                         <p class="text-xs text-gray-400">Ref: {{ $mov->referencia }}</p>
@@ -241,7 +241,7 @@
                         <tfoot class="bg-gray-50 border-t-2 border-gray-200">
                             <tr>
                                 <td colspan="4" class="px-4 py-3 text-right text-sm font-semibold text-gray-600">Saldo en sistema:</td>
-                                <td class="px-4 py-3 text-right text-sm font-bold text-blue-900">
+                                <td class="px-4 py-3 text-right text-sm font-bold text-[#2B2E2C]">
                                     S/ {{ number_format($caja->monto_final, 2) }}
                                 </td>
                             </tr>

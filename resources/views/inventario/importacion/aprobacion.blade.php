@@ -35,7 +35,7 @@
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                         <input type="text" name="buscar" value="{{ request('buscar') }}"
                                placeholder="Código, nombre..."
-                               class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                               class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F7D600]" />
                     </div>
                     <button type="submit" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
                         Buscar
@@ -44,7 +44,7 @@
 
                 <div class="flex items-center gap-3">
                     <span id="label-seleccionados" class="text-sm text-gray-500 hidden">
-                        <span id="cnt-seleccionados" class="font-bold text-blue-600">0</span> seleccionados
+                        <span id="cnt-seleccionados" class="font-bold text-[#2B2E2C]">0</span> seleccionados
                     </span>
                     <button id="btn-seleccionar-todo" class="text-sm text-gray-500 hover:text-gray-700 underline">
                         Seleccionar todos
@@ -76,7 +76,7 @@
                         <tr>
                             <th class="p-3 w-10">
                                 <input type="checkbox" id="chk-todos"
-                                       class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                       class="w-4 h-4 rounded border-gray-300 text-[#2B2E2C] focus:ring-[#F7D600]" />
                             </th>
                             <th class="p-3 text-xs font-semibold text-gray-500 uppercase">Cód. Fábrica</th>
                             <th class="p-3 text-xs font-semibold text-gray-500 uppercase">Nombre</th>
@@ -91,12 +91,12 @@
                         @forelse($productos as $producto)
 
                         {{-- ── Fila principal ── --}}
-                        <tr class="hover:bg-blue-50/30 transition-colors cursor-pointer fila-producto"
+                        <tr class="hover:bg-[#2B2E2C]/10/30 transition-colors cursor-pointer fila-producto"
                             data-id="{{ $producto->id }}"
                             data-detalle="detalle-{{ $producto->id }}">
                             <td class="p-3" onclick="event.stopPropagation()">
                                 <input type="checkbox"
-                                       class="chk-producto w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                       class="chk-producto w-4 h-4 rounded border-gray-300 text-[#2B2E2C] focus:ring-[#F7D600]"
                                        value="{{ $producto->id }}" />
                             </td>
                             <td class="p-3 font-mono text-xs text-gray-500">{{ $producto->codigo_fabrica ?? '—' }}</td>
@@ -109,7 +109,7 @@
                             <td class="p-3 text-gray-600">{{ $producto->marca?->nombre ?? '—' }}</td>
                             <td class="p-3">
                                 @if($producto->tipoProducto)
-                                    <span class="pill bg-blue-50 text-blue-700">{{ $producto->tipoProducto->nombre }}</span>
+                                    <span class="pill bg-[#2B2E2C]/10 text-[#2B2E2C]">{{ $producto->tipoProducto->nombre }}</span>
                                 @else
                                     <span class="text-gray-300">—</span>
                                 @endif
@@ -126,7 +126,7 @@
                         </tr>
 
                         {{-- ── Fila detalle (expandible) ── --}}
-                        <tr id="detalle-{{ $producto->id }}" class="detalle-row bg-blue-50/20">
+                        <tr id="detalle-{{ $producto->id }}" class="detalle-row bg-[#2B2E2C]/10/20">
                             <td colspan="8" class="px-6 py-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
@@ -271,7 +271,7 @@
                                         <p class="text-xs font-bold text-gray-400 uppercase mb-2">Clasificaciones</p>
                                         <div class="flex flex-wrap gap-1 mb-3">
                                             @foreach($producto->clasificaciones as $clf)
-                                                <span class="pill bg-purple-50 text-purple-700">{{ $clf->nombre }}</span>
+                                                <span class="pill bg-[#2B2E2C]/10 text-[#2B2E2C]">{{ $clf->nombre }}</span>
                                             @endforeach
                                         </div>
                                         @endif

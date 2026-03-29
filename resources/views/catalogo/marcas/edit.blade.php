@@ -21,9 +21,9 @@
 
         <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-6 py-4">
+                <div class="px-6 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h1 class="text-xl font-bold text-white">Editar Marca</h1>
-                    <p class="text-blue-200 text-sm">Modificar información de la marca</p>
+                    <p class="text-white/70 text-sm">Modificar información de la marca</p>
                 </div>
 
                 <form action="{{ route('catalogo.marcas.update', $marca) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
@@ -38,7 +38,7 @@
                         <input type="text" name="nombre" id="nombre"
                                value="{{ old('nombre', $marca->nombre) }}" required
                                placeholder="Ej: Apple, Samsung, Xiaomi"
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('nombre') border-red-500 @enderror">
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition @error('nombre') border-red-500 @enderror">
                         @error('nombre')
                             <p class="mt-1 text-xs text-red-600"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                         @enderror
@@ -62,7 +62,7 @@
                         <div class="flex items-center gap-4">
                             <div id="logoPreviewContainer" class="hidden">
                                 <img id="logoPreview" src="" alt="Vista previa"
-                                     class="h-20 w-20 object-contain rounded-lg border-2 border-blue-300 p-1">
+                                     class="h-20 w-20 object-contain rounded-lg border-2 border-[#2B2E2C]/30 p-1">
                             </div>
                             <div class="flex-1">
                                 <input type="file" name="logo" id="logo"
@@ -70,8 +70,8 @@
                                        onchange="previewLogo(event)"
                                        class="block w-full text-sm text-gray-500
                                               file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
-                                              file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
-                                              hover:file:bg-blue-100">
+                                              file:text-sm file:font-semibold file:bg-[#2B2E2C]/10 file:text-[#2B2E2C]
+                                              hover:file:bg-[#2B2E2C]/10">
                                 <p class="mt-1 text-xs text-gray-400">JPG, PNG, WEBP, SVG. Máx 2MB. Dejar vacío para mantener el logo actual.</p>
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                         <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                         <textarea name="descripcion" id="descripcion" rows="3"
                                   placeholder="Descripción de la marca..."
-                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">{{ old('descripcion', $marca->descripcion) }}</textarea>
+                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">{{ old('descripcion', $marca->descripcion) }}</textarea>
                     </div>
 
                     {{-- Categorías --}}
@@ -105,7 +105,7 @@
                                                name="categorias[]"
                                                value="{{ $categoria->id }}"
                                                {{ in_array($categoria->id, $selectedCategorias) ? 'checked' : '' }}
-                                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                               class="rounded border-gray-300 text-[#2B2E2C] focus:ring-[#F7D600]">
                                         <span class="text-sm text-gray-700">{{ $categoria->nombre }}</span>
                                     </label>
                                 @endforeach
@@ -119,7 +119,7 @@
                     {{-- Estado --}}
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                        <select name="estado" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                        <select name="estado" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <option value="activo"   {{ old('estado', $marca->estado) == 'activo'   ? 'selected' : '' }}>Activo</option>
                             <option value="inactivo" {{ old('estado', $marca->estado) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                         </select>
@@ -130,7 +130,7 @@
                            class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm">
                             Cancelar
                         </a>
-                        <button type="submit" class="px-5 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition">
+                        <button type="submit" class="px-5 py-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white rounded-lg text-sm font-medium transition">
                             <i class="fas fa-save mr-2"></i>Actualizar Marca
                         </button>
                     </div>

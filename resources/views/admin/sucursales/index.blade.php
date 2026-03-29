@@ -18,7 +18,7 @@
             <p class="text-sm text-gray-500 mt-0.5">{{ $sucursales->count() }} sucursal(es) registrada(s)</p>
         </div>
         <a href="{{ route('admin.sucursales.create') }}"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+            class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
             <i class="fas fa-plus"></i> Nueva Sucursal
         </a>
     </div>
@@ -39,7 +39,7 @@
             <i class="fas fa-store text-5xl text-gray-200 mb-4 block"></i>
             <p class="text-gray-400 mb-4">No hay sucursales registradas aún.</p>
             <a href="{{ route('admin.sucursales.create') }}"
-                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors">
+                class="inline-flex items-center gap-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-5 rounded-lg transition-colors">
                 <i class="fas fa-plus"></i> Crear la primera sucursal
             </a>
         </div>
@@ -51,7 +51,7 @@
                     <div class="flex items-start justify-between p-5 border-b border-gray-100">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap mb-1">
-                                <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                                <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#2B2E2C]/10 text-[#2B2E2C]">
                                     {{ $sucursal->codigo }}
                                 </span>
                                 @if($sucursal->es_principal)
@@ -101,10 +101,10 @@
                             <p class="text-xs text-gray-400 font-medium mb-2">Series activas</p>
                             <div class="flex flex-wrap gap-1.5">
                                 @foreach($sucursal->series as $serie)
-                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-mono font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100"
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-mono font-semibold bg-[#2B2E2C]/10 text-[#2B2E2C] border border-gray-200"
                                         title="{{ $serie->tipo_nombre }}">
                                         {{ $serie->serie }}
-                                        <span class="text-indigo-400 font-normal">#{{ str_pad($serie->correlativo_actual, 3, '0', STR_PAD_LEFT) }}</span>
+                                        <span class="text-gray-400 font-normal">#{{ str_pad($serie->correlativo_actual, 3, '0', STR_PAD_LEFT) }}</span>
                                     </span>
                                 @endforeach
                             </div>
@@ -118,11 +118,11 @@
                     {{-- Acciones --}}
                     <div class="flex items-center gap-2 px-5 py-3 bg-gray-50 border-t border-gray-100">
                         <a href="{{ route('admin.sucursales.edit', $sucursal) }}"
-                            class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                            class="flex-1 text-center bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5">
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <a href="{{ route('admin.sucursales.comprobantes', $sucursal) }}"
-                            class="flex-1 text-center bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                            class="flex-1 text-center bg-[#2B2E2C]/10 hover:bg-[#2B2E2C]/10 text-[#2B2E2C] text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5">
                             <i class="fas fa-file-invoice"></i> Comprobantes
                         </a>
                         @if(!$sucursal->es_principal)

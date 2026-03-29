@@ -24,7 +24,7 @@
                 {{-- Información General --}}
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="bg-blue-900 px-6 py-4">
+                        <div class="bg-[#2B2E2C] px-6 py-4">
                             <h2 class="text-xl font-bold text-white">
                                 <i class="fas fa-building mr-2"></i>{{ $proveedor->razon_social }}
                             </h2>
@@ -50,7 +50,7 @@
                                     <label class="block text-xs font-medium text-gray-500 mb-1">Teléfono</label>
                                     <p class="text-sm text-gray-900">
                                         @if($proveedor->telefono)
-                                            <i class="fas fa-phone mr-1 text-blue-600"></i>{{ $proveedor->telefono }}
+                                            <i class="fas fa-phone mr-1 text-[#2B2E2C]"></i>{{ $proveedor->telefono }}
                                         @else
                                             -
                                         @endif
@@ -60,7 +60,7 @@
                                     <label class="block text-xs font-medium text-gray-500 mb-1">Email</label>
                                     <p class="text-sm text-gray-900">
                                         @if($proveedor->email)
-                                            <i class="fas fa-envelope mr-1 text-blue-600"></i>{{ $proveedor->email }}
+                                            <i class="fas fa-envelope mr-1 text-[#2B2E2C]"></i>{{ $proveedor->email }}
                                         @else
                                             -
                                         @endif
@@ -70,7 +70,7 @@
                                     <label class="block text-xs font-medium text-gray-500 mb-1">Persona de Contacto</label>
                                     <p class="text-sm text-gray-900">
                                         @if($proveedor->contacto_nombre)
-                                            <i class="fas fa-user mr-1 text-blue-600"></i>{{ $proveedor->contacto_nombre }}
+                                            <i class="fas fa-user mr-1 text-[#2B2E2C]"></i>{{ $proveedor->contacto_nombre }}
                                         @else
                                             -
                                         @endif
@@ -80,7 +80,7 @@
                                     <label class="block text-xs font-medium text-gray-500 mb-1">Dirección</label>
                                     <p class="text-sm text-gray-900">
                                         @if($proveedor->direccion)
-                                            <i class="fas fa-map-marker-alt mr-1 text-blue-600"></i>{{ $proveedor->direccion }}
+                                            <i class="fas fa-map-marker-alt mr-1 text-[#2B2E2C]"></i>{{ $proveedor->direccion }}
                                         @else
                                             -
                                         @endif
@@ -94,21 +94,21 @@
                 {{-- Estadísticas --}}
                 <div class="space-y-6">
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4">
+                        <div class="px-6 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                             <h3 class="text-lg font-bold text-white">
                                 <i class="fas fa-chart-pie mr-2"></i>Estadísticas
                             </h3>
                         </div>
                         <div class="p-6">
                             <div class="space-y-4">
-                                <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
+                                <div class="bg-[#2B2E2C]/10 border-l-4 border-[#F7D600] rounded-lg p-4">
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <p class="text-sm font-medium text-blue-900">Total Compras</p>
-                                            <p class="text-3xl font-bold text-blue-600">{{ $proveedor->compras->count() }}</p>
+                                            <p class="text-sm font-medium text-[#2B2E2C]">Total Compras</p>
+                                            <p class="text-3xl font-bold text-[#2B2E2C]">{{ $proveedor->compras->count() }}</p>
                                         </div>
-                                        <div class="bg-blue-100 rounded-full p-3">
-                                            <i class="fas fa-shopping-cart text-2xl text-blue-600"></i>
+                                        <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                                            <i class="fas fa-shopping-cart text-2xl text-[#2B2E2C]"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -136,7 +136,7 @@
                         </div>
                         <div class="p-4 space-y-2">
                             <a href="{{ route('proveedores.edit', $proveedor) }}"
-                               class="flex items-center justify-center w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                               class="flex items-center justify-center w-full px-4 py-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold rounded-lg transition-colors">
                                 <i class="fas fa-edit mr-2"></i>Editar Proveedor
                             </a>
                             <a href="{{ route('proveedores.index') }}"
@@ -151,7 +151,7 @@
             {{-- Historial de Compras --}}
             @if($proveedor->compras->count())
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="bg-blue-900 px-6 py-4">
+                <div class="bg-[#2B2E2C] px-6 py-4">
                     <h2 class="text-xl font-bold text-white">
                         <i class="fas fa-history mr-2"></i>Historial de Compras
                     </h2>
@@ -172,7 +172,7 @@
                             @foreach($proveedor->compras->take(10) as $compra)
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="text-sm font-mono font-semibold text-blue-900">{{ $compra->codigo }}</span>
+                                    <span class="text-sm font-mono font-semibold text-[#2B2E2C]">{{ $compra->codigo }}</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <i class="fas fa-calendar mr-1 text-gray-400"></i>{{ $compra->fecha->format('d/m/Y') }}
@@ -190,7 +190,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                     <a href="{{ route('compras.show', $compra) }}"
-                                       class="text-blue-600 hover:text-blue-900 font-medium">
+                                       class="text-[#2B2E2C] hover:text-[#2B2E2C] font-medium">
                                         <i class="fas fa-eye mr-1"></i>Ver Detalle
                                     </a>
                                 </td>
@@ -209,7 +209,7 @@
             </div>
             @else
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <div class="bg-blue-900 px-6 py-4">
+                <div class="bg-[#2B2E2C] px-6 py-4">
                     <h2 class="text-xl font-bold text-white">
                         <i class="fas fa-history mr-2"></i>Historial de Compras
                     </h2>

@@ -19,18 +19,18 @@
         <!-- Header con breadcrumb -->
         <div class="mb-6">
             <div class="flex items-center text-sm text-gray-500 mb-2">
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-blue-900">Dashboard</a>
+                <a href="{{ route('admin.dashboard') }}" class="hover:text-[#2B2E2C]">Dashboard</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
-                <a href="{{ route('compras.index') }}" class="hover:text-blue-900">Compras</a>
+                <a href="{{ route('compras.index') }}" class="hover:text-[#2B2E2C]">Compras</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
                 <span class="text-gray-700 font-medium">Nueva Compra</span>
             </div>
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold text-gray-900 flex items-center">
-                    <i class="fas fa-file-invoice mr-3 text-blue-900"></i>
+                    <i class="fas fa-file-invoice mr-3 text-[#2B2E2C]"></i>
                     Registrar Nueva Compra
                 </h1>
-                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                <span class="px-3 py-1 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full text-sm font-medium">
                     <i class="fas fa-clock mr-1"></i>
                     {{ now()->format('d/m/Y H:i') }}
                 </span>
@@ -61,7 +61,7 @@
         <!-- Formulario principal -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <!-- Cabecera decorativa -->
-            <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-8 py-5">
+            <div class="px-8 py-5" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                 <h2 class="text-xl font-bold text-white flex items-center">
                     <i class="fas fa-shopping-cart mr-3"></i>
                     Datos de la Compra
@@ -74,8 +74,8 @@
                 <!-- TIPO DE COMPRA -->
                 <div class="mb-8">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <span class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-2">
-                            <i class="fas fa-tag text-purple-700 text-sm"></i>
+                        <span class="w-8 h-8 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center mr-2">
+                            <i class="fas fa-tag text-[#2B2E2C] text-sm"></i>
                         </span>
                         Tipo de Compra
                     </h3>
@@ -102,9 +102,9 @@
                                    class="sr-only peer"
                                    onchange="cambiarTipoCompra('nacional')"
                                    {{ old('tipo_compra') === 'nacional' ? 'checked' : '' }}>
-                            <div class="peer-checked:border-blue-500 peer-checked:bg-blue-50 border-2 border-gray-200 rounded-xl p-4 flex items-center gap-3 transition hover:border-blue-300">
-                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-                                    <i class="fas fa-file-invoice text-blue-700"></i>
+                            <div class="peer-checked:border-[#F7D600] peer-checked:bg-[#2B2E2C]/10 border-2 border-gray-200 rounded-xl p-4 flex items-center gap-3 transition hover:border-[#F7D600]">
+                                <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center shrink-0">
+                                    <i class="fas fa-file-invoice text-[#2B2E2C]"></i>
                                 </div>
                                 <div>
                                     <p class="font-semibold text-gray-900 text-sm">Compra Nacional</p>
@@ -240,8 +240,8 @@
                 <!-- SECCIÓN 1: INFORMACIÓN PRINCIPAL -->
                 <div class="mb-10">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
-                            <i class="fas fa-file-invoice text-blue-900 text-sm"></i>
+                        <span class="w-8 h-8 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center mr-2">
+                            <i class="fas fa-file-invoice text-[#2B2E2C] text-sm"></i>
                         </span>
                         Información de la Factura
                     </h3>
@@ -262,7 +262,7 @@
                                        id="buscar_proveedor"
                                        placeholder="Escribe RUC, razón social o nombre (mín. 3 caracteres)..."
                                        autocomplete="off"
-                                       class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-sm">
+                                       class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30 text-sm">
                             </div>
 
                             {{-- Dropdown de resultados --}}
@@ -275,14 +275,14 @@
                                 $provSeleccionado = old('proveedor_id') ? $proveedores->firstWhere('id', old('proveedor_id')) : null;
                             @endphp
                             <div id="proveedor_seleccionado"
-                                 class="{{ $provSeleccionado ? '' : 'hidden' }} mt-2 p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between">
+                                 class="{{ $provSeleccionado ? '' : 'hidden' }} mt-2 p-3 bg-[#2B2E2C]/10 border border-[#2B2E2C]/20 rounded-xl flex items-center justify-between">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <i class="fas fa-building text-blue-700 text-sm shrink-0"></i>
+                                    <i class="fas fa-building text-[#2B2E2C] text-sm shrink-0"></i>
                                     <div class="min-w-0">
-                                        <p id="proveedor_nombre_display" class="text-sm font-semibold text-blue-900 truncate">
+                                        <p id="proveedor_nombre_display" class="text-sm font-semibold text-[#2B2E2C] truncate">
                                             {{ $provSeleccionado?->nombre_comercial ?? $provSeleccionado?->razon_social ?? '' }}
                                         </p>
-                                        <p id="proveedor_ruc_display" class="text-xs text-blue-600">
+                                        <p id="proveedor_ruc_display" class="text-xs text-[#2B2E2C]">
                                             @if($provSeleccionado)
                                                 {{ $provSeleccionado->razon_social !== $provSeleccionado->nombre_comercial ? $provSeleccionado->razon_social . ' · ' : '' }}RUC: {{ $provSeleccionado->ruc }}
                                             @endif
@@ -290,7 +290,7 @@
                                     </div>
                                 </div>
                                 <button type="button" onclick="limpiarProveedorSeleccionado()"
-                                        class="shrink-0 ml-2 text-xs text-blue-600 hover:text-red-600 transition flex items-center gap-1 border border-blue-300 hover:border-red-400 rounded-lg px-2 py-1">
+                                        class="shrink-0 ml-2 text-xs text-[#2B2E2C] hover:text-red-600 transition flex items-center gap-1 border border-[#2B2E2C]/30 hover:border-red-400 rounded-lg px-2 py-1">
                                     <i class="fas fa-times"></i> Cambiar
                                 </button>
                             </div>
@@ -309,7 +309,7 @@
                             </label>
                             <input type="text" name="numero_factura" id="numero_factura"
                                    value="{{ old('numero_factura') }}" required
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30"
                                    placeholder="Ej: F001-000001">
                             @error('numero_factura')
                                 <p class="mt-1 text-xs text-red-600 flex items-center">
@@ -325,7 +325,7 @@
                             </label>
                             <div class="relative">
                                 <select id="sucursal_sel"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none bg-white"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30 appearance-none bg-white"
                                         onchange="filtrarAlmacenesPorSucursal(this.value)">
                                     <option value="">— Todas las sucursales —</option>
                                     @foreach($sucursales as $suc)
@@ -345,7 +345,7 @@
                             </label>
                             <div class="relative">
                                 <select name="almacen_id" id="almacen_id" required
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none bg-white">
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30 appearance-none bg-white">
                                     <option value="">Seleccione un almacén</option>
                                     @foreach($almacenes as $almacen)
                                         <option value="{{ $almacen->id }}" {{ old('almacen_id') == $almacen->id ? 'selected' : '' }}>
@@ -369,7 +369,7 @@
                             </label>
                             <input type="date" name="fecha" id="fecha" required
                                    value="{{ old('fecha', date('Y-m-d')) }}"
-                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30">
                         </div>
 
                         <!-- Tipo Comprobante -->
@@ -379,7 +379,7 @@
                             </label>
                             <div class="relative">
                                 <select name="tipo_comprobante" id="tipo_comprobante"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none bg-white">
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30 appearance-none bg-white">
                                     <option value="factura">Factura</option>
                                     <option value="boleta">Boleta</option>
                                     <option value="nota_credito">Nota de Crédito</option>
@@ -395,7 +395,7 @@
                             </label>
                             <div class="relative">
                                 <select name="forma_pago" id="forma_pago" required
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none bg-white"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30 appearance-none bg-white"
                                         onchange="toggleCondicionPago(this.value)">
                                     <option value="contado" {{ old('forma_pago') == 'contado' ? 'selected' : '' }}>Contado</option>
                                     <option value="credito" {{ old('forma_pago') == 'credito' ? 'selected' : '' }}>Crédito</option>
@@ -411,7 +411,7 @@
                             </label>
                             <input type="number" name="condicion_pago" id="condicion_pago"
                                 value="{{ old('condicion_pago', 30) }}" min="1" max="90"
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30"
                                 {{ old('forma_pago') == 'credito' ? '' : 'disabled' }}>
                         </div>
 
@@ -422,7 +422,7 @@
                             </label>
                             <div class="relative">
                                 <select name="tipo_moneda" id="tipo_moneda"
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none bg-white"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30 appearance-none bg-white"
                                         onchange="toggleTipoCambio(this.value)">
                                     <option value="PEN" {{ old('tipo_moneda', 'PEN') == 'PEN' ? 'selected' : '' }}>PEN (S/)</option>
                                     <option value="USD" {{ old('tipo_moneda') == 'USD' ? 'selected' : '' }}>USD ($)</option>
@@ -441,10 +441,10 @@
                                        value="{{ old('tipo_cambio', '') }}" min="0.001" step="0.001"
                                        placeholder="Ej: 3.750"
                                        oninput="calcularTotales()"
-                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30">
                                 <button type="button" id="btnCargarTC" onclick="cargarTipoCambioSUNAT()"
                                         title="Cargar tipo de cambio desde SUNAT"
-                                        class="flex-shrink-0 px-3 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl border-2 border-blue-200 transition text-sm font-medium whitespace-nowrap">
+                                        class="flex-shrink-0 px-3 py-3 bg-[#2B2E2C]/10 hover:bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-xl border-2 border-[#2B2E2C]/20 transition text-sm font-medium whitespace-nowrap">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
                             </div>
@@ -459,12 +459,12 @@
                         <!-- Tipo de Operación SUNAT (dentro del grid, fila completa) -->
                         <div class="lg:col-span-3">
                             <label for="tipo_operacion" class="block text-sm font-medium text-gray-700 mb-1.5">
-                                <i class="fas fa-file-invoice mr-1 text-blue-600"></i>
+                                <i class="fas fa-file-invoice mr-1 text-[#2B2E2C]"></i>
                                 Tipo de Operación SUNAT <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <select name="tipo_operacion" id="tipo_operacion" required
-                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 appearance-none bg-white">
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30 appearance-none bg-white">
                                     <option value="01" {{ old('tipo_operacion', '01') == '01' ? 'selected' : '' }}>01 — Gravado (aplica IGV 18%)</option>
                                     <option value="02" {{ old('tipo_operacion') == '02' ? 'selected' : '' }}>02 — Exonerado (sin IGV)</option>
                                     <option value="03" {{ old('tipo_operacion') == '03' ? 'selected' : '' }}>03 — Inafecto (sin IGV)</option>
@@ -490,7 +490,7 @@
                             Productos de la Compra
                         </h3>
                         <button type="button" onclick="abrirModalProductos()"
-                                class="px-4 py-2.5 bg-blue-900 text-white rounded-xl hover:bg-blue-800 transition shadow-md hover:shadow-lg flex items-center">
+                                class="px-4 py-2.5 bg-[#2B2E2C] text-white rounded-xl hover:bg-[#2B2E2C] transition shadow-md hover:shadow-lg flex items-center">
                             <i class="fas fa-plus-circle mr-2"></i>
                             Agregar Productos
                         </button>
@@ -558,7 +558,7 @@
                                         <label class="flex items-center space-x-2 cursor-pointer">
                                             <input type="hidden" name="incluye_igv" value="0">
                                             <input type="checkbox" id="incluir_igv" name="incluye_igv" value="1" checked
-                                                   class="w-4 h-4 rounded border-gray-300 text-blue-900 focus:ring-blue-900">
+                                                   class="w-4 h-4 rounded border-gray-300 text-[#2B2E2C] focus:ring-[#F7D600]/30">
                                             <span class="text-gray-600">IGV (18%):</span>
                                         </label>
                                         <span id="igv" class="font-medium text-gray-900">S/ 0.00</span>
@@ -584,16 +584,16 @@
 
                                     <div class="flex justify-between font-bold text-base pt-3 border-t-2 border-gray-200">
                                         <span class="text-gray-900">Total:</span>
-                                        <span id="total" class="text-blue-900">S/ 0.00</span>
+                                        <span id="total" class="text-[#2B2E2C]">S/ 0.00</span>
                                     </div>
                                     <!-- Equivalente en PEN (solo visible cuando moneda = USD) -->
-                                    <div id="equivalentePEN" class="hidden pt-2 border-t border-dashed border-blue-200">
+                                    <div id="equivalentePEN" class="hidden pt-2 border-t border-dashed border-[#2B2E2C]/20">
                                         <div class="flex justify-between items-center text-sm">
                                             <span class="text-gray-500 flex items-center gap-1">
-                                                <i class="fas fa-exchange-alt text-xs text-blue-500"></i>
+                                                <i class="fas fa-exchange-alt text-xs text-[#2B2E2C]"></i>
                                                 Equivalente en soles:
                                             </span>
-                                            <span id="totalPEN" class="font-semibold text-blue-900">S/ 0.00</span>
+                                            <span id="totalPEN" class="font-semibold text-[#2B2E2C]">S/ 0.00</span>
                                         </div>
                                         <p class="text-xs text-gray-400 text-right mt-0.5">TC: <span id="tcUsado">—</span></p>
                                     </div>
@@ -612,7 +612,7 @@
                         Observaciones
                     </h3>
                     <textarea name="observaciones" rows="3"
-                              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                              class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30"
                               placeholder="Notas adicionales sobre la compra...">{{ old('observaciones') }}</textarea>
                 </div>
 
@@ -623,8 +623,8 @@
                         <i class="fas fa-times mr-2"></i>
                         Cancelar
                     </a>
-                    <button type="submit" 
-                            class="px-8 py-3 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl hover:from-blue-800 hover:to-blue-700 transition shadow-lg font-medium">
+                    <button type="submit"
+                            class="px-8 py-3 text-white rounded-xl transition shadow-lg font-medium" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <i class="fas fa-save mr-2"></i>
                         Registrar Compra
                     </button>
@@ -639,7 +639,7 @@
         
         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden transform transition-all">
             <!-- Header del modal -->
-            <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4 flex justify-between items-center">
+            <div class="px-6 py-4 flex justify-between items-center" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                 <h3 class="text-xl font-bold text-white flex items-center">
                     <i class="fas fa-search mr-3"></i>
                     Buscar y Seleccionar Productos
@@ -658,7 +658,7 @@
                         <input type="text" 
                             id="buscadorProductos"
                             placeholder="Buscar producto por nombre, código, marca o modelo..."
-                            class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                            class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30">
                     </div>
                     <p class="text-xs text-gray-500 mt-2 flex items-center">
                         <i class="fas fa-info-circle mr-1 text-blue-400"></i>
@@ -693,7 +693,7 @@
 
                 <!-- Mensaje de carga -->
                 <div id="cargandoProductos" class="hidden text-center py-12">
-                    <i class="fas fa-spinner fa-spin text-4xl text-blue-900"></i>
+                    <i class="fas fa-spinner fa-spin text-4xl text-[#2B2E2C]"></i>
                     <p class="mt-2 text-gray-500">Buscando productos...</p>
                 </div>
 
@@ -715,7 +715,7 @@
             <!-- Footer con acciones (mejorado) -->
             <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 flex justify-between items-center">
                 <div>
-                    <span id="productosSeleccionadosCount" class="text-sm font-medium text-blue-900">0 productos seleccionados</span>
+                    <span id="productosSeleccionadosCount" class="text-sm font-medium text-[#2B2E2C]">0 productos seleccionados</span>
                     <span id="totalUnidadesCount" class="ml-2 text-sm text-gray-500">(0 unidades)</span>
                 </div>
                 <div class="flex space-x-3">
@@ -724,7 +724,7 @@
                         Cancelar
                     </button>
                     <button onclick="agregarProductosSeleccionados()"
-                            class="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition shadow-md flex items-center">
+                            class="px-6 py-2 bg-[#2B2E2C] text-white rounded-lg hover:bg-[#2B2E2C] transition shadow-md flex items-center">
                         <i class="fas fa-check-circle mr-2"></i>
                         Agregar Seleccionados
                     </button>
@@ -754,8 +754,8 @@
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-6 p-4 bg-gray-50 rounded-xl">
                     <div class="flex items-center gap-2">
                         <span class="text-sm font-medium text-gray-700">
-                            <i class="fas fa-info-circle mr-1 text-blue-500"></i>
-                            Total: <span id="imeiTotalCount" class="font-bold text-purple-700">0</span> IMEIs
+                            <i class="fas fa-info-circle mr-1 text-[#2B2E2C]"></i>
+                            Total: <span id="imeiTotalCount" class="font-bold text-[#2B2E2C]">0</span> IMEIs
                         </span>
                     </div>
                     <div class="flex flex-wrap gap-2">
@@ -778,9 +778,9 @@
                 </div>
 
                 <!-- Mensaje de ayuda -->
-                <div class="mt-4 text-xs text-gray-500 flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <span><i class="fas fa-info-circle mr-1 text-blue-500"></i> Cada IMEI debe tener exactamente 15 dígitos numéricos</span>
-                    <span><i class="fas fa-keyboard mr-1 text-blue-500"></i> Presiona Tab para navegar entre campos</span>
+                <div class="mt-4 text-xs text-gray-500 flex items-center justify-between p-3 bg-[#2B2E2C]/10 rounded-lg">
+                    <span><i class="fas fa-info-circle mr-1 text-[#2B2E2C]"></i> Cada IMEI debe tener exactamente 15 dígitos numéricos</span>
+                    <span><i class="fas fa-keyboard mr-1 text-[#2B2E2C]"></i> Presiona Tab para navegar entre campos</span>
                 </div>
             </div>
 
@@ -876,11 +876,11 @@
                         const rs = (p.razon_social || '').replace(/\\/g,'\\\\').replace(/'/g, "\\'");
                         return `
                             <div onclick="seleccionarProveedor(${p.id},'${n}','${r}','${rs}')"
-                                 class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors">
+                                 class="px-4 py-3 hover:bg-[#2B2E2C]/10 cursor-pointer border-b border-gray-100 last:border-0 transition-colors">
                                 <div class="font-medium text-gray-900 text-sm">${nombre}</div>
                                 <div class="text-xs text-gray-500 mt-0.5 flex items-center gap-3">
                                     ${extra ? `<span>${extra}</span>` : ''}
-                                    <span class="font-mono text-blue-600">RUC: ${p.ruc || '—'}</span>
+                                    <span class="font-mono text-[#2B2E2C]">RUC: ${p.ruc || '—'}</span>
                                 </div>
                             </div>`;
                     }).join('');
@@ -1118,7 +1118,7 @@
                 <select name="detalles[${idx}][producto_id]"
                         id="producto_select_${idx}"
                         onchange="cargarDetallesProducto(this, ${idx})"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]"
                         required>
                     <option value="">Seleccione producto</option>
                     ${opcionesProductos}
@@ -1128,7 +1128,7 @@
             <td class="px-4 py-3">
                 <select id="marca_select_${idx}"
                         onchange="cambiarMarca(${idx})"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]"
                         disabled>
                     <option value="">— Marca —</option>
                     ${opcionesMarcas}
@@ -1138,7 +1138,7 @@
                 <select name="detalles[${idx}][modelo_id]"
                         id="modelo_select_${idx}"
                         onchange="actualizarTrasCambioModelo(${idx})"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]"
                         disabled>
                     <option value="">— Modelo —</option>
                 </select>
@@ -1147,7 +1147,7 @@
                 <select name="detalles[${idx}][color_id]"
                         id="color_${idx}"
                         onchange="actualizarVistaIMEI(${idx})"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]"
                         disabled>
                     <option value="">No aplica</option>
                     ${opcionesColores}
@@ -1183,7 +1183,7 @@
                 </div>
                 <button type="button" onclick="gestionarIMEIs(${idx})"
                         id="btn_imei_${idx}"
-                        class="text-blue-600 hover:text-blue-800 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                        class="text-[#2B2E2C] hover:text-[#2B2E2C] text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
                         disabled>
                     <i class="fas fa-microchip mr-1"></i>IMEIs
                 </button>
@@ -1307,12 +1307,12 @@
         container.innerHTML = `
             <div class="mt-2">
                 <label class="block text-xs text-gray-500 mb-1 font-medium">
-                    <i class="fas fa-layer-group mr-1 text-indigo-500"></i>Variante
+                    <i class="fas fa-layer-group mr-1 text-[#2B2E2C]"></i>Variante
                 </label>
                 <select name="detalles[${index}][variante_id]"
                         id="variante_select_${index}"
                         onchange="seleccionarVariante(${index})"
-                        class="w-full px-2 py-1.5 border border-indigo-300 rounded-lg text-sm bg-indigo-50 focus:ring-2 focus:ring-indigo-400"
+                        class="w-full px-2 py-1.5 border border-[#F7D600]/40 rounded-lg text-sm bg-[#2B2E2C]/10 focus:ring-2 focus:ring-[#F7D600]"
                         required>
                     <option value="">— Seleccione variante —</option>
                     ${opciones}
@@ -1610,10 +1610,10 @@
             clearTimeout(timeoutBusqueda);
             const termino = this.value.trim();
             
-            this.classList.add('border-blue-500');
+            this.classList.add('border-[#F7D600]');
             
             timeoutBusqueda = setTimeout(() => {
-                this.classList.remove('border-blue-500');
+                this.classList.remove('border-[#F7D600]');
                 buscarProductos(termino);
             }, 300);
         });
@@ -1686,18 +1686,18 @@
             const cantidadGuardada = cantidadesSeleccionadas[p.id] || 1;
             
             return `
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-blue-500 hover:shadow-lg transition-all group">
+                <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-[#F7D600] hover:shadow-lg transition-all group">
                     <div class="flex items-start gap-3">
                         <div class="flex items-center mt-1">
                             <input type="checkbox"
-                                class="producto-checkbox w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-500"
+                                class="producto-checkbox w-5 h-5 rounded border-gray-300 text-[#2B2E2C] focus:ring-[#F7D600]"
                                 value="${p.id}"
                                 data-producto-id="${p.id}"
                                 onchange="actualizarSeleccion(this, ${p.id})"
                                 ${productosSeleccionadosIds.has(p.id) ? 'checked' : ''}>
                         </div>
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
-                            <i class="fas fa-box text-blue-900"></i>
+                        <div class="w-12 h-12 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                            <i class="fas fa-box text-[#2B2E2C]"></i>
                         </div>
                         <div class="flex-1">
                             <h4 class="font-semibold text-gray-900">${p.nombre}</h4>
@@ -1707,14 +1707,14 @@
                                     ${p.categoria || 'Sin categoría'}
                                 </span>
                                 ${p.tipo_inventario === 'serie' ?
-                                    '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full"><i class="fas fa-microchip mr-1"></i>IMEI</span>' :
+                                    '<span class="text-xs px-2 py-0.5 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full"><i class="fas fa-microchip mr-1"></i>IMEI</span>' :
                                     '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full"><i class="fas fa-boxes mr-1"></i>Stock</span>'}
                             </div>
                             <!-- NUEVO: Selector de cantidad -->
                             <div class="mt-2 flex items-center gap-2">
                                 <span class="text-xs text-gray-500">Cantidad:</span>
                                 <input type="number" 
-                                    class="cantidad-input w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    class="cantidad-input w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                     value="${cantidadGuardada}"
                                     min="1"
                                     data-producto-id="${p.id}"
@@ -1755,18 +1755,18 @@
                         : '<i class="fas fa-circle text-gray-300 text-xs shrink-0"></i>';
                     const stockClr = v.stock_actual > 0 ? 'text-green-600' : 'text-red-500';
                     const stockTxt = v.stock_actual > 0 ? `${v.stock_actual} u.` : 'Sin stock';
-                    const bordClr  = sel ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 bg-gray-50';
+                    const bordClr  = sel ? 'border-[#F7D600] bg-[#2B2E2C]/10' : 'border-gray-200 bg-gray-50';
                     return `
                         <div id="vcard_${key}" class="flex items-center gap-2 px-2 py-1.5 rounded-lg border ${bordClr} transition-all">
                             <input type="checkbox"
-                                   class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-400"
+                                   class="w-4 h-4 rounded border-gray-300 text-[#2B2E2C] focus:ring-[#F7D600]"
                                    ${sel ? 'checked' : ''}
                                    onchange="actualizarSeleccionVariante(this,${p.id},${v.id})">
                             ${dot}
                             <span class="text-xs font-medium text-gray-800 flex-1 truncate">${label}</span>
                             <span class="text-xs ${stockClr} font-medium shrink-0">${stockTxt}</span>
                             <input type="number"
-                                   class="w-12 px-1 py-0.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-indigo-400"
+                                   class="w-12 px-1 py-0.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-[#F7D600]"
                                    value="${cant}" min="1"
                                    onchange="actualizarCantidadVariante('${key}', this.value)"
                                    ${sel ? '' : 'disabled'}>
@@ -1775,20 +1775,20 @@
 
                 const totalSelVariantes = p.variantes.filter(v => !!variantesSeleccionadas[`${p.id}_${v.id}`]).length;
                 const badgeSel = totalSelVariantes > 0
-                    ? `<span class="text-xs px-2 py-0.5 bg-indigo-600 text-white rounded-full font-semibold">${totalSelVariantes} sel.</span>` : '';
+                    ? `<span class="text-xs px-2 py-0.5 bg-[#F7D600] text-[#2B2E2C] rounded-full font-semibold">${totalSelVariantes} sel.</span>` : '';
 
                 return `
-                    <div class="bg-white border-2 border-gray-200 rounded-xl p-3 hover:border-indigo-300 hover:shadow-lg transition-all">
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-3 hover:border-[#F7D600]/40 hover:shadow-lg transition-all">
                         <div class="flex items-center gap-2 mb-2">
-                            <div class="w-9 h-9 bg-indigo-50 rounded-lg flex items-center justify-center shrink-0">
-                                <i class="fas fa-mobile-alt text-indigo-600 text-sm"></i>
+                            <div class="w-9 h-9 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-mobile-alt text-[#2B2E2C] text-sm"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-semibold text-gray-900 text-sm truncate">${p.nombre}</h4>
                                 <p class="text-xs text-gray-500">${p.marca || ''} ${p.modelo ? '· ' + p.modelo : ''}</p>
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
-                                <span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">
+                                <span class="text-xs px-2 py-0.5 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full">
                                     <i class="fas fa-layer-group mr-1"></i>${p.variantes.length} var.
                                 </span>
                                 ${badgeSel}
@@ -1804,15 +1804,15 @@
                 const sel  = productosSeleccionadosIds.has(p.id);
                 const cant = cantidadesSeleccionadas[p.id] || 1;
                 return `
-                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-blue-500 hover:shadow-lg transition-all group">
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-[#F7D600] hover:shadow-lg transition-all group">
                         <div class="flex items-start gap-3">
                             <input type="checkbox"
-                                   class="w-5 h-5 rounded border-gray-300 text-blue-900 focus:ring-blue-500 mt-1 shrink-0"
+                                   class="w-5 h-5 rounded border-gray-300 text-[#2B2E2C] focus:ring-[#F7D600] mt-1 shrink-0"
                                    value="${p.id}"
                                    onchange="actualizarSeleccion(this, ${p.id})"
                                    ${sel ? 'checked' : ''}>
-                            <div class="w-10 h-10 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center shrink-0">
-                                <i class="fas fa-box text-blue-900"></i>
+                            <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center shrink-0">
+                                <i class="fas fa-box text-[#2B2E2C]"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-semibold text-gray-900 text-sm truncate">${p.nombre}</h4>
@@ -1820,13 +1820,13 @@
                                 <div class="flex items-center gap-2 mt-1">
                                     <span class="text-xs px-2 py-0.5 bg-gray-100 rounded-full text-gray-600">${p.categoria || '—'}</span>
                                     ${p.tipo_inventario === 'serie'
-                                        ? '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full"><i class="fas fa-microchip mr-1"></i>IMEI</span>'
+                                        ? '<span class="text-xs px-2 py-0.5 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full"><i class="fas fa-microchip mr-1"></i>IMEI</span>'
                                         : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full"><i class="fas fa-boxes mr-1"></i>Stock</span>'}
                                 </div>
                                 <div class="mt-2 flex items-center gap-2">
                                     <span class="text-xs text-gray-500">Cant.:</span>
                                     <input type="number"
-                                           class="cantidad-input w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                           class="cantidad-input w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                            value="${cant}" min="1"
                                            data-producto-id="${p.id}"
                                            onchange="actualizarCantidadProducto(${p.id}, this.value)"
@@ -2170,15 +2170,15 @@
             };
             if (cantidadInput) cantidadInput.disabled = false;
             if (card) {
-                card.classList.replace('border-gray-200', 'border-indigo-400');
-                card.classList.replace('bg-gray-50',    'bg-indigo-50');
+                card.classList.replace('border-gray-200', 'border-[#F7D600]');
+                card.classList.replace('bg-gray-50',    'bg-[#2B2E2C]/10');
             }
         } else {
             delete variantesSeleccionadas[key];
             if (cantidadInput) cantidadInput.disabled = true;
             if (card) {
-                card.classList.replace('border-indigo-400', 'border-gray-200');
-                card.classList.replace('bg-indigo-50',     'bg-gray-50');
+                card.classList.replace('border-[#F7D600]', 'border-gray-200');
+                card.classList.replace('bg-[#2B2E2C]/10',     'bg-gray-50');
             }
         }
         actualizarContadorUnidades();
@@ -2906,7 +2906,7 @@ function guardarNuevoProducto() {
                     </select>
                     <button type="button" onclick="crearMarcaRapida()"
                             title="Nueva marca"
-                            class="px-3 py-2 bg-blue-50 text-blue-700 border-2 border-blue-200 rounded-xl hover:bg-blue-100 transition shrink-0">
+                            class="px-3 py-2 bg-[#2B2E2C]/10 text-[#2B2E2C] border-2 border-[#2B2E2C]/20 rounded-xl hover:bg-[#2B2E2C]/10 transition shrink-0">
                         <i class="fas fa-plus text-sm"></i>
                     </button>
                 </div>
@@ -2926,22 +2926,22 @@ function guardarNuevoProducto() {
                     </select>
                     <button type="button" onclick="crearModeloRapido()"
                             title="Nuevo modelo"
-                            class="px-3 py-2 bg-indigo-50 text-indigo-700 border-2 border-indigo-200 rounded-xl hover:bg-indigo-100 transition shrink-0">
+                            class="px-3 py-2 bg-[#2B2E2C]/10 text-[#2B2E2C] border-2 border-gray-200 rounded-xl hover:bg-[#2B2E2C]/10 transition shrink-0">
                         <i class="fas fa-plus text-sm"></i>
                     </button>
                 </div>
             </div>
 
             <!-- ¿Tiene variantes? -->
-            <div class="flex items-center gap-3 p-3 bg-indigo-50 border border-indigo-200 rounded-xl">
+            <div class="flex items-center gap-3 p-3 bg-[#2B2E2C]/10 border border-gray-200 rounded-xl">
                 <input type="checkbox" id="np_tiene_variantes"
                        onchange="toggleVariantesNuevoProducto()"
-                       class="w-4 h-4 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-400">
+                       class="w-4 h-4 rounded border-[#F7D600]/40 text-[#2B2E2C] focus:ring-[#F7D600]">
                 <div>
-                    <label for="np_tiene_variantes" class="text-sm font-medium text-indigo-800 cursor-pointer">
+                    <label for="np_tiene_variantes" class="text-sm font-medium text-[#2B2E2C] cursor-pointer">
                         <i class="fas fa-layer-group mr-1"></i>Este producto tiene variantes (colores / capacidades)
                     </label>
-                    <p class="text-xs text-indigo-500 mt-0.5">Podrás definir las variantes desde Inventario → Variantes después de crearlo.</p>
+                    <p class="text-xs text-[#2B2E2C] mt-0.5">Podrás definir las variantes desde Inventario → Variantes después de crearlo.</p>
                 </div>
             </div>
 

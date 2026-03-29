@@ -18,9 +18,9 @@
 
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <a href="{{ route('precios.index') }}" class="hover:text-blue-700 transition-colors">Gestión de Precios</a>
+        <a href="{{ route('precios.index') }}" class="hover:text-[#2B2E2C] transition-colors">Gestión de Precios</a>
         <i class="fas fa-chevron-right text-xs text-gray-400"></i>
-        <a href="{{ route('precios.show', $producto) }}" class="hover:text-blue-700 transition-colors truncate max-w-xs">{{ $producto->nombre }}</a>
+        <a href="{{ route('precios.show', $producto) }}" class="hover:text-[#2B2E2C] transition-colors truncate max-w-xs">{{ $producto->nombre }}</a>
         <i class="fas fa-chevron-right text-xs text-gray-400"></i>
         <span class="text-gray-800 font-medium">Editar Precio</span>
     </nav>
@@ -59,7 +59,7 @@
 
             {{-- Info del producto --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-5 py-4">
+                <div class="px-5 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h2 class="text-sm font-semibold text-white flex items-center gap-2">
                         <i class="fas fa-box"></i> Información del Producto
                     </h2>
@@ -70,7 +70,7 @@
                         ['Categoría', $producto->categoria->nombre ?? '—', ''],
                         ['Marca', $producto->marca->nombre ?? '—', ''],
                         ['Modelo', $producto->modelo->nombre ?? '—', ''],
-                        ['Stock', ($producto->stock_actual ?? 0) . ' und.', 'font-semibold text-blue-700'],
+                        ['Stock', ($producto->stock_actual ?? 0) . ' und.', 'font-semibold text-[#2B2E2C]'],
                     ] as [$label, $value, $extra])
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-500">{{ $label }}</span>
@@ -94,7 +94,7 @@
                     </div>
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-500">Precio venta</span>
-                        <span class="font-bold text-blue-700">S/ {{ number_format($precio->precio, 2) }}</span>
+                        <span class="font-bold text-[#2B2E2C]">S/ {{ number_format($precio->precio, 2) }}</span>
                     </div>
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-500">Margen</span>
@@ -112,11 +112,11 @@
             </div>
 
             {{-- Info tips --}}
-            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <h4 class="text-xs font-semibold text-blue-900 mb-2 flex items-center gap-2">
+            <div class="bg-[#2B2E2C]/10 border border-blue-200 rounded-xl p-4">
+                <h4 class="text-xs font-semibold text-[#2B2E2C] mb-2 flex items-center gap-2">
                     <i class="fas fa-info-circle"></i> Información
                 </h4>
-                <ul class="text-xs text-blue-800 space-y-1.5 list-disc list-inside">
+                <ul class="text-xs text-[#2B2E2C] space-y-1.5 list-disc list-inside">
                     <li>El precio de compra se jala automáticamente de la última compra registrada para el proveedor seleccionado</li>
                     <li>El precio de venta se calcula según el margen ingresado</li>
                     <li>Solo puede existir un precio activo a la vez</li>
@@ -305,8 +305,8 @@
                                     <i class="fas fa-spinner fa-spin mr-1"></i> Consultando compras...
                                 </div>
                                 <div x-show="ultimaCompra && !cargandoCompra"
-                                     class="mt-1.5 flex items-start justify-between gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                                    <div class="flex items-start gap-1.5 text-xs text-blue-700">
+                                     class="mt-1.5 flex items-start justify-between gap-2 bg-[#2B2E2C]/10 border border-blue-200 rounded-lg px-3 py-2">
+                                    <div class="flex items-start gap-1.5 text-xs text-[#2B2E2C]">
                                         <i class="fas fa-shopping-cart mt-0.5 shrink-0"></i>
                                         <div>
                                             <span class="font-semibold">Última compra:</span>
@@ -319,7 +319,7 @@
                                     </div>
                                     <button type="button"
                                             @click="usarPrecioCompra()"
-                                            class="shrink-0 text-xs text-blue-700 font-semibold bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded transition-colors whitespace-nowrap">
+                                            class="shrink-0 text-xs text-[#2B2E2C] font-semibold bg-[#2B2E2C]/10 hover:bg-[#2B2E2C]/10 px-2 py-0.5 rounded transition-colors whitespace-nowrap">
                                         Usar precio
                                     </button>
                                 </div>
@@ -382,7 +382,7 @@
                                        x-model="precioVenta"
                                        @input="if(modoCalculo==='precio') calcularMargen()"
                                        :readonly="modoCalculo==='margen'"
-                                       :class="modoCalculo==='margen' ? 'bg-gray-50 text-blue-700 font-semibold cursor-not-allowed' : 'text-blue-700 font-semibold'"
+                                       :class="modoCalculo==='margen' ? 'bg-gray-50 text-[#2B2E2C] font-semibold cursor-not-allowed' : 'text-[#2B2E2C] font-semibold'"
                                        step="0.01" min="0.01"
                                        required
                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">

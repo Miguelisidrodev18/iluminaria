@@ -17,7 +17,7 @@
             subtitle="Información completa sobre el traslado seleccionado"
         />
         <div class="flex items-center mb-6">
-            <a href="{{ route('traslados.index') }}" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fas fa-arrow-left"></i></a>
+            <a href="{{ route('traslados.index') }}" class="text-[#2B2E2C] hover:text-[#2B2E2C] mr-4"><i class="fas fa-arrow-left"></i></a>
             <h2 class="text-2xl font-bold text-gray-800">Traslado {{ $traslado->numero_guia ?? '#' . $traslado->id }}</h2>
         </div>
 
@@ -32,7 +32,7 @@
                     <div class="flex justify-between"><dt class="text-gray-500 text-sm">Destino:</dt><dd>{{ $traslado->almacenDestino->nombre ?? '-' }}</dd></div>
                     <div class="flex justify-between"><dt class="text-gray-500 text-sm">Transportista:</dt><dd>{{ $traslado->transportista ?? '-' }}</dd></div>
                     @if($traslado->imei)
-                    <div class="flex justify-between"><dt class="text-gray-500 text-sm">IMEI:</dt><dd class="font-mono text-purple-600">{{ $traslado->imei->codigo_imei }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500 text-sm">IMEI:</dt><dd class="font-mono text-[#2B2E2C]">{{ $traslado->imei->codigo_imei }}</dd></div>
                     @endif
                 </dl>
             </div>

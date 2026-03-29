@@ -21,7 +21,7 @@
                 <i class="fas fa-arrow-left"></i>
             </a>
             <h1 class="text-2xl font-bold text-gray-900">{{ $sucursal->nombre }}</h1>
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">{{ $sucursal->codigo }}</span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#2B2E2C]/10 text-[#2B2E2C]">{{ $sucursal->codigo }}</span>
             @if($sucursal->es_principal)
                 <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"><i class="fas fa-star mr-1"></i>Principal</span>
             @endif
@@ -53,7 +53,7 @@
                     ['key'=>'pagos',  'label'=>'Yape / Plin / Pagos',     'icon'=>'qrcode'],
                 ] as $t)
                     <button @click="tab = '{{ $t['key'] }}'"
-                        :class="tab === '{{ $t['key'] }}' ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        :class="tab === '{{ $t['key'] }}' ? 'border-[#F7D600] text-[#2B2E2C] bg-[#2B2E2C]/10/50' : 'border-transparent text-gray-500 hover:text-gray-700'"
                         class="flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap">
                         <i class="fas fa-{{ $t['icon'] }}"></i> {{ $t['label'] }}
                     </button>
@@ -73,46 +73,46 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
                         <input type="text" name="nombre" value="{{ old('nombre', $sucursal->nombre) }}" maxlength="150" required
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
                         <input type="text" name="direccion" value="{{ old('direccion', $sucursal->direccion) }}" maxlength="300"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
                         <input type="text" name="departamento" value="{{ old('departamento', $sucursal->departamento) }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Provincia</label>
                         <input type="text" name="provincia" value="{{ old('provincia', $sucursal->provincia) }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Distrito</label>
                         <input type="text" name="distrito" value="{{ old('distrito', $sucursal->distrito) }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Ubigeo</label>
                         <input type="text" name="ubigeo" value="{{ old('ubigeo', $sucursal->ubigeo) }}" maxlength="6"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                         <input type="text" name="telefono" value="{{ old('telefono', $sucursal->telefono) }}" maxlength="20"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" name="email" value="{{ old('email', $sucursal->email) }}" maxlength="150"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Almacén vinculado</label>
-                        <select name="almacen_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <select name="almacen_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                             <option value="">— Sin almacén —</option>
                             @foreach($almacenes as $alm)
                                 <option value="{{ $alm->id }}" {{ old('almacen_id', $sucursal->almacen_id) == $alm->id ? 'selected' : '' }}>
@@ -126,7 +126,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                        <select name="estado" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <select name="estado" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                             <option value="activo" {{ old('estado', $sucursal->estado) === 'activo' ? 'selected' : '' }}>Activo</option>
                             <option value="inactivo" {{ old('estado', $sucursal->estado) === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                         </select>
@@ -134,13 +134,13 @@
                     <div class="flex items-center gap-3">
                         <input type="checkbox" name="es_principal" id="es_principal" value="1"
                             {{ old('es_principal', $sucursal->es_principal) ? 'checked' : '' }}
-                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            class="w-4 h-4 text-[#2B2E2C] border-gray-300 rounded focus:ring-[#F7D600]">
                         <label for="es_principal" class="text-sm font-medium text-gray-700">Sucursal Principal</label>
                     </div>
                 </div>
                 <div class="flex justify-end mt-6 pt-4 border-t">
                     <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
+                        class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
                         <i class="fas fa-save"></i> Guardar Info
                     </button>
                 </div>
@@ -151,13 +151,13 @@
         <div x-show="tab === 'series'" x-cloak class="p-6">
             <div class="flex items-center justify-between mb-5">
                 <h3 class="font-semibold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-list-ol text-blue-600"></i> Series de Comprobantes
+                    <i class="fas fa-list-ol text-[#2B2E2C]"></i> Series de Comprobantes
                 </h3>
                 <form action="{{ route('admin.sucursales.generar-series', $sucursal) }}" method="POST">
                     @csrf
                     <button type="submit"
                         onclick="return confirm('¿Generar las series estándar faltantes (FA, BA, FC, FD, T, CO)?')"
-                        class="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-2 rounded-lg transition-colors border border-indigo-200">
+                        class="flex items-center gap-2 bg-[#2B2E2C]/10 hover:bg-[#2B2E2C]/10 text-[#2B2E2C] text-xs font-semibold px-3 py-2 rounded-lg transition-colors border border-gray-200">
                         <i class="fas fa-magic"></i> Generar series estándar
                     </button>
                 </form>
@@ -177,7 +177,7 @@
                                 <div class="flex items-center gap-2">
                                     <span class="font-semibold text-gray-800">{{ $serie->tipo_nombre }}</span>
                                     <span class="text-xs text-gray-400 font-mono bg-gray-200 px-1.5 py-0.5 rounded">{{ $serie->tipo_comprobante }}</span>
-                                    <span class="text-xs font-mono font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">{{ $serie->serie }}</span>
+                                    <span class="text-xs font-mono font-bold text-[#2B2E2C] bg-[#2B2E2C]/10 px-2 py-0.5 rounded">{{ $serie->serie }}</span>
                                 </div>
                                 {{-- Toggle activo --}}
                                 <form action="{{ route('admin.sucursales.series.update', [$sucursal, $serie]) }}" method="POST">
@@ -201,17 +201,17 @@
                                 <div>
                                     <label class="block text-xs font-medium text-gray-500 mb-1">Serie</label>
                                     <input type="text" name="serie" value="{{ $serie->serie }}" maxlength="5"
-                                        class="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm font-mono uppercase focus:ring-2 focus:ring-blue-500 text-center">
+                                        class="w-20 border border-gray-300 rounded-lg px-2 py-1.5 text-sm font-mono uppercase focus:ring-2 focus:ring-[#F7D600] text-center">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-500 mb-1">Correlativo Actual</label>
                                     <input type="number" name="correlativo_actual" value="{{ $serie->correlativo_actual }}" min="1"
-                                        class="w-28 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 text-center">
+                                        class="w-28 border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-[#F7D600] text-center">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-500 mb-1">Formato Impresión</label>
                                     <select name="formato_impresion"
-                                        class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                        class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#F7D600]">
                                         <option value="A4" {{ $serie->formato_impresion === 'A4' ? 'selected' : '' }}>A4</option>
                                         <option value="ticket" {{ $serie->formato_impresion === 'ticket' ? 'selected' : '' }}>Ticket 80mm</option>
                                         <option value="A5" {{ $serie->formato_impresion === 'A5' ? 'selected' : '' }}>A5</option>
@@ -219,7 +219,7 @@
                                 </div>
                                 <div class="ml-auto">
                                     <button type="submit"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                                        class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] text-sm px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
                                         <i class="fas fa-save text-xs"></i> Guardar
                                     </button>
                                 </div>
@@ -281,13 +281,13 @@
                                         <label class="block text-xs font-medium text-gray-600 mb-1">Banco</label>
                                         <input type="text" name="pagos[{{ $tipo }}][banco]"
                                             value="{{ old("pagos.{$tipo}.banco", $pago?->banco) }}"
-                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-gray-600 mb-1">CCI (Código Interbancario)</label>
                                         <input type="text" name="pagos[{{ $tipo }}][cci]"
                                             value="{{ old("pagos.{$tipo}.cci", $pago?->cci) }}"
-                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
                                     </div>
                                 @endif
                                 @if($cfg['qr'])
@@ -313,7 +313,7 @@
                 </div>
                 <div class="flex justify-end mt-6 pt-4 border-t">
                     <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
+                        class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
                         <i class="fas fa-save"></i> Guardar Pagos
                     </button>
                 </div>

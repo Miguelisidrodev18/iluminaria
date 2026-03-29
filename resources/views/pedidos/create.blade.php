@@ -33,7 +33,7 @@
             <form @submit.prevent="submitForm">
                 {{-- Datos del Pedido --}}
                 <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-                    <div class="bg-blue-900 px-6 py-4">
+                    <div class="bg-[#2B2E2C] px-6 py-4">
                         <h2 class="text-xl font-bold text-white">
                             <i class="fas fa-info-circle mr-2"></i>Datos del Pedido
                         </h2>
@@ -43,7 +43,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Proveedor <span class="text-red-500">*</span></label>
                                 <select x-model="proveedor_id" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-transparent">
                                     <option value="">Seleccione proveedor</option>
                                     @foreach($proveedores as $proveedor)
                                         <option value="{{ $proveedor->id }}">{{ $proveedor->ruc }} - {{ $proveedor->razon_social }}</option>
@@ -53,17 +53,17 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Fecha <span class="text-red-500">*</span></label>
                                 <input type="date" x-model="fecha" required
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-transparent">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Esperada de Entrega</label>
                                 <input type="date" x-model="fecha_esperada"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-transparent">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
                                 <textarea x-model="observaciones" rows="2" placeholder="Notas para el proveedor..."
-                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-transparent"></textarea>
                             </div>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
 
                 {{-- Productos --}}
                 <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-                    <div class="bg-blue-900 px-6 py-4 flex justify-between items-center">
+                    <div class="bg-[#2B2E2C] px-6 py-4 flex justify-between items-center">
                         <h2 class="text-xl font-bold text-white">
                             <i class="fas fa-boxes mr-2"></i>Productos del Pedido
                         </h2>
@@ -92,7 +92,7 @@
                         <template x-for="(detalle, index) in detalles" :key="index">
                             <div class="bg-gray-50 border-2 border-gray-200 rounded-lg p-5 mb-4 hover:border-blue-400 transition-colors">
                                 <div class="flex justify-between items-center mb-4">
-                                    <span class="text-sm font-bold text-blue-900">
+                                    <span class="text-sm font-bold text-[#2B2E2C]">
                                         <i class="fas fa-cube mr-2"></i>Producto #<span x-text="index + 1"></span>
                                     </span>
                                     <button type="button" @click="detalles.splice(index, 1)"
@@ -104,7 +104,7 @@
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700 mb-2">Producto <span class="text-red-500">*</span></label>
                                         <select x-model="detalle.producto_id" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent bg-white">
                                             <option value="">Seleccione producto</option>
                                             @foreach($productos as $producto)
                                                 <option value="{{ $producto->id }}">{{ $producto->codigo }} - {{ $producto->nombre }}</option>
@@ -114,12 +114,12 @@
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700 mb-2">Cantidad <span class="text-red-500">*</span></label>
                                         <input type="number" x-model.number="detalle.cantidad" min="1" required
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent bg-white">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium text-gray-700 mb-2">Precio Referencial</label>
                                         <input type="number" x-model.number="detalle.precio_referencial" min="0" step="0.01" placeholder="Opcional"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent bg-white">
                                     </div>
                                 </div>
                             </div>
@@ -134,7 +134,7 @@
                         <i class="fas fa-times mr-2"></i>Cancelar
                     </a>
                     <button type="submit" :disabled="guardando || detalles.length === 0"
-                            class="px-6 py-3 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            class="px-6 py-3 bg-[#2B2E2C] text-white rounded-lg font-semibold hover:bg-[#2B2E2C] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                         <span x-show="!guardando"><i class="fas fa-save mr-2"></i>Crear Pedido</span>
                         <span x-show="guardando"><i class="fas fa-spinner fa-spin mr-2"></i>Guardando...</span>
                     </button>

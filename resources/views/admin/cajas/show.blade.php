@@ -17,7 +17,7 @@
     <div class="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
         <div>
             <div class="flex items-center gap-2 text-sm text-gray-500 mb-0.5">
-                <a href="{{ route('admin.cajas.index') }}" class="hover:text-blue-600">Historial</a>
+                <a href="{{ route('admin.cajas.index') }}" class="hover:text-[#2B2E2C]">Historial</a>
                 <span>/</span>
                 <span class="text-gray-700 font-medium">Caja #{{ $caja->id }}</span>
             </div>
@@ -98,9 +98,9 @@
                 <dl class="space-y-2 text-sm">
                     <div class="flex justify-between"><dt class="text-gray-500">Monto inicial</dt><dd class="font-medium">S/ {{ number_format($arqueo['monto_inicial'], 2) }}</dd></div>
                     <div class="flex justify-between"><dt class="text-gray-500">Ventas efectivo</dt><dd class="font-medium text-green-600">+ S/ {{ number_format($arqueo['ventas_efectivo'], 2) }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-gray-500">Ventas Yape</dt><dd class="font-medium text-purple-600">+ S/ {{ number_format($arqueo['ventas_yape'], 2) }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500">Ventas Yape</dt><dd class="font-medium text-[#2B2E2C]">+ S/ {{ number_format($arqueo['ventas_yape'], 2) }}</dd></div>
                     <div class="flex justify-between"><dt class="text-gray-500">Ventas Plin</dt><dd class="font-medium text-teal-600">+ S/ {{ number_format($arqueo['ventas_plin'], 2) }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-gray-500">Transferencias</dt><dd class="font-medium text-blue-600">+ S/ {{ number_format($arqueo['ventas_transferencia'], 2) }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-gray-500">Transferencias</dt><dd class="font-medium text-[#2B2E2C]">+ S/ {{ number_format($arqueo['ventas_transferencia'], 2) }}</dd></div>
                     <div class="flex justify-between"><dt class="text-gray-500">Ingresos manuales</dt><dd class="font-medium text-green-600">+ S/ {{ number_format($arqueo['ingresos_manual'], 2) }}</dd></div>
                     <div class="flex justify-between"><dt class="text-gray-500">Egresos</dt><dd class="font-medium text-red-500">- S/ {{ number_format($arqueo['total_egresos'], 2) }}</dd></div>
                     <div class="flex justify-between pt-2 border-t font-semibold">
@@ -149,7 +149,7 @@
                                                 <span class="text-xs px-1.5 py-0.5 bg-gray-100 rounded text-gray-500">{{ ucfirst($mov->metodo_pago) }}</span>
                                             @endif
                                             @if($mov->venta_id)
-                                                <span class="text-xs px-1.5 py-0.5 bg-blue-50 rounded text-blue-600">Venta #{{ $mov->venta_id }}</span>
+                                                <span class="text-xs px-1.5 py-0.5 bg-[#2B2E2C]/10 rounded text-[#2B2E2C]">Venta #{{ $mov->venta_id }}</span>
                                             @endif
                                             @if($mov->usuario)
                                                 <span class="text-xs text-gray-400">por {{ $mov->usuario->name }}</span>

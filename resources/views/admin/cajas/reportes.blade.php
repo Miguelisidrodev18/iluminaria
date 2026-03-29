@@ -21,7 +21,7 @@
     <div class="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
         <div>
             <div class="flex items-center gap-2 text-sm text-gray-500 mb-0.5">
-                <a href="{{ route('admin.cajas.dashboard') }}" class="hover:text-blue-600">Dashboard Cajas</a>
+                <a href="{{ route('admin.cajas.dashboard') }}" class="hover:text-[#2B2E2C]">Dashboard Cajas</a>
                 <span>/</span>
                 <span class="text-gray-700 font-medium">Reportes Comparativos</span>
             </div>
@@ -56,15 +56,15 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Desde</label>
                     <input type="date" name="desde" value="{{ $desde }}"
-                           class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                           class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Hasta</label>
                     <input type="date" name="hasta" value="{{ $hasta }}"
-                           class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                           class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                 </div>
                 <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg font-medium hover:bg-blue-700 transition">
+                        class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] text-sm rounded-lg font-medium hover:bg-[#e8c900] transition">
                     <i class="fas fa-filter mr-1"></i> Aplicar
                 </button>
                 {{-- Accesos rápidos --}}
@@ -81,7 +81,7 @@
                         <a href="{{ route('admin.cajas.reportes', ['desde' => $d, 'hasta' => $h]) }}"
                            class="px-3 py-2 text-xs border rounded-lg transition
                                {{ $desde === $d && $hasta === $h
-                                   ? 'bg-blue-600 text-white border-blue-600'
+                                   ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]'
                                    : 'border-gray-300 text-gray-600 hover:bg-gray-50' }}">
                             {{ $label }}
                         </a>
@@ -92,10 +92,10 @@
 
         {{-- KPI Cards del período --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+            <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-[#F7D600]">
                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total ventas</p>
                 <p class="text-2xl font-bold text-gray-800 mt-1">S/ {{ number_format($kpis['total_ventas'], 2) }}</p>
-                <p class="text-xs text-blue-500 mt-1">{{ $kpis['total_cajas'] }} cajas</p>
+                <p class="text-xs text-[#2B2E2C] mt-1">{{ $kpis['total_cajas'] }} cajas</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Promedio / día</p>
@@ -126,7 +126,7 @@
             {{-- Ventas por sucursal --}}
             <div class="bg-white rounded-xl shadow-sm p-5">
                 <h2 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                    <i class="fas fa-chart-bar text-blue-500"></i> Ventas por Sucursal
+                    <i class="fas fa-chart-bar text-[#2B2E2C]"></i> Ventas por Sucursal
                 </h2>
                 @if($ventasPorSucursal->isEmpty())
                     <div class="h-64 flex items-center justify-center text-gray-400 text-sm">Sin datos</div>
@@ -198,7 +198,7 @@
 
 <script>
 const coloresPaleta = [
-    '#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899','#84cc16'
+    '#F7D600','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899','#84cc16'
 ];
 
 @if($ventasPorSucursal->isNotEmpty())
@@ -231,8 +231,8 @@ new Chart(document.getElementById('chartTendencia'), {
         datasets: [{
             label: 'Ventas (S/)',
             data: @json($tendenciaDiaria->pluck('total')),
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59,130,246,0.1)',
+            borderColor: '#F7D600',
+            backgroundColor: 'rgba(247,214,0,0.1)',
             fill: true,
             tension: 0.3,
             pointRadius: @json($tendenciaDiaria->count() > 30 ? 2 : 4),
@@ -277,7 +277,7 @@ new Chart(document.getElementById('chartDiferencias'), {
 @if($metodoPorSucursal->isNotEmpty())
 @php
     $metodoLabels = ['efectivo','yape','plin','transferencia','mixto'];
-    $metodoColores = ['#10b981','#8b5cf6','#06b6d4','#3b82f6','#f59e0b'];
+    $metodoColores = ['#10b981','#8b5cf6','#06b6d4','#F7D600','#f59e0b'];
     $sucursalLabels = $metodoPorSucursal->keys()->toArray();
     $datasets = [];
     foreach ($metodoLabels as $i => $met) {

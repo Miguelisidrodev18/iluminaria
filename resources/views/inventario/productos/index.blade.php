@@ -218,7 +218,7 @@
                             $stockClass = match($producto->estado_stock) {
                                 'sin_stock' => 'bg-red-100 text-red-700 border-red-200',
                                 'bajo'      => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-                                'exceso'    => 'bg-blue-100 text-blue-700 border-blue-200',
+                                'exceso'    => 'bg-[#2B2E2C]/10 text-[#2B2E2C] border-blue-200',
                                 default     => 'bg-green-100 text-green-700 border-green-200',
                             };
                             $iconosTipo = ['LU'=>'fas fa-lightbulb','LA'=>'fas fa-fire','CL'=>'fas fa-grip-lines','SM'=>'fas fa-cubes','AC'=>'fas fa-tools','EA'=>'fas fa-plug','PE'=>'fas fa-bars','PA'=>'fas fa-tv','VE'=>'fas fa-fan','CA'=>'fas fa-dot-circle','PO'=>'fas fa-map-pin','LE'=>'fas fa-exclamation-triangle','SO'=>'fas fa-sun','RE'=>'fas fa-battery-half'];
@@ -244,7 +244,7 @@
                                         </p>
                                         <p class="text-xs text-gray-400 font-mono">{{ $producto->codigo }}</p>
                                         @if($producto->variantesActivas->count() > 0)
-                                            <span class="inline-flex items-center gap-1 mt-0.5 px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded text-xs">
+                                            <span class="inline-flex items-center gap-1 mt-0.5 px-1.5 py-0.5 bg-[#2B2E2C]/10 text-[#2B2E2C] rounded text-xs">
                                                 <i class="fas fa-layer-group text-xs"></i>
                                                 {{ $producto->variantesActivas->count() }} variante(s)
                                             </span>
@@ -359,7 +359,7 @@
 
                                     @if($canEdit)
                                         <a href="{{ route('inventario.productos.edit', $producto) }}"
-                                           class="p-1.5 rounded-lg text-blue-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                                           class="p-1.5 rounded-lg text-[#2B2E2C] hover:text-[#2B2E2C] hover:bg-[#2B2E2C]/10 transition-colors"
                                            title="Editar">
                                             <i class="fas fa-edit text-sm"></i>
                                         </a>
@@ -367,7 +367,7 @@
 
                                     @if($producto->variantesActivas->count() > 0)
                                         <a href="{{ route('inventario.productos.variantes', $producto) }}"
-                                           class="p-1.5 rounded-lg text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 transition-colors"
+                                           class="p-1.5 rounded-lg text-[#2B2E2C] hover:text-[#2B2E2C] hover:bg-[#2B2E2C]/10 transition-colors"
                                            title="Variantes">
                                             <i class="fas fa-layer-group text-sm"></i>
                                         </a>
@@ -375,7 +375,7 @@
 
                                     @if($producto->tipo_inventario === 'serie')
                                         <a href="{{ route('inventario.imeis.index', ['producto_id' => $producto->id]) }}"
-                                           class="p-1.5 rounded-lg text-purple-500 hover:text-purple-700 hover:bg-purple-50 transition-colors"
+                                           class="p-1.5 rounded-lg text-purple-500 hover:text-[#2B2E2C] hover:bg-[#2B2E2C]/10 transition-colors"
                                            title="IMEIs">
                                             <i class="fas fa-sim-card text-sm"></i>
                                         </a>

@@ -16,7 +16,7 @@
 
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <a href="{{ route('inventario.almacenes.index') }}" class="hover:text-blue-700 transition-colors">Almacenes</a>
+        <a href="{{ route('inventario.almacenes.index') }}" class="hover:text-[#2B2E2C] transition-colors">Almacenes</a>
         <i class="fas fa-chevron-right text-xs text-gray-400"></i>
         <span class="text-gray-800 font-medium truncate">{{ $almacen->nombre }}</span>
     </nav>
@@ -25,15 +25,15 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center
-                {{ $almacen->tipo === 'principal' ? 'bg-purple-100' : 'bg-blue-100' }}">
-                <i class="fas {{ $almacen->tipo === 'principal' ? 'fa-star text-purple-600' : 'fa-store text-blue-600' }} text-xl"></i>
+                {{ $almacen->tipo === 'principal' ? 'bg-[#2B2E2C]/10' : 'bg-[#2B2E2C]/10' }}">
+                <i class="fas {{ $almacen->tipo === 'principal' ? 'fa-star text-[#2B2E2C]' : 'fa-store text-[#2B2E2C]' }} text-xl"></i>
             </div>
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">{{ $almacen->nombre }}</h1>
                 <p class="text-sm text-gray-500 mt-0.5 flex items-center gap-2">
                     <span class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">{{ $almacen->codigo }}</span>
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
-                        {{ $almacen->tipo === 'principal' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                        {{ $almacen->tipo === 'principal' ? 'bg-[#2B2E2C]/10 text-[#2B2E2C]' : 'bg-[#2B2E2C]/10 text-[#2B2E2C]' }}">
                         {{ ucfirst($almacen->tipo) }}
                     </span>
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
@@ -46,7 +46,7 @@
         </div>
         <div class="flex gap-2">
             <a href="{{ route('inventario.movimientos.create') }}?almacen_id={{ $almacen->id }}"
-               class="inline-flex items-center gap-2 px-4 py-2 bg-blue-900 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 transition-colors shadow-sm">
+               class="inline-flex items-center gap-2 px-4 py-2 bg-[#2B2E2C] text-white text-sm font-semibold rounded-xl hover:bg-[#2B2E2C] transition-colors shadow-sm">
                 <i class="fas fa-plus"></i> Nuevo Movimiento
             </a>
             <a href="{{ route('inventario.almacenes.edit', $almacen) }}"
@@ -65,7 +65,7 @@
         {{-- Info del almacén --}}
         <div class="xl:col-span-1 space-y-4">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-linear-to-r from-blue-900 to-blue-700 px-5 py-3">
+                <div class="px-5 py-3" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h2 class="text-sm font-semibold text-white flex items-center gap-2">
                         <i class="fas fa-warehouse"></i> Información
                     </h2>
@@ -114,13 +114,13 @@
                 $movHoy         = $almacen->movimientos->filter(fn($m) => $m->created_at->isToday())->count();
             @endphp
             <div class="grid grid-cols-1 gap-3">
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-boxes text-blue-700"></i>
+                <div class="bg-[#2B2E2C]/10 border border-blue-100 rounded-xl p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-boxes text-[#2B2E2C]"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-blue-600">Productos con stock</p>
-                        <p class="text-xl font-bold text-blue-900">{{ $totalProductos }}</p>
+                        <p class="text-xs text-[#2B2E2C]">Productos con stock</p>
+                        <p class="text-xl font-bold text-[#2B2E2C]">{{ $totalProductos }}</p>
                     </div>
                 </div>
                 <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-center gap-3">
@@ -132,13 +132,13 @@
                         <p class="text-xl font-bold text-emerald-900">{{ number_format($totalUnidades) }}</p>
                     </div>
                 </div>
-                <div class="bg-purple-50 border border-purple-100 rounded-xl p-4 flex items-center gap-3">
-                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-calendar-day text-purple-700"></i>
+                <div class="bg-[#2B2E2C]/10 border border-purple-100 rounded-xl p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calendar-day text-[#2B2E2C]"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-purple-600">Movimientos hoy</p>
-                        <p class="text-xl font-bold text-purple-900">{{ $movHoy }}</p>
+                        <p class="text-xs text-[#2B2E2C]">Movimientos hoy</p>
+                        <p class="text-xl font-bold text-[#2B2E2C]">{{ $movHoy }}</p>
                     </div>
                 </div>
             </div>
@@ -217,7 +217,7 @@
                         <p class="font-medium">Sin stock registrado en esta tienda</p>
                         <p class="text-sm">Los productos aparecen aquí cuando se registran movimientos de inventario</p>
                         <a href="{{ route('inventario.movimientos.create') }}"
-                           class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-900 text-white text-sm rounded-lg hover:bg-blue-800 transition-colors">
+                           class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-[#2B2E2C] text-white text-sm rounded-lg hover:bg-[#2B2E2C] transition-colors">
                             <i class="fas fa-plus"></i> Registrar primer movimiento
                         </a>
                     </div>
@@ -259,8 +259,8 @@
                         $badgeClass = match($mov->tipo_movimiento) {
                             'ingreso'       => 'bg-green-50 text-green-700 border-green-200',
                             'salida'        => 'bg-red-50 text-red-700 border-red-200',
-                            'ajuste'        => 'bg-blue-50 text-blue-700 border-blue-200',
-                            'transferencia' => 'bg-purple-50 text-purple-700 border-purple-200',
+                            'ajuste'        => 'bg-[#2B2E2C]/10 text-[#2B2E2C] border-blue-200',
+                            'transferencia' => 'bg-[#2B2E2C]/10 text-[#2B2E2C] border-purple-200',
                             'devolucion'    => 'bg-orange-50 text-orange-700 border-orange-200',
                             default         => 'bg-gray-100 text-gray-600 border-gray-200',
                         };
@@ -283,7 +283,7 @@
                         </td>
                         <td class="px-5 py-3 text-center whitespace-nowrap">
                             <span class="text-sm font-bold
-                                {{ $esIngreso ? 'text-green-600' : ($esSalida ? 'text-red-600' : 'text-blue-600') }}">
+                                {{ $esIngreso ? 'text-green-600' : ($esSalida ? 'text-red-600' : 'text-[#2B2E2C]') }}">
                                 {{ $esIngreso ? '+' : ($esSalida ? '−' : '') }}{{ $mov->cantidad }}
                             </span>
                         </td>
@@ -292,7 +292,7 @@
                         </td>
                         <td class="px-5 py-3 text-center">
                             <a href="{{ route('inventario.movimientos.show', $mov) }}"
-                               class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-blue-50 hover:text-blue-700 transition-colors border border-gray-200"
+                               class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-[#2B2E2C]/10 hover:text-[#2B2E2C] transition-colors border border-gray-200"
                                title="Ver detalle">
                                 <i class="fas fa-eye text-xs"></i>
                             </a>

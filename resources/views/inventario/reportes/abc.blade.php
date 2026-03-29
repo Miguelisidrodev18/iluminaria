@@ -23,7 +23,7 @@
                 <span class="text-gray-700 font-medium">Análisis ABC</span>
             </div>
             <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <i class="fas fa-chart-bar text-indigo-500"></i>
+                <i class="fas fa-chart-bar text-[#2B2E2C]"></i>
                 Análisis ABC de Inventario
             </h1>
             <p class="text-sm text-gray-500">Clasificación por valor de inventario — Principio de Pareto</p>
@@ -43,7 +43,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Categoría</label>
-                    <select name="categoria_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="categoria_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">Todas las categorías</option>
                         @foreach($categorias as $c)
                             <option value="{{ $c->id }}" {{ $categoriaId == $c->id ? 'selected' : '' }}>{{ $c->nombre }}</option>
@@ -52,7 +52,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Marca</label>
-                    <select name="marca_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="marca_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">Todas las marcas</option>
                         @foreach($marcas as $m)
                             <option value="{{ $m->id }}" {{ $marcaId == $m->id ? 'selected' : '' }}>{{ $m->nombre }}</option>
@@ -60,7 +60,7 @@
                     </select>
                 </div>
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2.5 text-sm font-semibold transition flex items-center justify-center gap-2">
+                    <button type="submit" class="flex-1 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] rounded-lg py-2.5 text-sm font-semibold transition flex items-center justify-center gap-2">
                         <i class="fas fa-filter"></i> Aplicar
                     </button>
                     <a href="{{ route('inventario.reportes.abc') }}"
@@ -119,14 +119,14 @@
                 <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-400">
                     <div class="flex items-center justify-between mb-3">
                         <div>
-                            <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-blue-100 text-blue-700 text-xl font-black">C</span>
+                            <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#2B2E2C]/10 text-[#2B2E2C] text-xl font-black">C</span>
                         </div>
-                        <span class="text-xs font-semibold text-blue-500 bg-blue-50 px-2 py-1 rounded-full">Baja prioridad</span>
+                        <span class="text-xs font-semibold text-[#2B2E2C] bg-[#2B2E2C]/10 px-2 py-1 rounded-full">Baja prioridad</span>
                     </div>
                     <p class="text-2xl font-bold text-gray-800">{{ $resumen['C']['count'] }} productos</p>
                     <p class="text-sm text-gray-500 mt-1">{{ $resumen['C']['pct_productos'] }}% del catálogo</p>
                     <div class="mt-3 pt-3 border-t border-gray-100">
-                        <p class="text-lg font-bold text-blue-500">S/ {{ number_format($resumen['C']['valor'], 2) }}</p>
+                        <p class="text-lg font-bold text-[#2B2E2C]">S/ {{ number_format($resumen['C']['valor'], 2) }}</p>
                         <p class="text-xs text-gray-400">{{ $resumen['C']['pct_valor'] }}% del valor total</p>
                     </div>
                     <p class="text-xs text-gray-400 mt-2 italic">Control simplificado — pedidos esporádicos</p>
@@ -141,7 +141,7 @@
                         <p class="text-xs text-gray-400 mt-0.5">Barras = % valor individual · Línea = % acumulado</p>
                     </div>
                     <div class="flex items-center gap-4 text-xs text-gray-500">
-                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-indigo-500 inline-block"></span> % Valor</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-[#F7D600] text-[#2B2E2C] inline-block"></span> % Valor</span>
                         <span class="flex items-center gap-1.5"><span class="w-4 h-0.5 bg-red-500 inline-block"></span> % Acumulado</span>
                     </div>
                 </div>
@@ -184,7 +184,7 @@
                                     $claseColor = match($p['clase']) {
                                         'A' => ['bg' => 'bg-red-100 text-red-700', 'row' => 'bg-red-50/20'],
                                         'B' => ['bg' => 'bg-amber-100 text-amber-700', 'row' => 'bg-amber-50/20'],
-                                        'C' => ['bg' => 'bg-blue-100 text-blue-600', 'row' => ''],
+                                        'C' => ['bg' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]', 'row' => ''],
                                     };
                                 @endphp
                                 <tr class="hover:bg-gray-50 transition {{ $claseColor['row'] }}">

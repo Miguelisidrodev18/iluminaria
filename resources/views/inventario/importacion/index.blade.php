@@ -65,10 +65,10 @@
                             <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
                             <p class="text-sm text-gray-500">
                                 Arrastra tu Excel o
-                                <span class="text-blue-600 font-medium">haz clic para seleccionar</span>
+                                <span class="text-[#2B2E2C] font-medium">haz clic para seleccionar</span>
                             </p>
                             <p class="text-xs text-gray-400 mt-1">Solo .xlsx / .xls · Máx 20 MB</p>
-                            <p id="nombre-archivo" class="text-xs text-blue-600 mt-2 font-medium hidden"></p>
+                            <p id="nombre-archivo" class="text-xs text-[#2B2E2C] mt-2 font-medium hidden"></p>
                         </div>
                     </div>
 
@@ -79,7 +79,7 @@
                             Descargar plantilla Excel
                         </a>
                         <button type="submit" id="btn-importar"
-                                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                class="inline-flex items-center gap-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] text-sm font-medium px-5 py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fas fa-upload"></i>
                             Iniciar importación
                         </button>
@@ -91,15 +91,15 @@
             <div id="card-progreso" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden">
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="text-base font-semibold text-gray-800">
-                        <i class="fas fa-spinner fa-spin text-blue-500 mr-2" id="icon-progreso"></i>
+                        <i class="fas fa-spinner fa-spin text-[#2B2E2C] mr-2" id="icon-progreso"></i>
                         <span id="titulo-progreso">Procesando...</span>
                     </h2>
-                    <span id="pct-label" class="text-sm font-bold text-blue-600">0%</span>
+                    <span id="pct-label" class="text-sm font-bold text-[#2B2E2C]">0%</span>
                 </div>
 
                 <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden mb-4">
                     <div id="barra-progreso"
-                         class="h-3 rounded-full transition-all duration-500 bg-blue-500"
+                         class="h-3 rounded-full transition-all duration-500 bg-[#F7D600] text-[#2B2E2C]"
                          style="width: 0%"></div>
                 </div>
 
@@ -171,7 +171,7 @@
                                     @php
                                         $badge = match($imp->estado) {
                                             'completado' => 'bg-green-100 text-green-700',
-                                            'procesando' => 'bg-blue-100 text-blue-700',
+                                            'procesando' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                             'pendiente'  => 'bg-yellow-100 text-yellow-700',
                                             'fallido'    => 'bg-red-100 text-red-700',
                                             default      => 'bg-gray-100 text-gray-600',
@@ -229,11 +229,11 @@
             e.preventDefault();
             inputFile.click();
         });
-        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-blue-500'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500'));
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-[#F7D600]'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-[#F7D600]'));
         dropZone.addEventListener('drop', e => {
             e.preventDefault();
-            dropZone.classList.remove('border-blue-500');
+            dropZone.classList.remove('border-[#F7D600]');
             if (e.dataTransfer.files.length) {
                 inputFile.files = e.dataTransfer.files;
                 mostrarNombre(e.dataTransfer.files[0].name);
@@ -338,15 +338,15 @@
 
             if (data.estado === 'completado') {
                 iconProgreso.classList.add('fa-check-circle');
-                iconProgreso.classList.replace('text-blue-500', 'text-green-500');
+                iconProgreso.classList.replace('text-[#2B2E2C]', 'text-green-500');
                 tituloProgreso.textContent = 'Importación completada';
-                barra.classList.replace('bg-blue-500', 'bg-green-500');
+                barra.classList.replace('bg-[#F7D600] text-[#2B2E2C]', 'bg-green-500');
                 document.getElementById('bloque-finalizado').style.display = 'flex';
             } else {
                 iconProgreso.classList.add('fa-times-circle');
-                iconProgreso.classList.replace('text-blue-500', 'text-red-500');
+                iconProgreso.classList.replace('text-[#2B2E2C]', 'text-red-500');
                 tituloProgreso.textContent = 'Importación con errores';
-                barra.classList.replace('bg-blue-500', 'bg-red-500');
+                barra.classList.replace('bg-[#F7D600] text-[#2B2E2C]', 'bg-red-500');
             }
 
             btnImportar.disabled = false;

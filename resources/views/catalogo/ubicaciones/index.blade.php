@@ -18,7 +18,7 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">
-                    <i class="fas fa-map-marker-alt text-indigo-500 mr-2"></i>Ubicaciones
+                    <i class="fas fa-map-marker-alt text-[#2B2E2C] mr-2"></i>Ubicaciones
                 </h1>
                 <p class="text-sm text-gray-500 mt-1">Gestiona los lugares de almacenamiento de productos</p>
             </div>
@@ -45,7 +45,7 @@
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h2 class="text-base font-semibold text-gray-800 mb-4">
-                        <i class="fas fa-plus-circle text-indigo-500 mr-1"></i> Nueva Ubicación
+                        <i class="fas fa-plus-circle text-[#2B2E2C] mr-1"></i> Nueva Ubicación
                     </h2>
                     <form method="POST" action="{{ route('catalogo.ubicaciones.store') }}" class="space-y-4">
                         @csrf
@@ -53,12 +53,12 @@
                             <label class="block text-xs font-medium text-gray-600 mb-1">Nombre <span class="text-red-500">*</span></label>
                             <input type="text" name="nombre" value="{{ old('nombre') }}" required
                                    placeholder="Ej: Lima, Almacén Principal, Depósito 1..."
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">Tipo <span class="text-red-500">*</span></label>
                             <select name="tipo" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
                                 <option value="almacen"  {{ old('tipo') === 'almacen'  ? 'selected' : '' }}>Almacén</option>
                                 <option value="tienda"   {{ old('tipo') === 'tienda'   ? 'selected' : '' }}>Tienda</option>
                                 <option value="showroom" {{ old('tipo') === 'showroom' ? 'selected' : '' }}>Showroom</option>
@@ -69,10 +69,10 @@
                             <label class="block text-xs font-medium text-gray-600 mb-1">Descripción (opcional)</label>
                             <input type="text" name="descripcion" value="{{ old('descripcion') }}"
                                    placeholder="Ej: Segundo piso, zona de embalaje..."
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
                         </div>
                         <button type="submit"
-                                class="w-full py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                                class="w-full py-2 bg-[#F7D600] text-[#2B2E2C] text-sm font-medium rounded-lg hover:bg-[#e8c900] transition-colors">
                             <i class="fas fa-plus mr-1"></i> Agregar Ubicación
                         </button>
                     </form>
@@ -102,7 +102,7 @@
                                 <div class="flex items-center gap-3">
                                     @php
                                         $iconos = ['almacen'=>'fa-warehouse','tienda'=>'fa-store','showroom'=>'fa-eye','taller'=>'fa-tools'];
-                                        $colores = ['almacen'=>'text-blue-500','tienda'=>'text-green-500','showroom'=>'text-purple-500','taller'=>'text-orange-500'];
+                                        $colores = ['almacen'=>'text-[#2B2E2C]','tienda'=>'text-green-500','showroom'=>'text-purple-500','taller'=>'text-orange-500'];
                                     @endphp
                                     <i class="fas {{ $iconos[$ub->tipo] ?? 'fa-map-marker-alt' }} {{ $colores[$ub->tipo] ?? 'text-gray-400' }} w-5 text-center"></i>
                                     <div>
@@ -118,7 +118,7 @@
                                         {{ $ub->estado }}
                                     </span>
                                     <button type="button" @click="editando = true"
-                                            class="text-blue-500 hover:text-blue-700 text-xs transition-colors">
+                                            class="text-[#2B2E2C] hover:text-[#2B2E2C] text-xs transition-colors">
                                         <i class="fas fa-pencil-alt"></i>
                                     </button>
                                     <form method="POST" action="{{ route('catalogo.ubicaciones.destroy', $ub) }}"
@@ -134,7 +134,7 @@
                             {{-- Formulario edición inline --}}
                             <div x-show="editando" x-cloak>
                                 <form method="POST" action="{{ route('catalogo.ubicaciones.update', $ub) }}"
-                                      class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 space-y-3">
+                                      class="bg-[#2B2E2C]/10 border border-gray-200 rounded-xl p-4 space-y-3">
                                     @csrf @method('PUT')
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <div>
@@ -166,7 +166,7 @@
                                     </div>
                                     <div class="flex gap-2">
                                         <button type="submit"
-                                                class="px-4 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700">
+                                                class="px-4 py-1.5 bg-[#F7D600] text-[#2B2E2C] text-xs font-medium rounded-lg hover:bg-[#e8c900]">
                                             <i class="fas fa-check mr-1"></i>Guardar
                                         </button>
                                         <button type="button" @click="editando = false"

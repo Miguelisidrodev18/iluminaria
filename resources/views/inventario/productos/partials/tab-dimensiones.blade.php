@@ -10,7 +10,7 @@
 {{-- DIMENSIONES DEL CUERPO --}}
 <div class="mb-8">
     <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-        <i class="fas fa-ruler-combined text-blue-500"></i>
+        <i class="fas fa-ruler-combined text-[#2B2E2C]"></i>
         Dimensiones del producto <span class="font-normal text-gray-400">(en mm)</span>
     </h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

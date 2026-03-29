@@ -15,9 +15,9 @@
     <x-header title="Nueva Sucursal" subtitle="Se creará automáticamente con sus series de comprobantes y un almacén vinculado" />
 
     <div class="max-w-2xl">
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex gap-3">
-            <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
-            <div class="text-sm text-blue-700">
+        <div class="bg-[#2B2E2C]/10 border border-blue-200 rounded-lg p-4 mb-6 flex gap-3">
+            <i class="fas fa-info-circle text-[#2B2E2C] mt-0.5"></i>
+            <div class="text-sm text-[#2B2E2C]">
                 <strong>Proceso automático:</strong> Al crear la sucursal, el sistema generará automáticamente un código único (S001, S002…), un almacén vinculado y las series de comprobantes estándar (FA, BA, FC, FD, T, CO).
             </div>
         </div>
@@ -30,7 +30,7 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Sucursal *</label>
                         <input type="text" name="nombre" value="{{ old('nombre') }}" maxlength="150" required
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('nombre') border-red-500 @enderror"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] @error('nombre') border-red-500 @enderror"
                             placeholder="Ej: Sucursal Centro, Tienda Miraflores…">
                         @error('nombre')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
@@ -38,50 +38,50 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
                         <input type="text" name="direccion" value="{{ old('direccion') }}" maxlength="300"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
                         <input type="text" name="departamento" value="{{ old('departamento') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Provincia</label>
                         <input type="text" name="provincia" value="{{ old('provincia') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Distrito</label>
                         <input type="text" name="distrito" value="{{ old('distrito') }}"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Ubigeo</label>
                         <input type="text" name="ubigeo" value="{{ old('ubigeo') }}" maxlength="6"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
                             placeholder="150101">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                         <input type="text" name="telefono" value="{{ old('telefono') }}" maxlength="20"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" name="email" value="{{ old('email') }}" maxlength="150"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                        <select name="estado" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                        <select name="estado" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                             <option value="activo">Activo</option>
                             <option value="inactivo">Inactivo</option>
                         </select>
                     </div>
                     <div class="flex items-center gap-3">
                         <input type="checkbox" name="es_principal" id="es_principal" value="1" {{ old('es_principal') ? 'checked' : '' }}
-                            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            class="w-4 h-4 text-[#2B2E2C] border-gray-300 rounded focus:ring-[#F7D600]">
                         <label for="es_principal" class="text-sm font-medium text-gray-700">Marcar como Sucursal Principal</label>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                         Cancelar
                     </a>
                     <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
+                        class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
                         <i class="fas fa-plus"></i> Crear Sucursal
                     </button>
                 </div>

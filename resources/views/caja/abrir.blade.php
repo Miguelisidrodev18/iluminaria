@@ -40,7 +40,7 @@
                     <div>
                         <p class="text-xs text-gray-400">Almacén asignado</p>
                         <p class="font-semibold text-gray-800">
-                            <i class="fas fa-warehouse text-blue-500 mr-1 text-xs"></i>{{ $almacen->nombre }}
+                            <i class="fas fa-warehouse text-[#2B2E2C] mr-1 text-xs"></i>{{ $almacen->nombre }}
                         </p>
                     </div>
                     <div>
@@ -84,7 +84,7 @@
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-lg">S/</span>
                         <input type="number" name="monto_inicial" id="montoInicial" step="0.01" min="0"
                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-xl font-bold
-                                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                      focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]
                                       @error('monto_inicial') border-red-400 @enderror"
                                value="{{ old('monto_inicial', '0.00') }}"
                                placeholder="0.00" required autofocus>
@@ -98,7 +98,7 @@
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones (opcional)</label>
                     <textarea name="observaciones" rows="2"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] text-sm"
                               placeholder="Notas al abrir la caja...">{{ old('observaciones') }}</textarea>
                 </div>
 

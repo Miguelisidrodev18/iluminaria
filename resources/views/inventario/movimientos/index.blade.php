@@ -21,7 +21,7 @@
             <p class="text-sm text-gray-500 mt-0.5">Historial completo de entradas, salidas y ajustes de stock</p>
         </div>
         <a href="{{ route('inventario.movimientos.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 bg-blue-900 text-white text-sm font-semibold rounded-xl hover:bg-blue-800 transition-colors shadow-sm">
+           class="inline-flex items-center gap-2 px-4 py-2 bg-[#2B2E2C] text-white text-sm font-semibold rounded-xl hover:bg-[#2B2E2C] transition-colors shadow-sm">
             <i class="fas fa-plus"></i> Nuevo Movimiento
         </a>
     </div>
@@ -41,8 +41,8 @@
     {{-- Stats cards --}}
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                <i class="fas fa-exchange-alt text-blue-700 text-lg"></i>
+            <div class="w-11 h-11 rounded-xl bg-[#2B2E2C]/10 flex items-center justify-center shrink-0">
+                <i class="fas fa-exchange-alt text-[#2B2E2C] text-lg"></i>
             </div>
             <div>
                 <p class="text-xs text-gray-500 uppercase tracking-wide">Total</p>
@@ -50,8 +50,8 @@
             </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-11 h-11 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
-                <i class="fas fa-calendar-day text-purple-700 text-lg"></i>
+            <div class="w-11 h-11 rounded-xl bg-[#2B2E2C]/10 flex items-center justify-center shrink-0">
+                <i class="fas fa-calendar-day text-[#2B2E2C] text-lg"></i>
             </div>
             <div>
                 <p class="text-xs text-gray-500 uppercase tracking-wide">Hoy</p>
@@ -77,8 +77,8 @@
             </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-            <div class="w-11 h-11 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
-                <i class="fas fa-random text-purple-600 text-lg"></i>
+            <div class="w-11 h-11 rounded-xl bg-[#2B2E2C]/10 flex items-center justify-center shrink-0">
+                <i class="fas fa-random text-[#2B2E2C] text-lg"></i>
             </div>
             <div>
                 <p class="text-xs text-gray-500 uppercase tracking-wide">Transferencias hoy</p>
@@ -99,15 +99,15 @@
                class="shrink-0 bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4 min-w-45 hover:border-blue-300 hover:shadow-md transition-all group">
                 <div class="flex items-center gap-2 mb-2">
                     <div class="w-8 h-8 rounded-lg flex items-center justify-center
-                        {{ $alm->tipo === 'principal' ? 'bg-purple-100' : 'bg-blue-100' }}">
-                        <i class="fas {{ $alm->tipo === 'principal' ? 'fa-star text-purple-600' : 'fa-store text-blue-600' }} text-sm"></i>
+                        {{ $alm->tipo === 'principal' ? 'bg-[#2B2E2C]/10' : 'bg-[#2B2E2C]/10' }}">
+                        <i class="fas {{ $alm->tipo === 'principal' ? 'fa-star text-[#2B2E2C]' : 'fa-store text-[#2B2E2C]' }} text-sm"></i>
                     </div>
                     <span class="text-xs font-medium px-1.5 py-0.5 rounded
-                        {{ $alm->tipo === 'principal' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700' }}">
+                        {{ $alm->tipo === 'principal' ? 'bg-[#2B2E2C]/10 text-[#2B2E2C]' : 'bg-[#2B2E2C]/10 text-[#2B2E2C]' }}">
                         {{ ucfirst($alm->tipo) }}
                     </span>
                 </div>
-                <p class="text-sm font-semibold text-gray-800 group-hover:text-blue-700 transition-colors leading-tight">{{ $alm->nombre }}</p>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-[#2B2E2C] transition-colors leading-tight">{{ $alm->nombre }}</p>
                 <p class="text-xs text-gray-400 mt-1">
                     @if($movHoy > 0)
                         <span class="text-green-600 font-medium">{{ $movHoy }} mov. hoy</span>
@@ -115,7 +115,7 @@
                         Sin movimientos hoy
                     @endif
                 </p>
-                <p class="text-xs text-blue-500 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <p class="text-xs text-[#2B2E2C] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     Ver stock <i class="fas fa-arrow-right text-[10px]"></i>
                 </p>
             </a>
@@ -130,7 +130,7 @@
             <div class="flex-1 min-w-36">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Tipo</label>
                 <select name="tipo_movimiento"
-                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
                     <option value="">Todos</option>
                     @foreach([
                         'ingreso'       => 'Ingreso',
@@ -147,7 +147,7 @@
             <div class="flex-1 min-w-48">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Producto</label>
                 <select name="producto_id"
-                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
                     <option value="">Todos los productos</option>
                     @foreach($productos as $p)
                         <option value="{{ $p->id }}" {{ request('producto_id') == $p->id ? 'selected' : '' }}>
@@ -159,7 +159,7 @@
             <div class="flex-1 min-w-36">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Almacén</label>
                 <select name="almacen_id"
-                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
                     <option value="">Todos</option>
                     @foreach($almacenes as $a)
                         <option value="{{ $a->id }}" {{ request('almacen_id') == $a->id ? 'selected' : '' }}>{{ $a->nombre }}</option>
@@ -169,16 +169,16 @@
             <div class="min-w-36">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Desde</label>
                 <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}"
-                       class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                       class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
             </div>
             <div class="min-w-36">
                 <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Hasta</label>
                 <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}"
-                       class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                       class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
             </div>
             <div class="flex gap-2">
                 <button type="submit"
-                        class="px-4 py-2 bg-blue-900 text-white text-sm font-medium rounded-lg hover:bg-blue-800 transition-colors flex items-center gap-2">
+                        class="px-4 py-2 bg-[#2B2E2C] text-white text-sm font-medium rounded-lg hover:bg-[#2B2E2C] transition-colors flex items-center gap-2">
                     <i class="fas fa-filter text-xs"></i> Filtrar
                 </button>
                 <a href="{{ route('inventario.movimientos.index') }}"
@@ -225,14 +225,14 @@
                         $badgeClass = match($mov->tipo_movimiento) {
                             'ingreso'       => 'bg-green-50 text-green-700 border-green-200',
                             'salida'        => 'bg-red-50 text-red-700 border-red-200',
-                            'ajuste'        => 'bg-blue-50 text-blue-700 border-blue-200',
-                            'transferencia' => 'bg-purple-50 text-purple-700 border-purple-200',
+                            'ajuste'        => 'bg-[#2B2E2C]/10 text-[#2B2E2C] border-blue-200',
+                            'transferencia' => 'bg-[#2B2E2C]/10 text-[#2B2E2C] border-purple-200',
                             'devolucion'    => 'bg-orange-50 text-orange-700 border-orange-200',
                             'merma'         => 'bg-gray-100 text-gray-600 border-gray-200',
                             default         => 'bg-gray-100 text-gray-600 border-gray-200',
                         };
                     @endphp
-                    <tr class="hover:bg-blue-50/20 transition-colors">
+                    <tr class="hover:bg-[#2B2E2C]/10/20 transition-colors">
                         <td class="px-5 py-3 whitespace-nowrap">
                             <p class="text-sm text-gray-800">{{ $mov->created_at->format('d/m/Y') }}</p>
                             <p class="text-xs text-gray-400">{{ $mov->created_at->format('H:i') }}</p>
@@ -250,7 +250,7 @@
                         <td class="px-5 py-3 whitespace-nowrap">
                             <span class="text-sm text-gray-700">{{ $mov->nombre_almacen }}</span>
                             @if($esTransfer && $mov->almacenDestino)
-                                <p class="text-xs text-purple-600 mt-0.5">
+                                <p class="text-xs text-[#2B2E2C] mt-0.5">
                                     <i class="fas fa-arrow-right text-[9px]"></i>
                                     {{ $mov->almacenDestino->nombre }}
                                 </p>
@@ -258,7 +258,7 @@
                         </td>
                         <td class="px-5 py-3 text-center whitespace-nowrap">
                             <span class="text-sm font-bold
-                                {{ $esIngreso ? 'text-green-600' : ($esSalida ? 'text-red-600' : 'text-blue-600') }}">
+                                {{ $esIngreso ? 'text-green-600' : ($esSalida ? 'text-red-600' : 'text-[#2B2E2C]') }}">
                                 {{ $esIngreso ? '+' : ($esSalida ? '−' : '') }}{{ $mov->cantidad }}
                             </span>
                         </td>
@@ -277,7 +277,7 @@
                         </td>
                         <td class="px-5 py-3 text-center">
                             <a href="{{ route('inventario.movimientos.show', $mov) }}"
-                               class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-blue-50 hover:text-blue-700 transition-colors border border-gray-200"
+                               class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-[#2B2E2C]/10 hover:text-[#2B2E2C] transition-colors border border-gray-200"
                                title="Ver detalle">
                                 <i class="fas fa-eye text-xs"></i>
                             </a>
@@ -291,7 +291,7 @@
                                 <p class="text-lg font-medium">No hay movimientos registrados</p>
                                 <p class="text-sm">Ajusta los filtros o registra el primer movimiento</p>
                                 <a href="{{ route('inventario.movimientos.create') }}"
-                                   class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-900 text-white text-sm rounded-lg hover:bg-blue-800 transition-colors">
+                                   class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-[#2B2E2C] text-white text-sm rounded-lg hover:bg-[#2B2E2C] transition-colors">
                                     <i class="fas fa-plus"></i> Nuevo Movimiento
                                 </a>
                             </div>

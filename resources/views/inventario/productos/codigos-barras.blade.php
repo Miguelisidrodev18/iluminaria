@@ -46,17 +46,17 @@
 
         <!-- Mostrar código principal actual del producto -->
         @if($producto->codigo_barras)
-        <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+        <div class="mb-6 bg-[#2B2E2C]/10 border-l-4 border-[#F7D600] p-4 rounded-lg">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-blue-800">
+                    <p class="text-sm text-[#2B2E2C]">
                         <i class="fas fa-info-circle mr-1"></i>
                         <strong>Código principal del producto:</strong>
                     </p>
-                    <p class="text-xl font-mono font-bold text-blue-900 mt-1">
+                    <p class="text-xl font-mono font-bold text-[#2B2E2C] mt-1">
                         {{ $producto->codigo_barras }}
                     </p>
-                    <p class="text-xs text-blue-600 mt-1">
+                    <p class="text-xs text-[#2B2E2C]/70 mt-1">
                         Este código se usa en facturas y búsquedas rápidas
                     </p>
                 </div>
@@ -84,7 +84,7 @@
             <!-- Columna izquierda: Información del producto -->
             <div class="md:col-span-1">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="bg-blue-900 px-4 py-3">
+                    <div class="px-4 py-3" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <h3 class="font-semibold text-white">
                             <i class="fas fa-box mr-2"></i>
                             Información del Producto
@@ -212,7 +212,7 @@
 
                 <!-- Lista de códigos existentes -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="bg-blue-900 px-4 py-3">
+                    <div class="px-4 py-3" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <h3 class="font-semibold text-white">
                             <i class="fas fa-list mr-2"></i>
                             Códigos de Barras Registrados
@@ -283,8 +283,8 @@
                     <!-- Código principal actual -->
                     @php $principal = $codigosBarras->firstWhere('es_principal', true); @endphp
                     @if($principal)
-                    <div class="px-6 py-4 bg-blue-50 border-t border-blue-200">
-                        <p class="text-sm text-blue-800">
+                    <div class="px-6 py-4 bg-[#2B2E2C]/10 border-t border-[#2B2E2C]/20">
+                        <p class="text-sm text-[#2B2E2C]">
                             <i class="fas fa-info-circle mr-1"></i>
                             <strong>Código principal actual:</strong> {{ $principal->codigo_barras }}
                             @if($principal->descripcion)
@@ -316,7 +316,7 @@
             <!-- Header -->
             <div class="flex items-center justify-between px-6 py-4 border-b">
                 <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <i class="fas fa-print text-blue-600"></i>
+                    <i class="fas fa-print text-[#2B2E2C]"></i>
                     Imprimir Etiquetas de Código de Barras
                 </h3>
                 <button onclick="cerrarModalImpresion()" class="text-gray-400 hover:text-gray-600 text-lg">
@@ -330,7 +330,7 @@
                 {{-- Selección de códigos --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-check-square mr-1 text-blue-500"></i>
+                        <i class="fas fa-check-square mr-1 text-[#F7D600]"></i>
                         Seleccionar códigos a imprimir
                     </label>
                     <div class="space-y-1.5 max-h-44 overflow-y-auto border rounded-lg p-3 bg-gray-50">
@@ -341,7 +341,7 @@
                                    value="{{ $codigo->id }}"
                                    data-codigo="{{ $codigo->codigo_barras }}"
                                    data-desc="{{ $codigo->descripcion }}"
-                                   class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                                   class="w-4 h-4 text-[#2B2E2C] rounded border-gray-300 focus:ring-[#F7D600]/30">
                             <span class="flex-1 font-mono text-sm">{{ $codigo->codigo_barras }}</span>
                             @if($codigo->descripcion)
                                 <span class="text-xs text-gray-500">({{ $codigo->descripcion }})</span>
@@ -360,18 +360,18 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-copy mr-1 text-blue-500"></i>
+                            <i class="fas fa-copy mr-1 text-[#F7D600]"></i>
                             Copias por código
                         </label>
                         <input type="number" id="copias" value="1" min="1" max="100"
-                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#F7D600]/30 text-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-ruler-combined mr-1 text-blue-500"></i>
+                            <i class="fas fa-ruler-combined mr-1 text-[#F7D600]"></i>
                             Tamaño de etiqueta
                         </label>
-                        <select id="tamano_etiqueta" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                        <select id="tamano_etiqueta" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#F7D600]/30 text-sm">
                             <option value="small">Pequeña (2 × 1 cm)</option>
                             <option value="medium" selected>Mediana (4 × 2 cm)</option>
                             <option value="large">Grande (6 × 3 cm)</option>
@@ -382,7 +382,7 @@
                 {{-- Diseño de página --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-table mr-1 text-blue-500"></i>
+                        <i class="fas fa-table mr-1 text-[#F7D600]"></i>
                         Diseño de página
                     </label>
                     <div class="grid grid-cols-3 gap-3">
@@ -391,7 +391,7 @@
                             ['value' => '3x6',  'icon' => 'fa-th-large','cols' => '3 col.', 'rows' => '6 fil.', 'total' => '18/hoja'],
                             ['value' => '4x8',  'icon' => 'fa-th-list', 'cols' => '4 col.', 'rows' => '8 fil.', 'total' => '32/hoja'],
                         ] as $d)
-                        <label class="diseno-card cursor-pointer border-2 border-gray-200 rounded-xl p-3 text-center hover:border-blue-300 transition {{ $loop->first ? 'border-blue-500 bg-blue-50' : '' }}">
+                        <label class="diseno-card cursor-pointer border-2 border-gray-200 rounded-xl p-3 text-center hover:border-[#F7D600] transition {{ $loop->first ? 'border-[#F7D600] bg-[#2B2E2C]/10' : '' }}">
                             <input type="radio" name="diseno" value="{{ $d['value'] }}" class="hidden" {{ $loop->first ? 'checked' : '' }}>
                             <i class="fas {{ $d['icon'] }} text-2xl text-gray-400 mb-1 block"></i>
                             <p class="text-xs font-medium text-gray-700">{{ $d['cols'] }} × {{ $d['rows'] }}</p>
@@ -404,7 +404,7 @@
                 {{-- Información en la etiqueta --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-info-circle mr-1 text-blue-500"></i>
+                        <i class="fas fa-info-circle mr-1 text-[#F7D600]"></i>
                         Información en la etiqueta
                     </label>
                     <div class="space-y-2 bg-gray-50 p-3 rounded-lg">
@@ -424,12 +424,12 @@
                 </div>
 
                 {{-- Resumen --}}
-                <div class="bg-blue-50 rounded-lg p-4 flex items-center justify-between">
-                    <div class="text-sm text-blue-800">
+                <div class="bg-[#2B2E2C]/10 rounded-lg p-4 flex items-center justify-between">
+                    <div class="text-sm text-[#2B2E2C]">
                         <i class="fas fa-tag mr-1"></i>
-                        Total de etiquetas: <span id="totalEtiquetas" class="font-bold text-blue-900">0</span>
+                        Total de etiquetas: <span id="totalEtiquetas" class="font-bold text-[#2B2E2C]">0</span>
                     </div>
-                    <div class="text-sm text-blue-600" id="resumenHojas"></div>
+                    <div class="text-sm text-[#2B2E2C]/70" id="resumenHojas"></div>
                 </div>
             </div>
 
@@ -440,7 +440,7 @@
                     Cancelar
                 </button>
                 <button onclick="imprimirEtiquetas()"
-                        class="px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition flex items-center gap-2 text-sm">
+                        class="px-6 py-2 bg-[#2B2E2C] text-white rounded-lg hover:bg-[#3A3E3B] transition flex items-center gap-2 text-sm">
                     <i class="fas fa-print"></i>
                     Imprimir
                 </button>
@@ -510,10 +510,10 @@
         document.querySelectorAll('.diseno-card').forEach(card => {
             card.addEventListener('click', function() {
                 document.querySelectorAll('.diseno-card').forEach(c => {
-                    c.classList.remove('border-blue-500', 'bg-blue-50');
+                    c.classList.remove('border-[#F7D600]', 'bg-[#2B2E2C]/10');
                     c.classList.add('border-gray-200');
                 });
-                this.classList.add('border-blue-500', 'bg-blue-50');
+                this.classList.add('border-[#F7D600]', 'bg-[#2B2E2C]/10');
                 this.classList.remove('border-gray-200');
                 this.querySelector('input[type=radio]').checked = true;
                 actualizarTotalEtiquetas();

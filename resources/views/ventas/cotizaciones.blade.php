@@ -29,12 +29,12 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <i class="fas fa-file-contract text-purple-600"></i> Cotizaciones
+                    <i class="fas fa-file-contract text-[#2B2E2C]"></i> Cotizaciones
                 </h1>
                 <p class="text-sm text-gray-400 mt-0.5">Presupuestos pendientes de conversión a venta</p>
             </div>
             <a href="{{ route('ventas.create') }}"
-               class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm">
+               class="inline-flex items-center gap-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-sm">
                 <i class="fas fa-plus"></i> Nueva Cotización
             </a>
         </div>
@@ -42,8 +42,8 @@
         {{-- KPI Cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-7">
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex items-center gap-4">
-                <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center shrink-0">
-                    <i class="fas fa-file-contract text-purple-600 text-xl"></i>
+                <div class="w-12 h-12 bg-[#2B2E2C]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <i class="fas fa-file-contract text-[#2B2E2C] text-xl"></i>
                 </div>
                 <div>
                     <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Total cotizaciones</p>
@@ -60,8 +60,8 @@
                 </div>
             </div>
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-5 flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
-                    <i class="fas fa-coins text-blue-600 text-xl"></i>
+                <div class="w-12 h-12 bg-[#2B2E2C]/10 rounded-xl flex items-center justify-center shrink-0">
+                    <i class="fas fa-coins text-[#2B2E2C] text-xl"></i>
                 </div>
                 <div>
                     <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Monto total</p>
@@ -74,13 +74,13 @@
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             @if($cotizaciones->isEmpty())
                 <div class="flex flex-col items-center justify-center py-20 text-center">
-                    <div class="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-4">
+                    <div class="w-20 h-20 bg-[#2B2E2C]/10 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-file-contract text-purple-300 text-3xl"></i>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-700 mb-1">No hay cotizaciones</h3>
                     <p class="text-sm text-gray-400 mb-5">Las cotizaciones que crees desde el POS aparecerán aquí</p>
                     <a href="{{ route('ventas.create') }}"
-                       class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors">
+                       class="inline-flex items-center gap-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors">
                         <i class="fas fa-plus"></i> Crear primera cotización
                     </a>
                 </div>
@@ -103,7 +103,7 @@
                             @foreach($cotizaciones as $cot)
                             <tr class="hover:bg-gray-50/60 transition-colors">
                                 <td class="px-6 py-4">
-                                    <span class="font-mono font-bold text-purple-600 text-sm">{{ $cot->codigo }}</span>
+                                    <span class="font-mono font-bold text-[#2B2E2C] text-sm">{{ $cot->codigo }}</span>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600">
                                     {{ $cot->fecha->format('d/m/Y') }}
@@ -122,13 +122,13 @@
                                     <span class="font-bold text-gray-900 text-sm">S/ {{ number_format($cot->total, 2) }}</span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-1 rounded-full text-xs font-semibold">
+                                    <span class="inline-flex items-center gap-1 bg-[#2B2E2C]/10 text-[#2B2E2C] border border-purple-200 px-2.5 py-1 rounded-full text-xs font-semibold">
                                         <i class="fas fa-file-contract text-[10px]"></i> Cotización
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <a href="{{ route('ventas.show', $cot) }}"
-                                       class="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 font-medium transition-colors">
+                                       class="inline-flex items-center gap-1 text-sm text-[#2B2E2C] hover:text-[#2B2E2C] font-medium transition-colors">
                                         <i class="fas fa-eye text-xs"></i> Ver detalle
                                     </a>
                                 </td>
@@ -147,8 +147,8 @@
         </div>
 
         {{-- Info box --}}
-        <div class="mt-5 bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 flex items-start gap-3 text-sm text-blue-800">
-            <i class="fas fa-info-circle text-blue-500 mt-0.5 shrink-0"></i>
+        <div class="mt-5 bg-[#2B2E2C]/10 border border-blue-200 rounded-xl px-5 py-4 flex items-start gap-3 text-sm text-[#2B2E2C]">
+            <i class="fas fa-info-circle text-[#2B2E2C] mt-0.5 shrink-0"></i>
             <span>Las cotizaciones <strong>no descuentan stock</strong>. Para formalizar una cotización como venta real, entra al detalle y usa el botón <strong>"Convertir a Venta"</strong>.</span>
         </div>
 

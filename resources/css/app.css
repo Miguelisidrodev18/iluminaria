@@ -1,3 +1,37 @@
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
+/* Kyrios Brand Colors */
+:root {
+    --kyrios-dark: #2B2E2C;
+    --kyrios-darker: #333836;
+    --kyrios-hover: #3A3E3B;
+    --kyrios-yellow: #F7D600;
+}
+
+/* Kyrios component classes */
+.btn-kyrios {
+    background-color: #F7D600;
+    color: #2B2E2C;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s;
+}
+.btn-kyrios:hover { background-color: #e8c900; }
+
+.btn-kyrios-dark {
+    background-color: #2B2E2C;
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s;
+}
+.btn-kyrios-dark:hover { background-color: #3A3E3B; }
+
+.kyrios-icon-box {
+    background-color: #2B2E2C;
+    color: #F7D600;
+}
+

@@ -23,14 +23,14 @@
         <!-- KPIs -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Productos en Stock -->
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-900">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#2B2E2C]">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 font-medium">Productos en Stock</p>
                         <p class="text-3xl font-bold text-gray-900 mt-2">{{ $productos_stock }}</p>
                     </div>
-                    <div class="bg-blue-100 rounded-full p-3">
-                        <i class="fas fa-boxes text-blue-900 text-2xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-boxes text-[#2B2E2C] text-2xl"></i>
                     </div>
                 </div>
             </div>
@@ -91,12 +91,12 @@
             <!-- Gestión de Productos -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">
-                    <i class="fas fa-box mr-2 text-blue-900"></i>
+                    <i class="fas fa-box mr-2 text-[#2B2E2C]"></i>
                     Gestión de Productos
                 </h2>
                 <div class="space-y-3">
                     <a href="#" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-plus-circle text-blue-900 mr-2"></i>
+                        <i class="fas fa-plus-circle text-[#2B2E2C] mr-2"></i>
                         <span class="font-medium text-gray-900">Agregar Producto</span>
                     </a>
                     <a href="#" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -113,7 +113,7 @@
             <!-- Movimientos de Inventario -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">
-                    <i class="fas fa-exchange-alt mr-2 text-blue-900"></i>
+                    <i class="fas fa-exchange-alt mr-2 text-[#2B2E2C]"></i>
                     Movimientos Recientes
                 </h2>
                 <div class="text-center py-8 text-gray-500">

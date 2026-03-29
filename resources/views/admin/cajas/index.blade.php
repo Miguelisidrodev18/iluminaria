@@ -45,16 +45,16 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Fecha desde</label>
                     <input type="date" name="fecha_desde" value="{{ request('fecha_desde') }}"
-                           class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Fecha hasta</label>
                     <input type="date" name="fecha_hasta" value="{{ request('fecha_hasta') }}"
-                           class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Sucursal</label>
-                    <select name="sucursal_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <select name="sucursal_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                         <option value="">Todas</option>
                         @foreach($sucursales as $s)
                             <option value="{{ $s->id }}" {{ request('sucursal_id') == $s->id ? 'selected' : '' }}>
@@ -65,7 +65,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Cajero</label>
-                    <select name="user_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <select name="user_id" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                         <option value="">Todos</option>
                         @foreach($usuarios as $u)
                             <option value="{{ $u->id }}" {{ request('user_id') == $u->id ? 'selected' : '' }}>
@@ -76,7 +76,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Estado</label>
-                    <select name="estado" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    <select name="estado" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                         <option value="">Todos</option>
                         <option value="abierta" {{ request('estado') === 'abierta' ? 'selected' : '' }}>Abierta</option>
                         <option value="cerrada" {{ request('estado') === 'cerrada' ? 'selected' : '' }}>Cerrada</option>
@@ -84,7 +84,7 @@
                 </div>
                 <div class="flex gap-2">
                     <button type="submit"
-                            class="flex-1 bg-blue-600 text-white text-sm rounded-lg px-3 py-2 hover:bg-blue-700 transition font-medium">
+                            class="flex-1 bg-[#F7D600] text-[#2B2E2C] text-sm rounded-lg px-3 py-2 hover:bg-[#e8c900] transition font-medium">
                         <i class="fas fa-search mr-1"></i> Filtrar
                     </button>
                     <a href="{{ route('admin.cajas.index') }}"
@@ -162,7 +162,7 @@
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <a href="{{ route('admin.cajas.show', $caja) }}"
-                                       class="text-blue-600 hover:text-blue-800 text-xs font-medium">Ver →</a>
+                                       class="text-[#2B2E2C] hover:text-[#2B2E2C] text-xs font-medium">Ver →</a>
                                 </td>
                             </tr>
                         @empty

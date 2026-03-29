@@ -24,13 +24,13 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Buscar Producto</label>
                         <input type="text" name="buscar" value="{{ request('buscar') }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                placeholder="Buscar por código, nombre, IMEI...">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
-                        <select name="categoria_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <select name="categoria_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]">
                             <option value="">Todas</option>
                             @foreach($categorias as $categoria)
                                 <option value="{{ $categoria->id }}" {{ request('categoria_id') == $categoria->id ? 'selected' : '' }}>
@@ -45,7 +45,7 @@
                     <a href="{{ route('inventario.consulta-tienda') }}" class="text-gray-600 hover:text-gray-900">
                         <i class="fas fa-redo mr-2"></i>Limpiar
                     </a>
-                    <button type="submit" class="bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800">
+                    <button type="submit" class="bg-[#2B2E2C] text-white px-6 py-2 rounded-lg hover:bg-[#2B2E2C]">
                         <i class="fas fa-search mr-2"></i>Buscar
                     </button>
                 </div>
@@ -56,7 +56,7 @@
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
             <div class="p-6 border-b border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900">
-                    <i class="fas fa-boxes mr-2 text-blue-900"></i>
+                    <i class="fas fa-boxes mr-2 text-[#2B2E2C]"></i>
                     Productos Disponibles
                 </h2>
             </div>
@@ -98,7 +98,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($producto->tipo_producto == 'celular')
-                                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                    <span class="px-2 py-1 text-xs bg-[#2B2E2C]/10 text-[#2B2E2C] rounded-full">
                                         <i class="fas fa-mobile-alt mr-1"></i>Celular
                                     </span>
                                 @else
@@ -159,8 +159,8 @@
         </div>
 
         <!-- Leyenda -->
-        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p class="text-sm text-blue-900">
+        <div class="mt-6 bg-[#2B2E2C]/10 border border-blue-200 rounded-lg p-4">
+            <p class="text-sm text-[#2B2E2C]">
                 <i class="fas fa-lock mr-2"></i>
                 <strong>Vista de solo consulta.</strong> Para gestionar inventario, contacta al Administrador o Almacenero.
             </p>

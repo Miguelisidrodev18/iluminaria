@@ -63,7 +63,7 @@
                                 <template x-if="!editando">
                                     <td class="px-3 py-2 text-center">
                                         @if($comp->es_opcional)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">Opcional</span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#2B2E2C]/10 text-[#2B2E2C]">Opcional</span>
                                         @else
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">Requerido</span>
                                         @endif
@@ -84,7 +84,7 @@
                                     <td class="px-3 py-2 text-right whitespace-nowrap">
                                         <button @click="editando = true"
                                                 type="button"
-                                                class="text-indigo-600 hover:text-indigo-800 text-xs mr-2">Editar</button>
+                                                class="text-[#2B2E2C] hover:text-[#2B2E2C] text-xs mr-2">Editar</button>
                                         <form action="{{ route('inventario.productos.componentes.destroy', $comp) }}"
                                               method="POST" class="inline"
                                               onsubmit="return confirm('¿Eliminar este componente?')">
@@ -104,32 +104,32 @@
                                                 <label class="block text-xs text-gray-500 mb-1">Cantidad</label>
                                                 <input type="number" name="cantidad" step="0.001" min="0.001"
                                                        value="{{ $comp->cantidad }}"
-                                                       class="w-24 border-gray-300 rounded text-sm px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500">
+                                                       class="w-24 border-gray-300 rounded text-sm px-2 py-1 focus:ring-[#F7D600] focus:border-[#F7D600]">
                                             </div>
                                             <div>
                                                 <label class="block text-xs text-gray-500 mb-1">Unidad</label>
                                                 <input type="text" name="unidad" value="{{ $comp->unidad }}" maxlength="20"
-                                                       class="w-24 border-gray-300 rounded text-sm px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500">
+                                                       class="w-24 border-gray-300 rounded text-sm px-2 py-1 focus:ring-[#F7D600] focus:border-[#F7D600]">
                                             </div>
                                             <div>
                                                 <label class="block text-xs text-gray-500 mb-1">Orden</label>
                                                 <input type="number" name="orden" min="0" value="{{ $comp->orden }}"
-                                                       class="w-16 border-gray-300 rounded text-sm px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500">
+                                                       class="w-16 border-gray-300 rounded text-sm px-2 py-1 focus:ring-[#F7D600] focus:border-[#F7D600]">
                                             </div>
                                             <div class="flex items-center gap-1 mt-4">
                                                 <input type="checkbox" name="es_opcional" id="opc_{{ $comp->id }}" value="1"
                                                        {{ $comp->es_opcional ? 'checked' : '' }}
-                                                       class="rounded border-gray-300 text-indigo-600">
+                                                       class="rounded border-gray-300 text-[#2B2E2C]">
                                                 <label for="opc_{{ $comp->id }}" class="text-xs text-gray-600">Opcional</label>
                                             </div>
                                             <div class="flex-1 min-w-[150px]">
                                                 <label class="block text-xs text-gray-500 mb-1">Observación</label>
                                                 <input type="text" name="observacion" value="{{ $comp->observacion }}" maxlength="255"
-                                                       class="w-full border-gray-300 rounded text-sm px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500">
+                                                       class="w-full border-gray-300 rounded text-sm px-2 py-1 focus:ring-[#F7D600] focus:border-[#F7D600]">
                                             </div>
                                             <div class="flex gap-2 mt-1">
                                                 <button type="submit"
-                                                        class="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700">
+                                                        class="px-3 py-1.5 bg-[#F7D600] text-[#2B2E2C] text-xs rounded hover:bg-[#e8c900]">
                                                     Guardar
                                                 </button>
                                                 <button type="button" @click="editando = false"
@@ -165,7 +165,7 @@
                            @input.debounce.300ms="buscar()"
                            @focus="mostrarResultados = true"
                            placeholder="Buscar por código o nombre..."
-                           class="w-full border-gray-300 rounded text-sm px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                           class="w-full border-gray-300 rounded text-sm px-3 py-2 focus:ring-[#F7D600] focus:border-[#F7D600]"
                            autocomplete="off">
 
                     {{-- Dropdown de resultados --}}
@@ -174,7 +174,7 @@
                          class="absolute z-20 left-0 right-0 bg-white border border-gray-200 rounded shadow-lg mt-1 max-h-48 overflow-y-auto">
                         <template x-for="p in resultados" :key="p.id">
                             <div @click="seleccionar(p)"
-                                 class="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm border-b border-gray-100 last:border-0">
+                                 class="px-3 py-2 hover:bg-[#2B2E2C]/10 cursor-pointer text-sm border-b border-gray-100 last:border-0">
                                 <span class="font-medium text-gray-800" x-text="p.nombre"></span>
                                 <span class="text-xs text-gray-400 ml-2" x-text="p.codigo"></span>
                                 <span class="text-xs ml-2" :class="p.stock_actual > 0 ? 'text-green-600' : 'text-red-400'"
@@ -184,7 +184,7 @@
                     </div>
 
                     {{-- Producto seleccionado --}}
-                    <div x-show="productoSeleccionado" class="mt-1 flex items-center gap-2 text-xs text-indigo-700">
+                    <div x-show="productoSeleccionado" class="mt-1 flex items-center gap-2 text-xs text-[#2B2E2C]">
                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
@@ -197,7 +197,7 @@
                 <div x-show="variantes.length > 0">
                     <label class="block text-xs text-gray-500 mb-1">Variante específica (opcional)</label>
                     <select name="variante_id"
-                            class="w-full border-gray-300 rounded text-sm px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            class="w-full border-gray-300 rounded text-sm px-3 py-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">— Sin variante (stock del producto base) —</option>
                         <template x-for="v in variantes" :key="v.id">
                             <option :value="v.id" x-text="v.nombre_completo ?? (v.especificacion ?? v.id)"></option>
@@ -210,21 +210,21 @@
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Cantidad <span class="text-red-500">*</span></label>
                         <input type="number" name="cantidad" step="0.001" min="0.001" value="1" required
-                               class="w-full border-gray-300 rounded text-sm px-2 py-1.5 focus:ring-indigo-500 focus:border-indigo-500">
+                               class="w-full border-gray-300 rounded text-sm px-2 py-1.5 focus:ring-[#F7D600] focus:border-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Unidad</label>
                         <input type="text" name="unidad" value="unidad" maxlength="20"
-                               class="w-full border-gray-300 rounded text-sm px-2 py-1.5 focus:ring-indigo-500 focus:border-indigo-500">
+                               class="w-full border-gray-300 rounded text-sm px-2 py-1.5 focus:ring-[#F7D600] focus:border-[#F7D600]">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">Orden</label>
                         <input type="number" name="orden" min="0" value="{{ $producto->componentes->count() }}"
-                               class="w-full border-gray-300 rounded text-sm px-2 py-1.5 focus:ring-indigo-500 focus:border-indigo-500">
+                               class="w-full border-gray-300 rounded text-sm px-2 py-1.5 focus:ring-[#F7D600] focus:border-[#F7D600]">
                     </div>
                     <div class="flex items-end pb-2 gap-2">
                         <input type="checkbox" name="es_opcional" id="nuevo_opcional" value="1"
-                               class="rounded border-gray-300 text-indigo-600">
+                               class="rounded border-gray-300 text-[#2B2E2C]">
                         <label for="nuevo_opcional" class="text-xs text-gray-600">Opcional</label>
                     </div>
                 </div>
@@ -232,7 +232,7 @@
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">Observación</label>
                     <input type="text" name="observacion" maxlength="255" placeholder="Ej: Incluye tornillo M4 zincado"
-                           class="w-full border-gray-300 rounded text-sm px-2 py-1.5 focus:ring-indigo-500 focus:border-indigo-500">
+                           class="w-full border-gray-300 rounded text-sm px-2 py-1.5 focus:ring-[#F7D600] focus:border-[#F7D600]">
                 </div>
 
                 <div class="flex justify-end">

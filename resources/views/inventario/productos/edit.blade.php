@@ -190,7 +190,7 @@
                             </div>
                             @if($producto->codigo_barras)
                                 <p class="text-xs text-gray-500 mt-1">
-                                    <a href="{{ route('inventario.productos.codigos-barras', $producto) }}" class="text-blue-600 hover:underline">
+                                    <a href="{{ route('inventario.productos.codigos-barras', $producto) }}" class="text-[#2B2E2C] hover:underline">
                                         <i class="fas fa-barcode mr-1"></i>Gestionar múltiples códigos
                                     </a>
                                 </p>
@@ -203,7 +203,7 @@
                                 Categoría <span class="text-red-500">*</span>
                             </label>
                             <select name="categoria_id" id="categoria_id"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]" required>
                                 <option value="">Seleccione una categoría</option>
                                 @foreach($categorias as $cat)
                                     <option value="{{ $cat->id }}"
@@ -222,11 +222,11 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
                             <div class="flex gap-2">
                                 <select name="marca_id" id="marca_id"
-                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
                                     <option value="">Cargando...</option>
                                 </select>
                                 <button type="button" onclick="abrirModalMarca()"
-                                        class="px-3 py-2 bg-blue-100 text-blue-800 border border-blue-300 rounded-lg hover:bg-blue-200 transition shrink-0">
+                                        class="px-3 py-2 bg-[#2B2E2C]/10 text-[#2B2E2C] border border-blue-300 rounded-lg hover:bg-[#2B2E2C]/10 transition shrink-0">
                                     <i class="fas fa-plus text-sm"></i>
                                 </button>
                             </div>
@@ -254,9 +254,9 @@
                             <div class="flex gap-2">
                                 <input type="text" name="nombre" id="nombre"
                                        value="{{ old('nombre', $producto->nombre) }}"
-                                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]" required>
                                 <button type="button" id="btnSugerirNombre"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                                        class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] rounded-lg hover:bg-[#e8c900] text-sm">
                                     <i class="fas fa-magic mr-1"></i>Sugerir
                                 </button>
                             </div>
@@ -284,7 +284,7 @@
                             </label>
                             <div class="flex gap-2">
                                 <select name="unidad_medida_id" id="unidad_medida_id"
-                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]" required>
                                     <option value="">Seleccionar...</option>
                                     @foreach($unidades as $unidad)
                                         <option value="{{ $unidad->id }}"
@@ -303,7 +303,7 @@
                         {{-- Estado --}}
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Estado <span class="text-red-500">*</span></label>
-                            <select name="estado" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" required>
+                            <select name="estado" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]" required>
                                 <option value="activo"        {{ old('estado', $producto->estado) == 'activo'        ? 'selected' : '' }}>Activo</option>
                                 <option value="inactivo"      {{ old('estado', $producto->estado) == 'inactivo'      ? 'selected' : '' }}>Inactivo</option>
                                 <option value="descontinuado" {{ old('estado', $producto->estado) == 'descontinuado' ? 'selected' : '' }}>Descontinuado</option>
@@ -332,7 +332,7 @@
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                             <textarea name="descripcion" rows="2"
-                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">{{ old('descripcion', $producto->descripcion) }}</textarea>
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">{{ old('descripcion', $producto->descripcion) }}</textarea>
                         </div>
 
                         {{-- URL Ficha Técnica --}}
@@ -363,7 +363,7 @@
                                     <img id="imagePreview" src="" alt="Vista previa" class="h-16 w-16 object-cover rounded-lg border">
                                 </div>
                                 <input type="file" name="imagen" id="imagen" accept="image/*"
-                                       class="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                       class="block text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2B2E2C]/10 file:text-[#2B2E2C] hover:file:bg-[#2B2E2C]/10"
                                        onchange="previewImage(event)">
                             </div>
                             <p class="text-xs text-gray-400 mt-1">Deja vacío para conservar la imagen actual</p>
@@ -384,20 +384,20 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Stock Mínimo <span class="text-red-500">*</span></label>
                             <input type="number" name="stock_minimo"
                                    value="{{ old('stock_minimo', $producto->stock_minimo) }}" min="0"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Stock Máximo <span class="text-red-500">*</span></label>
                             <input type="number" name="stock_maximo"
                                    value="{{ old('stock_maximo', $producto->stock_maximo) }}" min="1"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
                             <input type="text" name="ubicacion"
                                    value="{{ old('ubicacion', $producto->ubicacion) }}"
                                    placeholder="Ej: Estante A-3"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]">
                         </div>
                     </div>
                 </div>
@@ -407,7 +407,7 @@
                 ══════════════════════════════════════════════════════════ --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5">
                     <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
-                        <i class="fas fa-map-marker-alt text-indigo-500"></i>
+                        <i class="fas fa-map-marker-alt text-[#2B2E2C]"></i>
                         <h2 class="font-semibold text-gray-800">Ubicaciones Físicas
                             <span class="text-xs font-normal text-gray-400">(dónde se almacena este producto)</span>
                         </h2>
@@ -497,11 +497,11 @@
 
                     <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-layer-group text-indigo-500"></i>
+                            <i class="fas fa-layer-group text-[#2B2E2C]"></i>
                             <h2 class="font-semibold text-gray-800">Variantes del Producto</h2>
                         </div>
                         <a href="{{ route('inventario.productos.variantes', $producto) }}"
-                           class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                           class="text-xs text-[#2B2E2C] hover:text-[#2B2E2C] font-medium">
                             Ver gestión completa <i class="fas fa-external-link-alt ml-1"></i>
                         </a>
                     </div>
@@ -551,7 +551,7 @@
                                         </td>
                                         <td class="py-2 text-right">
                                             <button type="button" @click="editando = !editando"
-                                                    class="text-blue-500 hover:text-blue-700 mr-2 transition-colors">
+                                                    class="text-[#2B2E2C] hover:text-[#2B2E2C] mr-2 transition-colors">
                                                 <i class="fas fa-pencil-alt text-xs"></i>
                                             </button>
                                             <form method="POST" action="{{ route('inventario.productos.variantes.destroy', $variante) }}"
@@ -567,7 +567,7 @@
                                     <tr x-show="editando" x-cloak>
                                         <td colspan="6" class="py-3 px-2">
                                             <form method="POST" action="{{ route('inventario.productos.variantes.update', $variante) }}"
-                                                  class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+                                                  class="bg-[#2B2E2C]/10 border border-gray-200 rounded-xl p-4">
                                                 @csrf @method('PUT')
                                                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-5 mb-3">
                                                     <div>
@@ -602,7 +602,7 @@
                                                 </div>
                                                 <div class="flex gap-2">
                                                     <button type="submit"
-                                                            class="px-4 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                                                            class="px-4 py-1.5 bg-[#F7D600] text-[#2B2E2C] text-xs font-medium rounded-lg hover:bg-[#e8c900] transition-colors">
                                                         <i class="fas fa-check mr-1"></i>Guardar
                                                     </button>
                                                     <button type="button" @click="editando = false"
@@ -624,7 +624,7 @@
                         {{-- Formulario para agregar nueva variante --}}
                         <div x-data="{ abierto: false }">
                             <button type="button" @click="abierto = !abierto"
-                                    class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                                    class="text-sm text-[#2B2E2C] hover:text-[#2B2E2C] font-medium">
                                 <i class="fas fa-plus mr-1"></i>
                                 <span x-text="abierto ? 'Cancelar' : 'Agregar variante'"></span>
                             </button>
@@ -665,7 +665,7 @@
                                         </div>
                                     </div>
                                     <button type="submit"
-                                            class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                                            class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] text-sm font-medium rounded-lg hover:bg-[#e8c900] transition-colors">
                                         <i class="fas fa-plus mr-1"></i>Agregar Variante
                                     </button>
                                 </form>
@@ -682,7 +682,7 @@
                 {{-- Botones de acción --}}
                 <div class="flex items-center justify-between pt-4">
                     <a href="{{ route('inventario.productos.codigos-barras', $producto) }}"
-                       class="px-4 py-2 text-sm text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50">
+                       class="px-4 py-2 text-sm text-[#2B2E2C] border border-blue-300 rounded-lg hover:bg-[#2B2E2C]/10">
                         <i class="fas fa-barcode mr-2"></i>Gestionar Códigos de Barras
                     </a>
                     <div class="flex gap-3">

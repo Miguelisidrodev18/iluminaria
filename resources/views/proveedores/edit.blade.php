@@ -21,7 +21,7 @@
         <div class="max-w-4xl mx-auto">
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 {{-- Información del Proveedor --}}
-                <div class="bg-blue-900 px-6 py-4">
+                <div class="bg-[#2B2E2C] px-6 py-4">
                     <h2 class="text-xl font-bold text-white">
                         <i class="fas fa-edit mr-2"></i>Información del Proveedor
                     </h2>
@@ -37,7 +37,7 @@
                             </label>
                             <input type="text" name="ruc" maxlength="11" required
                                    placeholder="11 dígitos"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('ruc') border-red-500 @enderror"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] @error('ruc') border-red-500 @enderror"
                                    value="{{ old('ruc', $proveedor->ruc) }}">
                             @error('ruc')
                                 <p class="text-red-600 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -50,7 +50,7 @@
                             </label>
                             <input type="text" name="razon_social" required
                                    placeholder="Nombre de la empresa"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('razon_social') border-red-500 @enderror"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] @error('razon_social') border-red-500 @enderror"
                                    value="{{ old('razon_social', $proveedor->razon_social) }}">
                             @error('razon_social')
                                 <p class="text-red-600 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -61,7 +61,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Comercial</label>
                             <input type="text" name="nombre_comercial"
                                    placeholder="Nombre comercial (opcional)"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('nombre_comercial', $proveedor->nombre_comercial) }}">
                         </div>
 
@@ -69,7 +69,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
                             <input type="text" name="direccion"
                                    placeholder="Dirección fiscal"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('direccion', $proveedor->direccion) }}">
                         </div>
 
@@ -77,7 +77,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
                             <input type="text" name="telefono" maxlength="20"
                                    placeholder="Número de teléfono"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('telefono', $proveedor->telefono) }}">
                         </div>
 
@@ -85,7 +85,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <input type="email" name="email"
                                    placeholder="correo@ejemplo.com"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('email', $proveedor->email) }}">
                         </div>
 
@@ -93,7 +93,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de Contacto</label>
                             <input type="text" name="contacto_nombre"
                                    placeholder="Persona de contacto"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]"
                                    value="{{ old('contacto_nombre', $proveedor->contacto_nombre) }}">
                         </div>
 
@@ -102,7 +102,7 @@
                                 Estado <span class="text-red-500">*</span>
                             </label>
                             <select name="estado"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600]">
                                 <option value="activo" {{ old('estado', $proveedor->estado) === 'activo' ? 'selected' : '' }}>Activo</option>
                                 <option value="inactivo" {{ old('estado', $proveedor->estado) === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                             </select>
@@ -115,7 +115,7 @@
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </a>
                         <button type="submit"
-                                class="px-6 py-3 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 transition-colors">
+                                class="px-6 py-3 bg-[#2B2E2C] text-white rounded-lg font-semibold hover:bg-[#2B2E2C] transition-colors">
                             <i class="fas fa-save mr-2"></i>Actualizar Proveedor
                         </button>
                     </div>

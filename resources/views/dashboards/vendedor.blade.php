@@ -36,14 +36,14 @@
             </div>
 
             <!-- Ventas del Mes -->
-            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-900">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-[#2B2E2C]">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600 font-medium">Ventas del Mes</p>
                         <p class="text-3xl font-bold text-gray-900 mt-2">S/ {{ number_format($ventas_mes, 2) }}</p>
                     </div>
-                    <div class="bg-blue-100 rounded-full p-3">
-                        <i class="fas fa-calendar-alt text-blue-900 text-2xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-calendar-alt text-[#2B2E2C] text-2xl"></i>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
         <!-- Últimas Ventas -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-4">
-                <i class="fas fa-history mr-2 text-blue-900"></i>
+                <i class="fas fa-history mr-2 text-[#2B2E2C]"></i>
                 Últimas Ventas
             </h2>
             <div class="text-center py-12 text-gray-500">

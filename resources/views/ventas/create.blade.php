@@ -57,7 +57,7 @@
             <template x-for="(ord, idx) in ordenes" :key="ord.id">
                 <button @click="cambiarOrden(idx)"
                         :class="ordenActiva === idx
-                            ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                            ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600] shadow-sm'
                             : 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
                         class="relative flex items-center gap-1.5 border rounded-lg px-2.5 py-1 text-xs font-semibold transition whitespace-nowrap shrink-0">
                     <span x-text="'Orden #' + ord.id"></span>
@@ -73,7 +73,7 @@
             <button @click="nuevaOrden()"
                     :disabled="ordenes.length >= 5"
                     title="Nueva orden (F3)"
-                    class="w-7 h-7 shrink-0 flex items-center justify-center rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-gray-200 dark:border-gray-600 transition disabled:opacity-30">
+                    class="w-7 h-7 shrink-0 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#2B2E2C] hover:bg-[#2B2E2C]/10 dark:hover:bg-[#2B2E2C]/20 border border-gray-200 dark:border-gray-600 transition disabled:opacity-30">
                 <i class="fas fa-plus text-xs"></i>
             </button>
         </div>
@@ -88,7 +88,7 @@
                 <i class="fas text-sm" :class="darkMode ? 'fa-sun text-amber-400' : 'fa-moon'"></i>
             </button>
 
-            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+            <div class="w-8 h-8 rounded-full bg-[#F7D600] text-[#2B2E2C] flex items-center justify-center text-xs font-bold shrink-0">
                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
             </div>
             <span class="text-sm text-gray-600 dark:text-gray-300 hidden xl:block truncate max-w-30">{{ auth()->user()->name }}</span>
@@ -114,7 +114,7 @@
                            x-ref="searchInput"
                            @keydown.enter.prevent="buscarProductoDirecto()"
                            placeholder="Buscar... (F2)"
-                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-9 pr-8 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white dark:placeholder-gray-400 transition">
+                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pl-9 pr-8 py-2 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] dark:text-white dark:placeholder-gray-400 transition">
                     <button x-show="busqueda" @click="busqueda=''" x-cloak
                             class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
                         <i class="fas fa-times text-xs"></i>
@@ -127,7 +127,7 @@
                 <div class="flex gap-1.5 min-w-max">
                     <button @click="categoriaActiva = null"
                             :class="categoriaActiva === null
-                                ? 'bg-blue-600 text-white border-blue-600'
+                                ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]'
                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'"
                             class="px-3 py-1 rounded-full text-xs font-semibold border transition whitespace-nowrap">
                         Todos
@@ -135,7 +135,7 @@
                     @foreach($categorias as $cat)
                         <button @click="categoriaActiva = {{ $cat->id }}"
                                 :class="categoriaActiva === {{ $cat->id }}
-                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]'
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'"
                                 class="px-3 py-1 rounded-full text-xs font-semibold border transition whitespace-nowrap">
                             {{ $cat->nombre }}
@@ -151,7 +151,7 @@
                 <div class="grid grid-cols-3 gap-2">
                     <template x-for="producto in productosConStock" :key="producto.id">
                         <div @click="agregarAlCarrito(producto)"
-                             class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all group select-none">
+                             class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden cursor-pointer hover:border-blue-400 dark:hover:border-[#F7D600] hover:shadow-md transition-all group select-none">
                             <div class="aspect-square bg-gray-50 dark:bg-gray-800 relative overflow-hidden flex items-center justify-center">
                                 <template x-if="producto.imagen">
                                     <img :src="producto.imagen" :alt="producto.nombre" class="w-full h-full object-cover">
@@ -160,14 +160,14 @@
                                     <i class="fas fa-box text-gray-300 dark:text-gray-600 text-2xl group-hover:text-gray-400 transition"></i>
                                 </template>
                                 <span x-show="producto.tipo_inventario === 'serie'" x-cloak
-                                      class="absolute top-1 right-1 bg-purple-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold leading-tight">IMEI</span>
+                                      class="absolute top-1 right-1 bg-[#2B2E2C] text-white text-[9px] px-1.5 py-0.5 rounded font-bold leading-tight">IMEI</span>
                                 <span x-show="producto.tiene_variantes" x-cloak
-                                      class="absolute top-1 left-1 bg-indigo-500/90 text-white text-[9px] px-1.5 py-0.5 rounded leading-tight">VAR</span>
+                                      class="absolute top-1 left-1 bg-[#F7D600] text-[#2B2E2C]/90 text-[9px] px-1.5 py-0.5 rounded leading-tight">VAR</span>
                             </div>
                             <div class="p-2">
                                 <p class="text-[11px] text-gray-700 dark:text-gray-200 font-medium line-clamp-2 leading-tight mb-1" x-text="producto.nombre"></p>
                                 <div class="flex items-center justify-between gap-1">
-                                    <p class="text-sm font-bold text-blue-600 dark:text-blue-400" x-text="'S/ ' + producto.precio_venta.toFixed(2)"></p>
+                                    <p class="text-sm font-bold text-[#2B2E2C] dark:text-blue-400" x-text="'S/ ' + producto.precio_venta.toFixed(2)"></p>
                                     <span x-show="orden.almacenId && producto.tipo_inventario !== 'serie'" x-cloak
                                           class="text-[9px] font-semibold text-gray-400 dark:text-gray-500 shrink-0"
                                           x-text="stockEnAlmacen(producto) + ' u.'"></span>
@@ -230,7 +230,7 @@
                 <div class="flex items-center gap-2">
                     <h2 class="text-sm font-bold text-gray-700 dark:text-gray-200">Carrito</h2>
                     <span x-show="orden.carrito.length > 0" x-cloak
-                          class="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold"
+                          class="bg-[#F7D600] text-[#2B2E2C] text-[10px] px-2 py-0.5 rounded-full font-bold"
                           x-text="orden.carrito.reduce((s, i) => s + i.cantidad, 0) + ' ítems'"></span>
                 </div>
                 <button @click="vaciarCarrito()"
@@ -243,7 +243,7 @@
             {{-- Almacén selector --}}
             <div class="px-4 py-2.5 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
                 <select x-model="orden.almacenId"
-                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] transition">
                     <option value="">— Seleccionar almacén —</option>
                     @foreach($almacenes as $alm)
                         <option value="{{ $alm->id }}">{{ $alm->nombre }}</option>
@@ -280,7 +280,7 @@
                             <template x-if="item.imeis && item.imeis.length">
                                 <div class="mb-2 flex flex-wrap gap-1">
                                     <template x-for="imei in item.imeis">
-                                        <span class="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono" x-text="imei.codigo_imei || imei"></span>
+                                        <span class="bg-[#2B2E2C]/10 dark:bg-[#2B2E2C]/50 text-[#2B2E2C] dark:text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono" x-text="imei.codigo_imei || imei"></span>
                                     </template>
                                 </div>
                             </template>
@@ -310,7 +310,7 @@
             {{-- Notes --}}
             <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
                 <button @click="orden.showNota = !orden.showNota"
-                        :class="orden.observaciones ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'"
+                        :class="orden.observaciones ? 'text-[#2B2E2C] dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'"
                         class="text-xs flex items-center gap-1.5 transition font-medium">
                     <i class="fas fa-sticky-note"></i>
                     <span x-text="orden.observaciones ? 'Nota guardada ✓' : 'Agregar nota'"></span>
@@ -318,7 +318,7 @@
                 <div x-show="orden.showNota" x-cloak class="mt-2">
                     <textarea x-model="orden.observaciones" rows="2"
                               placeholder="Observaciones de la venta..."
-                              class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 resize-none placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                              class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 resize-none placeholder-gray-400 focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]"></textarea>
                 </div>
             </div>
         </div>
@@ -338,8 +338,8 @@
                         <div class="flex-1 relative" @click.outside="mostrarDropdownCliente = false">
                             {{-- Selected chip --}}
                             <div x-show="orden.clienteId" x-cloak
-                                 class="w-full border border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20 rounded-lg py-2 pl-3 pr-8 text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2 relative">
-                                <i class="fas fa-user-check text-xs text-blue-500 shrink-0"></i>
+                                 class="w-full border border-blue-400 dark:border-[#F7D600] bg-[#2B2E2C]/10 dark:bg-[#2B2E2C]/20 rounded-lg py-2 pl-3 pr-8 text-sm text-[#2B2E2C] dark:text-blue-300 flex items-center gap-2 relative">
+                                <i class="fas fa-user-check text-xs text-[#2B2E2C] shrink-0"></i>
                                 <span class="truncate flex-1 font-medium" x-text="orden.clienteNombre"></span>
                                 <button @click="limpiarCliente()" class="absolute right-2 top-2 text-blue-400 hover:text-red-400 transition">
                                     <i class="fas fa-times text-xs"></i>
@@ -354,7 +354,7 @@
                                        @input="buscarCliente()"
                                        @keydown.escape="mostrarDropdownCliente = false"
                                        placeholder="Buscar cliente..."
-                                       class="w-full border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 rounded-lg py-2 pl-8 pr-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400">
+                                       class="w-full border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 rounded-lg py-2 pl-8 pr-3 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] transition placeholder-gray-400">
                             </div>
                             {{-- Dropdown --}}
                             <div x-show="mostrarDropdownCliente" x-cloak
@@ -380,7 +380,7 @@
                             </div>
                         </div>
                         <button @click="abrirModalCliente()" title="Nuevo cliente"
-                                class="border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-blue-600 hover:border-blue-400 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 transition">
+                                class="border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:text-[#2B2E2C] hover:border-blue-400 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 transition">
                             <i class="fas fa-user-plus text-xs"></i>
                         </button>
                     </div>
@@ -391,12 +391,12 @@
                     <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Comprobante</p>
                     <div class="grid grid-cols-3 gap-1.5">
                         <button @click="orden.tipoComprobante = 'boleta'"
-                                :class="orden.tipoComprobante === 'boleta' ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                :class="orden.tipoComprobante === 'boleta' ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                                 class="border rounded-xl py-2 text-xs font-semibold transition flex flex-col items-center gap-1">
                             <i class="fas fa-receipt"></i> Boleta
                         </button>
                         <button @click="orden.tipoComprobante = 'factura'"
-                                :class="orden.tipoComprobante === 'factura' ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                :class="orden.tipoComprobante === 'factura' ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]' : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                                 class="border rounded-xl py-2 text-xs font-semibold transition flex flex-col items-center gap-1">
                             <i class="fas fa-file-invoice"></i> Factura
                         </button>
@@ -419,7 +419,7 @@
                     <label class="flex items-center gap-3 cursor-pointer select-none">
                         <div class="relative shrink-0">
                             <input type="checkbox" x-model="orden.envioProvincia" class="sr-only">
-                            <div :class="orden.envioProvincia ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'"
+                            <div :class="orden.envioProvincia ? 'bg-[#F7D600] text-[#2B2E2C]' : 'bg-gray-200 dark:bg-gray-600'"
                                  class="w-9 h-5 rounded-full transition-colors"></div>
                             <div :class="orden.envioProvincia ? 'translate-x-4' : 'translate-x-0.5'"
                                  class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
@@ -428,12 +428,12 @@
                     </label>
                     <div x-show="orden.envioProvincia" x-cloak class="mt-3 space-y-2">
                         <input type="text" x-model="orden.guiaRemision" placeholder="N° Guía de remisión"
-                               class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
+                               class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
                         <div class="grid grid-cols-2 gap-2">
                             <input type="text" x-model="orden.transportista" placeholder="Transportista"
-                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
+                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
                             <input type="text" x-model="orden.placaVehiculo" placeholder="Placa"
-                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 placeholder-gray-400 uppercase">
+                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400 uppercase">
                         </div>
                     </div>
                 </div>
@@ -443,12 +443,12 @@
                     <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Formato impresión</p>
                     <div class="flex gap-2">
                         <button @click="setFormato('ticket')"
-                                :class="formatoImpresion === 'ticket' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
+                                :class="formatoImpresion === 'ticket' ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
                                 class="flex-1 py-2 border rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5">
                             <i class="fas fa-receipt"></i> Ticket 80mm
                         </button>
                         <button @click="setFormato('a4')"
-                                :class="formatoImpresion === 'a4' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
+                                :class="formatoImpresion === 'a4' ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'"
                                 class="flex-1 py-2 border rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5">
                             <i class="fas fa-file-alt"></i> A4
                         </button>
@@ -460,7 +460,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Método de pago</p>
                         <button @click="agregarPago()" :disabled="orden.pagos.length >= 4"
-                                class="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 disabled:opacity-30 transition">
+                                class="text-xs text-[#2B2E2C] hover:text-[#2B2E2C] flex items-center gap-1 disabled:opacity-30 transition">
                             <i class="fas fa-plus text-[10px]"></i> Agregar
                         </button>
                     </div>
@@ -474,7 +474,7 @@
                             <span>Efectivo</span>
                         </button>
                         <button @click="seleccionarMetodoPago('yape')"
-                                :class="orden.pagos.length === 1 && orden.pagos[0].metodo === 'yape' ? 'bg-purple-50 border-purple-400 text-purple-700 dark:bg-purple-900/20 dark:border-purple-600 dark:text-purple-400' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                :class="orden.pagos.length === 1 && orden.pagos[0].metodo === 'yape' ? 'bg-[#2B2E2C]/10 border-purple-400 text-[#2B2E2C] dark:bg-[#2B2E2C]/20 dark:border-purple-600 dark:text-purple-400' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
                                 class="flex flex-col items-center gap-0.5 py-2 rounded-xl border transition text-xs font-semibold">
                             <i class="fas fa-mobile-alt text-purple-500 text-sm"></i>
                             <span>Yape</span>
@@ -486,9 +486,9 @@
                             <span>Plin</span>
                         </button>
                         <button @click="seleccionarMetodoPago('transferencia')"
-                                :class="orden.pagos.length === 1 && orden.pagos[0].metodo === 'transferencia' ? 'bg-blue-50 border-blue-400 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-400' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                                :class="orden.pagos.length === 1 && orden.pagos[0].metodo === 'transferencia' ? 'bg-[#2B2E2C]/10 border-blue-400 text-[#2B2E2C] dark:bg-[#2B2E2C]/20 dark:border-[#F7D600] dark:text-blue-400' : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
                                 class="flex flex-col items-center gap-0.5 py-2 rounded-xl border transition text-xs font-semibold">
-                            <i class="fas fa-university text-blue-500 text-sm"></i>
+                            <i class="fas fa-university text-[#2B2E2C] text-sm"></i>
                             <span>Transf.</span>
                         </button>
                     </div>
@@ -498,7 +498,7 @@
                         <template x-for="(pago, pi) in orden.pagos" :key="pi">
                             <div class="flex items-center gap-2">
                                 <select x-model="pago.metodo"
-                                        class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                                        class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
                                     <option value="efectivo">💵 Efectivo</option>
                                     <option value="yape">📱 Yape</option>
                                     <option value="plin">📱 Plin</option>
@@ -506,7 +506,7 @@
                                 </select>
                                 <input type="number" x-model.number="pago.monto" step="0.50" min="0"
                                        :placeholder="pi === 0 && orden.pagos.length === 1 ? total.toFixed(2) : '0.00'"
-                                       class="w-24 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-right font-mono text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                                       class="w-24 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-right font-mono text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
                                 <button x-show="orden.pagos.length > 1" @click="quitarPago(pi)" x-cloak
                                         class="text-gray-400 hover:text-red-500 transition">
                                     <i class="fas fa-times text-sm"></i>
@@ -520,7 +520,7 @@
                         <p class="text-[10px] text-gray-400 mb-1.5 uppercase font-semibold tracking-wide">Pago rápido</p>
                         <div class="flex flex-wrap gap-1.5">
                             <button @click="orden.pagos[0].monto = parseFloat(total.toFixed(2))"
-                                    class="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-700 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition">
+                                    class="px-2.5 py-1 bg-[#2B2E2C]/10 dark:bg-[#2B2E2C]/20 text-[#2B2E2C] dark:text-blue-400 border border-blue-200 dark:border-blue-700 rounded-lg text-xs font-semibold hover:bg-[#2B2E2C]/10 dark:hover:bg-[#2B2E2C]/40 transition">
                                 Exacto
                             </button>
                             <template x-for="amt in [10, 20, 50, 100, 200]" :key="amt">
@@ -579,7 +579,7 @@
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
                         <span class="text-base font-bold text-gray-800 dark:text-gray-100">TOTAL</span>
-                        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400" x-text="'S/ ' + total.toFixed(2)"></span>
+                        <span class="text-2xl font-bold text-[#2B2E2C] dark:text-blue-400" x-text="'S/ ' + total.toFixed(2)"></span>
                     </div>
                     <div x-show="vuelto > 0" x-cloak class="flex justify-between items-center">
                         <span class="text-sm text-green-600 dark:text-green-400 font-semibold">Vuelto</span>
@@ -593,7 +593,7 @@
 
                 <button @click="procesarPago()"
                         :disabled="orden.carrito.length === 0 || !orden.almacenId || guardando"
-                        :class="orden.tipoComprobante === 'cotizacion' ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200 dark:shadow-amber-900/30' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200 dark:shadow-blue-900/30'"
+                        :class="orden.tipoComprobante === 'cotizacion' ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200 dark:shadow-amber-900/30' : 'bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] shadow-blue-200 dark:shadow-blue-900/30'"
                         class="w-full disabled:opacity-40 disabled:cursor-not-allowed text-white py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg">
                     <template x-if="orden.tipoComprobante === 'cotizacion'">
                         <span x-show="!guardando"><i class="fas fa-file-contract mr-1"></i>Guardar Cotización <kbd class="text-sm opacity-70 font-normal">F4</kbd></span>
@@ -618,7 +618,7 @@
              :class="{
                  'bg-green-600 text-white': t.tipo === 'success',
                  'bg-red-600 text-white':   t.tipo === 'error',
-                 'bg-blue-600 text-white':  t.tipo === 'info',
+                 'bg-[#F7D600] text-[#2B2E2C]':  t.tipo === 'info',
                  'bg-amber-500 text-white': t.tipo === 'warning',
              }">
             <i class="fas shrink-0"
@@ -666,7 +666,7 @@
                 <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-600">
                     <span class="text-base font-bold text-gray-800 dark:text-gray-100">Total</span>
                     <span class="text-2xl font-bold"
-                          :class="orden.tipoComprobante === 'cotizacion' ? 'text-amber-500' : 'text-blue-600 dark:text-blue-400'"
+                          :class="orden.tipoComprobante === 'cotizacion' ? 'text-amber-500' : 'text-[#2B2E2C] dark:text-blue-400'"
                           x-text="'S/ ' + total.toFixed(2)"></span>
                 </div>
                 <div x-show="vuelto > 0 && orden.tipoComprobante !== 'cotizacion'" x-cloak class="flex justify-between text-sm">
@@ -687,7 +687,7 @@
             </button>
             <button @click="confirmarPago()"
                     :disabled="!puedePagar || guardando"
-                    class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl py-3 font-bold text-sm transition flex items-center justify-center gap-2">
+                    class="flex-1 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] disabled:opacity-50 rounded-xl py-3 font-bold text-sm transition flex items-center justify-center gap-2">
                 <template x-if="orden.tipoComprobante === 'cotizacion'">
                     <span><i class="fas fa-file-alt mr-1"></i>Guardar Cotización</span>
                 </template>
@@ -707,7 +707,7 @@
     <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-md shadow-2xl animate-fade-up">
         <div class="p-5 border-b border-gray-100 dark:border-gray-700">
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                <i class="fas fa-user-plus text-blue-500"></i> Nuevo Cliente
+                <i class="fas fa-user-plus text-[#2B2E2C]"></i> Nuevo Cliente
             </h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Consulta DNI/RUC o ingresa manualmente</p>
         </div>
@@ -716,7 +716,7 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Tipo documento</label>
                     <select x-model="nuevoCliente.tipo_documento"
-                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                            class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
                         <option value="DNI">DNI</option>
                         <option value="RUC">RUC</option>
                         <option value="CE">Carnet Ext.</option>
@@ -728,9 +728,9 @@
                     <div class="flex gap-1.5 items-stretch">
                         <input type="text" x-model="nuevoCliente.numero_documento"
                                :maxlength="nuevoCliente.tipo_documento === 'RUC' ? 11 : 8"
-                               class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 font-mono">
+                               class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] font-mono">
                         <button @click="consultarDocumento()" :disabled="buscandoCliente"
-                                class="px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition disabled:opacity-50 shrink-0 flex items-center justify-center">
+                                class="px-3 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] rounded-lg text-sm transition disabled:opacity-50 shrink-0 flex items-center justify-center">
                             <i class="fas" :class="buscandoCliente ? 'fa-spinner fa-spin' : 'fa-search'"></i>
                         </button>
                     </div>
@@ -739,18 +739,18 @@
             <div>
                 <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Nombre / Razón social</label>
                 <input type="text" x-model="nuevoCliente.nombre"
-                       class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                       class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Teléfono</label>
                     <input type="text" x-model="nuevoCliente.telefono"
-                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Dirección</label>
                     <input type="text" x-model="nuevoCliente.direccion"
-                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500">
+                           class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
                 </div>
             </div>
             <div x-show="errorCliente" x-cloak class="px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-xs text-red-600 dark:text-red-400 flex items-center gap-2">
@@ -765,7 +765,7 @@
             </button>
             <button @click="guardarCliente()"
                     :disabled="!nuevoCliente.nombre || !nuevoCliente.numero_documento || guardandoCliente"
-                    class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl py-3 font-bold text-sm transition">
+                    class="flex-1 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] disabled:opacity-50 rounded-xl py-3 font-bold text-sm transition">
                 <i class="fas" :class="guardandoCliente ? 'fa-spinner fa-spin' : 'fa-save'"></i>
                 <span class="ml-1">Guardar</span>
             </button>
@@ -781,7 +781,7 @@
     <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl animate-fade-up">
         <div class="p-5 border-b border-gray-100 dark:border-gray-700">
             <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                <i class="fas fa-swatchbook text-indigo-500"></i>
+                <i class="fas fa-swatchbook text-[#2B2E2C]"></i>
                 Seleccionar Variante
             </h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5" x-text="productoActual?.nombre"></p>
@@ -793,7 +793,7 @@
                             :disabled="stockVarianteEnAlmacen(v) === 0 && productoActual?.tipo_inventario !== 'serie'"
                             class="text-left border rounded-xl p-3 transition group disabled:opacity-40 disabled:cursor-not-allowed"
                             :class="stockVarianteEnAlmacen(v) > 0 || productoActual?.tipo_inventario === 'serie'
-                                ? 'border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                                ? 'border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-[#F7D600] hover:bg-[#2B2E2C]/10 dark:hover:bg-[#2B2E2C]/20'
                                 : 'border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30'">
                         <div class="flex items-center gap-2 mb-1.5">
                             <template x-if="v.color_hex">
@@ -812,7 +812,7 @@
                                           ? stockVarianteEnAlmacen(v) + ' en stock'
                                           : 'Sin stock')"></span>
                         </div>
-                        <div x-show="v.sobreprecio > 0" class="text-xs text-indigo-600 dark:text-indigo-400 mt-1 font-semibold" x-text="'+S/ ' + v.sobreprecio.toFixed(2)"></div>
+                        <div x-show="v.sobreprecio > 0" class="text-xs text-[#2B2E2C] dark:text-gray-400 mt-1 font-semibold" x-text="'+S/ ' + v.sobreprecio.toFixed(2)"></div>
                     </button>
                 </template>
             </div>
@@ -849,7 +849,7 @@
                            maxlength="15"
                            class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm font-mono text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 placeholder-gray-400">
                     <button @click="agregarIMEIManual()"
-                            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-semibold transition">
+                            class="px-4 py-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white rounded-lg text-sm font-semibold transition">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -860,7 +860,7 @@
                 <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Seleccionados (<span x-text="imeisTemp.length"></span>)</p>
                 <div class="flex flex-wrap gap-1.5">
                     <template x-for="imei in imeisTemp" :key="imei.codigo_imei">
-                        <span class="flex items-center gap-1.5 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 text-xs px-2.5 py-1 rounded-lg font-mono">
+                        <span class="flex items-center gap-1.5 bg-[#2B2E2C]/10 dark:bg-[#2B2E2C]/50 text-[#2B2E2C] dark:text-purple-300 text-xs px-2.5 py-1 rounded-lg font-mono">
                             <span x-text="imei.codigo_imei"></span>
                             <button @click="quitarImeiManual(imei.codigo_imei)" class="text-purple-400 hover:text-red-500 transition">
                                 <i class="fas fa-times text-[10px]"></i>
@@ -884,7 +884,7 @@
                 <div class="max-h-36 overflow-y-auto space-y-1">
                     <template x-for="imei in imeisDisponibles" :key="imei.id">
                         <button @click="toggleImei(imei)"
-                                :class="isImeiSeleccionado(imei) ? 'bg-purple-50 dark:bg-purple-900/30 border-purple-400 dark:border-purple-600 text-purple-700 dark:text-purple-300' : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-300 dark:hover:border-purple-700'"
+                                :class="isImeiSeleccionado(imei) ? 'bg-[#2B2E2C]/10 dark:bg-[#2B2E2C]/30 border-purple-400 dark:border-purple-600 text-[#2B2E2C] dark:text-purple-300' : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-300 dark:hover:border-purple-700'"
                                 class="w-full text-left flex items-center justify-between px-3 py-2 border rounded-lg text-sm font-mono transition">
                             <span x-text="imei.codigo_imei"></span>
                             <i class="fas" :class="isImeiSeleccionado(imei) ? 'fa-check-circle text-purple-500' : 'fa-circle text-gray-200 dark:text-gray-600'"></i>
@@ -899,12 +899,12 @@
                 Cancelar
             </button>
             <button @click="confirmarYSeguir()" :disabled="imeisTemp.length === 0"
-                    class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-xl py-2.5 font-bold text-sm transition">
+                    class="flex-1 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] disabled:opacity-40 rounded-xl py-2.5 font-bold text-sm transition">
                 <i class="fas fa-plus mr-1"></i>
                 Agregar y continuar
             </button>
             <button @click="confirmarIMEIs()" :disabled="imeisTemp.length === 0"
-                    class="flex-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-40 text-white rounded-xl py-2.5 font-bold text-sm transition">
+                    class="flex-1 bg-[#2B2E2C] hover:bg-[#2B2E2C] disabled:opacity-40 text-white rounded-xl py-2.5 font-bold text-sm transition">
                 <i class="fas fa-check mr-1"></i>
                 Agregar (<span x-text="imeisTemp.length"></span>)
             </button>

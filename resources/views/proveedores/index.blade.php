@@ -30,14 +30,14 @@
 
         {{-- Estadísticas --}}
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-5">
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-[#F7D600] p-5">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500">Total Proveedores</p>
                         <p class="text-3xl font-bold text-gray-800">{{ $proveedores->count() }}</p>
                     </div>
-                    <div class="bg-blue-100 rounded-full p-3">
-                        <i class="fas fa-truck text-blue-600 text-xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-truck text-[#2B2E2C] text-xl"></i>
                     </div>
                 </div>
             </div>
@@ -69,8 +69,8 @@
                         <p class="text-sm text-gray-500">Con Compras</p>
                         <p class="text-3xl font-bold text-gray-800">{{ $proveedores->where('compras_count', '>', 0)->count() }}</p>
                     </div>
-                    <div class="bg-purple-100 rounded-full p-3">
-                        <i class="fas fa-shopping-cart text-purple-600 text-xl"></i>
+                    <div class="bg-[#2B2E2C]/10 rounded-full p-3">
+                        <i class="fas fa-shopping-cart text-[#2B2E2C] text-xl"></i>
                     </div>
                 </div>
             </div>
@@ -80,10 +80,10 @@
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-800">
-                    <i class="fas fa-list mr-2 text-blue-600"></i>Lista de Proveedores
+                    <i class="fas fa-list mr-2 text-[#2B2E2C]"></i>Lista de Proveedores
                 </h3>
                 @if($canCreate)
-                    <a href="{{ route('proveedores.create') }}" class="bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm">
+                    <a href="{{ route('proveedores.create') }}" class="bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm">
                         <i class="fas fa-plus mr-2"></i>Nuevo Proveedor
                     </a>
                 @endif
@@ -114,7 +114,7 @@
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $proveedor->compras_count }}</td>
                             <td class="px-6 py-4 text-sm space-x-3">
-                                <a href="{{ route('proveedores.show', $proveedor) }}" class="text-blue-600 hover:text-blue-800" title="Ver">
+                                <a href="{{ route('proveedores.show', $proveedor) }}" class="text-[#2B2E2C] hover:text-[#2B2E2C]" title="Ver">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 @if($canEdit)

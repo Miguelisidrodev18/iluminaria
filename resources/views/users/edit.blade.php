@@ -29,7 +29,7 @@
                         <div class="col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
                             <input type="text" name="name" value="{{ old('name', $user->name) }}" required
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                             @error('name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -39,7 +39,7 @@
                         <div class="col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                             <input type="email" name="email" value="{{ old('email', $user->email) }}" required
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                             @error('email')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -49,7 +49,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
                             <input type="password" name="password"
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                             <p class="text-xs text-gray-500 mt-1">Dejar en blanco para mantener la actual</p>
                             @error('password')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -60,14 +60,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
                             <input type="password" name="password_confirmation"
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                         </div>
 
                         {{-- Rol --}}
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Rol *</label>
                             <select name="role_id" required
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                                 <option value="">Seleccione un rol</option>
                                 @foreach($roles as $role)
                                     <option value="{{ $role->id }}" {{ old('role_id', $user->role_id) == $role->id ? 'selected' : '' }}>
@@ -84,7 +84,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Almacén/Tienda</label>
                             <select name="almacen_id" 
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                                 <option value="">Sin asignar</option>
                                 @foreach($almacenes as $almacen)
                                     <option value="{{ $almacen->id }}" {{ old('almacen_id', $user->almacen_id) == $almacen->id ? 'selected' : '' }}>
@@ -101,7 +101,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
                             <select name="estado" required
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                                 <option value="activo" {{ old('estado', $user->estado) == 'activo' ? 'selected' : '' }}>Activo</option>
                                 <option value="inactivo" {{ old('estado', $user->estado) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                             </select>
@@ -111,14 +111,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                             <input type="text" name="telefono" value="{{ old('telefono', $user->telefono) }}"
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">
                         </div>
 
                         {{-- Dirección --}}
                         <div class="col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
                             <textarea name="direccion" rows="2"
-                                      class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('direccion', $user->direccion) }}</textarea>
+                                      class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#F7D600] focus:ring-[#F7D600]">{{ old('direccion', $user->direccion) }}</textarea>
                         </div>
                     </div>
 
@@ -126,7 +126,7 @@
                         <a href="{{ route('users.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-lg">
                             Cancelar
                         </a>
-                        <button type="submit" class="bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 px-6 rounded-lg">
+                        <button type="submit" class="bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white font-semibold py-2 px-6 rounded-lg">
                             <i class="fas fa-save mr-2"></i>Actualizar Usuario
                         </button>
                     </div>

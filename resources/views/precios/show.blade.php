@@ -19,7 +19,7 @@
 
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <a href="{{ route('precios.index') }}" class="hover:text-blue-700 transition-colors">Gestión de Precios</a>
+        <a href="{{ route('precios.index') }}" class="hover:text-[#2B2E2C] transition-colors">Gestión de Precios</a>
         <i class="fas fa-chevron-right text-xs text-gray-400"></i>
         <span class="text-gray-800 font-medium truncate">{{ $producto->nombre }}</span>
     </nav>
@@ -32,7 +32,7 @@
         </div>
         <div class="flex gap-2">
             <a href="{{ route('precios.historial', $producto) }}"
-               class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+               class="inline-flex items-center gap-2 px-4 py-2 bg-[#2B2E2C] text-white text-sm font-medium rounded-lg hover:bg-[#2B2E2C] transition-colors">
                 <i class="fas fa-history"></i> Historial
             </a>
             <a href="{{ route('precios.index') }}"
@@ -141,7 +141,7 @@
 
             {{-- Info del producto --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-5 py-4">
+                <div class="px-5 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h2 class="text-sm font-semibold text-white flex items-center gap-2">
                         <i class="fas fa-box"></i> Información del Producto
                     </h2>
@@ -152,7 +152,7 @@
                         ['Categoría', $producto->categoria->nombre ?? '—', ''],
                         ['Marca', $producto->marca->nombre ?? '—', ''],
                         ['Modelo', $producto->modelo->nombre ?? '—', ''],
-                        ['Stock', ($producto->stock_actual ?? 0) . ' und.', 'font-semibold text-blue-700'],
+                        ['Stock', ($producto->stock_actual ?? 0) . ' und.', 'font-semibold text-[#2B2E2C]'],
                     ] as [$label, $value, $extra])
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-500">{{ $label }}</span>
@@ -249,7 +249,7 @@
                                class="w-full rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 {{ $errors->has('precio_compra') ? 'border-2 border-red-400' : 'border border-gray-200' }}">
                         @error('precio_compra') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
 
-                        <div x-show="ultimaCompra" class="mt-1.5 flex items-start gap-1.5 text-xs text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1.5 rounded-lg">
+                        <div x-show="ultimaCompra" class="mt-1.5 flex items-start gap-1.5 text-xs text-[#2B2E2C] bg-[#2B2E2C]/10 border border-[#2B2E2C]/20 px-2.5 py-1.5 rounded-lg">
                             <i class="fas fa-shopping-cart mt-0.5 shrink-0"></i>
                             <span>Última compra: <strong x-text="'S/ ' + Number(ultimaCompra?.precio_unitario).toFixed(2)"></strong>
                             · <span x-text="ultimaCompra?.fecha_compra"></span></span>
@@ -402,7 +402,7 @@
             <div class="grid grid-cols-3 gap-4">
                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 text-center">
                     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Precio Venta Global</p>
-                    <p class="text-xl font-bold text-blue-700">
+                    <p class="text-xl font-bold text-[#2B2E2C]">
                         {{ $precioGlobal ? 'S/ ' . number_format($precioGlobal->precio, 2) : '—' }}
                     </p>
                 </div>
@@ -422,11 +422,11 @@
 
             {{-- PRECIOS GLOBALES (sin tienda) --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-5 py-4 flex items-center justify-between">
+                <div class="px-5 py-4 flex items-center justify-between" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h2 class="text-sm font-semibold text-white flex items-center gap-2">
                         <i class="fas fa-globe"></i> Precio Global (todas las tiendas)
                     </h2>
-                    <span class="text-xs text-blue-200">{{ $preciosGlobales->count() }} registro(s)</span>
+                    <span class="text-xs text-white/70">{{ $preciosGlobales->count() }} registro(s)</span>
                 </div>
 
                 @if($preciosGlobales->count())
@@ -446,7 +446,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($preciosGlobales as $precio)
-                            <tr class="hover:bg-blue-50/30 transition-colors {{ $precio->activo ? '' : 'opacity-50' }}">
+                            <tr class="hover:bg-[#2B2E2C]/10/30 transition-colors {{ $precio->activo ? '' : 'opacity-50' }}">
                                 <td class="px-4 py-3 text-sm text-gray-700">
                                     @if($precio->variante)
                                         <div class="flex items-center gap-1.5">
@@ -465,7 +465,7 @@
                                     {{ $precio->precio_compra ? 'S/ ' . number_format($precio->precio_compra, 2) : '—' }}
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <span class="text-sm font-bold text-blue-700">S/ {{ number_format($precio->precio, 2) }}</span>
+                                    <span class="text-sm font-bold text-[#2B2E2C]">S/ {{ number_format($precio->precio, 2) }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-sm text-right text-gray-600">
                                     {{ $precio->precio_mayorista ? 'S/ ' . number_format($precio->precio_mayorista, 2) : '—' }}
@@ -510,11 +510,11 @@
 
             {{-- PRECIOS POR TIENDA --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-indigo-700 to-indigo-500 px-5 py-4 flex items-center justify-between">
+                <div class="bg-[#2B2E2C] px-5 py-4 flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-white flex items-center gap-2">
                         <i class="fas fa-store"></i> Precio por Tienda / Sucursal
                     </h2>
-                    <span class="text-xs text-indigo-200">{{ $preciosPorTienda->count() }} registro(s)</span>
+                    <span class="text-xs text-white/60">{{ $preciosPorTienda->count() }} registro(s)</span>
                 </div>
 
                 @if($preciosPorTienda->count())
@@ -532,11 +532,11 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($preciosPorTienda->sortBy(fn($p) => $p->almacen?->nombre) as $precio)
-                            <tr class="hover:bg-indigo-50/20 transition-colors {{ $precio->activo ? '' : 'opacity-50' }}">
+                            <tr class="hover:bg-[#2B2E2C]/10/20 transition-colors {{ $precio->activo ? '' : 'opacity-50' }}">
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center">
-                                            <i class="fas fa-store text-indigo-600 text-xs"></i>
+                                        <div class="w-7 h-7 rounded-lg bg-[#2B2E2C]/10 flex items-center justify-center">
+                                            <i class="fas fa-store text-[#2B2E2C] text-xs"></i>
                                         </div>
                                         <div>
                                             <p class="text-sm font-semibold text-gray-800">{{ $precio->almacen?->nombre ?? '—' }}</p>
@@ -552,7 +552,7 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <span class="text-sm font-bold text-indigo-700">S/ {{ number_format($precio->precio, 2) }}</span>
+                                    <span class="text-sm font-bold text-[#2B2E2C]">S/ {{ number_format($precio->precio, 2) }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <span class="text-sm font-semibold {{ ($precio->margen ?? 0) >= 20 ? 'text-green-700' : 'text-yellow-700' }}">
@@ -572,7 +572,7 @@
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <a href="{{ route('precios.edit', ['producto' => $producto->id, 'precio' => $precio->id]) }}"
-                                       class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-medium hover:bg-indigo-100 transition-colors">
+                                       class="inline-flex items-center gap-1 px-3 py-1 bg-[#2B2E2C]/10 text-[#2B2E2C] border border-gray-200 rounded-lg text-xs font-medium hover:bg-[#2B2E2C]/10 transition-colors">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
                                 </td>

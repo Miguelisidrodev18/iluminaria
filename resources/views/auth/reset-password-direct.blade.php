@@ -76,10 +76,10 @@
         </div>
 
         <!-- Info -->
-        <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+        <div class="mt-4 p-3 bg-[#2B2E2C]/10 border border-blue-200 rounded-md">
             <div class="flex">
-                <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
-                <p class="text-xs text-blue-700">
+                <i class="fas fa-info-circle text-[#2B2E2C] mt-0.5 mr-2"></i>
+                <p class="text-xs text-[#2B2E2C]">
                     La contraseña debe tener al menos 8 caracteres.
                 </p>
             </div>

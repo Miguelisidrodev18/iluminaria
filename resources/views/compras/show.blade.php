@@ -17,16 +17,16 @@
         <!-- Breadcrumb + Header -->
         <div class="mb-6">
             <div class="flex items-center text-sm text-gray-500 mb-2">
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-blue-900">Dashboard</a>
+                <a href="{{ route('admin.dashboard') }}" class="hover:text-[#2B2E2C]">Dashboard</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
-                <a href="{{ route('compras.index') }}" class="hover:text-blue-900">Compras</a>
+                <a href="{{ route('compras.index') }}" class="hover:text-[#2B2E2C]">Compras</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
                 <span class="text-gray-700 font-medium">Compra #{{ $compra->numero_factura }}</span>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <h1 class="text-2xl font-bold text-gray-900 flex items-center">
-                        <i class="fas fa-file-invoice mr-3 text-blue-900"></i>
+                        <i class="fas fa-file-invoice mr-3 text-[#2B2E2C]"></i>
                         Detalle de Compra
                     </h1>
                     @php
@@ -36,7 +36,7 @@
                         $color = $tipoColor[$tc] ?? 'gray';
                     @endphp
                     <span class="px-3 py-1 rounded-full text-xs font-semibold
-                        {{ $color === 'green' ? 'bg-green-100 text-green-800' : ($color === 'blue' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800') }}">
+                        {{ $color === 'green' ? 'bg-green-100 text-green-800' : ($color === 'blue' ? 'bg-[#2B2E2C]/10 text-[#2B2E2C]' : 'bg-orange-100 text-orange-800') }}">
                         @if($tc === 'importacion') <i class="fas fa-ship mr-1"></i>
                         @elseif($tc === 'nacional') <i class="fas fa-file-invoice mr-1"></i>
                         @else <i class="fas fa-store mr-1"></i>
@@ -94,8 +94,8 @@
             </div>
             <!-- Código -->
             <div class="bg-white rounded-xl shadow p-4 flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-                    <i class="fas fa-hashtag text-blue-700"></i>
+                <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center shrink-0">
+                    <i class="fas fa-hashtag text-[#2B2E2C]"></i>
                 </div>
                 <div>
                     <p class="text-xs text-gray-500">Código</p>
@@ -104,8 +104,8 @@
             </div>
             <!-- Fecha -->
             <div class="bg-white rounded-xl shadow p-4 flex items-center gap-3">
-                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                    <i class="fas fa-calendar text-purple-700"></i>
+                <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center shrink-0">
+                    <i class="fas fa-calendar text-[#2B2E2C]"></i>
                 </div>
                 <div>
                     <p class="text-xs text-gray-500">Fecha Emisión</p>
@@ -113,12 +113,12 @@
                 </div>
             </div>
             <!-- Total -->
-            <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl shadow p-4 flex items-center gap-3">
+            <div class="rounded-xl shadow p-4 flex items-center gap-3" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                 <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
                     <i class="fas fa-dollar-sign text-white"></i>
                 </div>
                 <div>
-                    <p class="text-xs text-blue-200">Total</p>
+                    <p class="text-xs text-white/70">Total</p>
                     <p class="font-bold text-white text-lg">{{ $compra->moneda_simbolo }} {{ number_format($compra->total, 2) }}</p>
                 </div>
             </div>
@@ -134,7 +134,7 @@
 
                 <!-- Información de la compra -->
                 <div class="bg-white rounded-2xl shadow overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-5 py-4">
+                    <div class="px-5 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <h2 class="font-bold text-white flex items-center gap-2 text-sm">
                             <i class="fas fa-info-circle"></i> Información de la Compra
                         </h2>
@@ -178,7 +178,7 @@
                         @if(($compra->proveedor->nombre_comercial ?? '') !== ($compra->proveedor->razon_social ?? ''))
                             <p class="text-gray-500 mt-0.5">{{ $compra->proveedor->razon_social }}</p>
                         @endif
-                        <p class="text-blue-700 font-mono mt-1">RUC: {{ $compra->proveedor->ruc }}</p>
+                        <p class="text-[#2B2E2C] font-mono mt-1">RUC: {{ $compra->proveedor->ruc }}</p>
                         @if($compra->proveedor->direccion)
                             <p class="text-gray-500 mt-1 text-xs">{{ $compra->proveedor->direccion }}</p>
                         @endif
@@ -219,7 +219,7 @@
                         @endif
                         <div class="pt-2 border-t border-gray-100 flex justify-between font-bold text-base">
                             <span class="text-gray-700">Total:</span>
-                            <span class="text-blue-900">{{ $compra->moneda_simbolo }} {{ number_format($compra->total, 2) }}</span>
+                            <span class="text-[#2B2E2C]">{{ $compra->moneda_simbolo }} {{ number_format($compra->total, 2) }}</span>
                         </div>
                     </div>
                 </div>
@@ -289,13 +289,13 @@
                                 <p class="text-xs text-gray-500 mb-1">Saldo</p>
                                 <p class="text-base font-bold text-red-600">{{ number_format($compra->cuentaPorPagar->saldo_pendiente, 2) }}</p>
                             </div>
-                            <div class="bg-blue-50 rounded-xl p-3 text-center">
+                            <div class="bg-[#2B2E2C]/10 rounded-xl p-3 text-center">
                                 <p class="text-xs text-gray-500 mb-1">Vencimiento</p>
-                                <p class="text-sm font-bold text-blue-900">{{ $compra->cuentaPorPagar->fecha_vencimiento->format('d/m/Y') }}</p>
+                                <p class="text-sm font-bold text-[#2B2E2C]">{{ $compra->cuentaPorPagar->fecha_vencimiento->format('d/m/Y') }}</p>
                             </div>
                         </div>
                         <a href="{{ route('cuentas-por-pagar.show', $compra->cuentaPorPagar) }}"
-                           class="mt-4 block text-center px-4 py-2 bg-blue-900 text-white rounded-xl hover:bg-blue-800 text-sm transition">
+                           class="mt-4 block text-center px-4 py-2 bg-[#2B2E2C] text-white rounded-xl hover:bg-[#2B2E2C] text-sm transition">
                             Ver detalle de cuenta
                         </a>
                     </div>
@@ -309,7 +309,7 @@
 
                 <!-- Tabla de productos -->
                 <div class="bg-white rounded-2xl shadow overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4 flex items-center justify-between">
+                    <div class="px-6 py-4 flex items-center justify-between" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                         <h2 class="font-bold text-white flex items-center gap-2">
                             <i class="fas fa-boxes"></i> Productos de la Compra
                         </h2>
@@ -339,7 +339,7 @@
                                             <p class="text-xs text-gray-400 font-mono mt-0.5">{{ $detalle->codigo_barras }}</p>
                                         @endif
                                         @if($detalle->imeis->count())
-                                            <p class="text-xs text-purple-600 mt-0.5">
+                                            <p class="text-xs text-[#2B2E2C] mt-0.5">
                                                 <i class="fas fa-microchip mr-1"></i>{{ $detalle->imeis->count() }} IMEI(s)
                                             </p>
                                         @endif
@@ -367,7 +367,7 @@
                                     <td class="px-5 py-4 text-right text-gray-700">
                                         {{ $compra->moneda_simbolo }} {{ number_format($detalle->precio_unitario, 2) }}
                                     </td>
-                                    <td class="px-5 py-4 text-right font-semibold text-blue-900">
+                                    <td class="px-5 py-4 text-right font-semibold text-[#2B2E2C]">
                                         {{ $compra->moneda_simbolo }} {{ number_format($detalle->cantidad * $detalle->precio_unitario, 2) }}
                                     </td>
                                 </tr>
@@ -416,9 +416,9 @@
                                 </div>
                                 @endif
 
-                                <div class="flex justify-between pt-2 border-t-2 border-blue-200 font-bold text-base">
+                                <div class="flex justify-between pt-2 border-t-2 border-[#2B2E2C]/20 font-bold text-base">
                                     <span class="text-gray-900">Total:</span>
-                                    <span class="text-blue-900">{{ $compra->moneda_simbolo }} {{ number_format($compra->total, 2) }}</span>
+                                    <span class="text-[#2B2E2C]">{{ $compra->moneda_simbolo }} {{ number_format($compra->total, 2) }}</span>
                                 </div>
 
                                 @if($compra->tipo_moneda === 'USD' && $compra->tipo_cambio)
@@ -457,7 +457,7 @@
                             <p class="font-semibold text-gray-800 text-sm mb-2">{{ $detalle->producto->nombre }}</p>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($detalle->imeis as $imei)
-                                <span class="px-2.5 py-1 bg-purple-50 border border-purple-200 rounded-lg text-xs font-mono text-purple-800">
+                                <span class="px-2.5 py-1 bg-[#2B2E2C]/10 border border-purple-200 rounded-lg text-xs font-mono text-[#2B2E2C]">
                                     {{ $imei->codigo_imei }}
                                 </span>
                                 @endforeach

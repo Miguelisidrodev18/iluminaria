@@ -21,15 +21,15 @@
         <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                 {{-- Header con avatar --}}
-                <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-8 text-white text-center">
-                    <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center text-blue-900 font-bold text-3xl mx-auto mb-4">
+                <div class="px-6 py-8 text-white text-center" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
+                    <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center text-[#2B2E2C] font-bold text-3xl mx-auto mb-4">
                         {{ substr($user->name, 0, 2) }}
                     </div>
                     <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
-                    <p class="text-blue-200">{{ $user->email }}</p>
+                    <p class="text-white/70">{{ $user->email }}</p>
                     <span class="inline-flex mt-2 px-3 py-1 text-sm font-semibold rounded-full 
-                        @if($user->role->nombre == 'Administrador') bg-purple-200 text-purple-900
-                        @elseif($user->role->nombre == 'Almacenero') bg-blue-200 text-blue-900
+                        @if($user->role->nombre == 'Administrador') bg-purple-200 text-[#2B2E2C]
+                        @elseif($user->role->nombre == 'Almacenero') bg-[#2B2E2C]/10 text-[#2B2E2C]
                         @elseif($user->role->nombre == 'Tienda') bg-green-200 text-green-900
                         @elseif($user->role->nombre == 'Vendedor') bg-yellow-200 text-yellow-900
                         @else bg-gray-200 text-gray-900
@@ -89,7 +89,7 @@
             {{-- Estadísticas adicionales del usuario --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                 <div class="bg-white rounded-lg shadow p-4 text-center">
-                    <p class="text-2xl font-bold text-blue-900">0</p>
+                    <p class="text-2xl font-bold text-[#2B2E2C]">0</p>
                     <p class="text-xs text-gray-500">Ventas Realizadas</p>
                 </div>
                 <div class="bg-white rounded-lg shadow p-4 text-center">
@@ -97,7 +97,7 @@
                     <p class="text-xs text-gray-500">Compras Registradas</p>
                 </div>
                 <div class="bg-white rounded-lg shadow p-4 text-center">
-                    <p class="text-2xl font-bold text-purple-600">0</p>
+                    <p class="text-2xl font-bold text-[#2B2E2C]">0</p>
                     <p class="text-xs text-gray-500">Movimientos</p>
                 </div>
             </div>

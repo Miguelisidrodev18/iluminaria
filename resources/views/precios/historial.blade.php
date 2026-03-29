@@ -17,9 +17,9 @@
 
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <a href="{{ route('precios.index') }}" class="hover:text-blue-700 transition-colors">Gestión de Precios</a>
+        <a href="{{ route('precios.index') }}" class="hover:text-[#2B2E2C] transition-colors">Gestión de Precios</a>
         <i class="fas fa-chevron-right text-xs text-gray-400"></i>
-        <a href="{{ route('precios.show', $producto) }}" class="hover:text-blue-700 transition-colors truncate max-w-xs">{{ $producto->nombre }}</a>
+        <a href="{{ route('precios.show', $producto) }}" class="hover:text-[#2B2E2C] transition-colors truncate max-w-xs">{{ $producto->nombre }}</a>
         <i class="fas fa-chevron-right text-xs text-gray-400"></i>
         <span class="text-gray-800 font-medium">Historial</span>
     </nav>
@@ -45,7 +45,7 @@
 
             {{-- Info del producto --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-5 py-4">
+                <div class="px-5 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h2 class="text-sm font-semibold text-white flex items-center gap-2">
                         <i class="fas fa-box"></i> Producto
                     </h2>
@@ -56,7 +56,7 @@
                         ['Categoría', $producto->categoria->nombre ?? '—', ''],
                         ['Marca', $producto->marca->nombre ?? '—', ''],
                         ['Modelo', $producto->modelo->nombre ?? '—', ''],
-                        ['Stock', ($producto->stock_actual ?? 0) . ' und.', 'font-semibold text-blue-700'],
+                        ['Stock', ($producto->stock_actual ?? 0) . ' und.', 'font-semibold text-[#2B2E2C]'],
                     ] as [$label, $value, $extra])
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-500">{{ $label }}</span>
@@ -89,7 +89,7 @@
                     </div>
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-500">Precio actual</span>
-                        <span class="font-bold text-blue-700">S/ {{ number_format($ultimoCambio->precio_nuevo, 2) }}</span>
+                        <span class="font-bold text-[#2B2E2C]">S/ {{ number_format($ultimoCambio->precio_nuevo, 2) }}</span>
                     </div>
                     @endif
                 </div>
@@ -129,7 +129,7 @@
                                     : 0;
                                 $subio = $variacion >= 0;
                             @endphp
-                            <tr class="hover:bg-purple-50/20 transition-colors">
+                            <tr class="hover:bg-[#2B2E2C]/10/20 transition-colors">
                                 <td class="px-4 py-3">
                                     <div class="text-sm text-gray-800 font-medium">
                                         {{ $item->created_at->format('d/m/Y') }}
@@ -140,8 +140,8 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
-                                            <i class="fas fa-user text-purple-600 text-xs"></i>
+                                        <div class="w-7 h-7 rounded-full bg-[#2B2E2C]/10 flex items-center justify-center shrink-0">
+                                            <i class="fas fa-user text-[#2B2E2C] text-xs"></i>
                                         </div>
                                         <span class="text-sm text-gray-700">{{ $item->usuario->name ?? '—' }}</span>
                                     </div>
@@ -150,7 +150,7 @@
                                     S/ {{ number_format($item->precio_anterior, 2) }}
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <span class="text-sm font-bold text-blue-700">
+                                    <span class="text-sm font-bold text-[#2B2E2C]">
                                         S/ {{ number_format($item->precio_nuevo, 2) }}
                                     </span>
                                 </td>

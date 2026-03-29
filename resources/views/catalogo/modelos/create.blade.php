@@ -21,9 +21,9 @@
 
         <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-900 to-blue-700 px-6 py-4">
+                <div class="px-6 py-4" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h1 class="text-xl font-bold text-white">Nuevo Modelo</h1>
-                    <p class="text-blue-200 text-sm">Registrar un nuevo modelo de producto</p>
+                    <p class="text-white/70 text-sm">Registrar un nuevo modelo de producto</p>
                 </div>
 
                 <form action="{{ route('catalogo.modelos.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
@@ -34,7 +34,7 @@
                             Marca <span class="text-red-500">*</span>
                         </label>
                         <select name="marca_id" id="marca_id" required
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <option value="">Seleccione una marca...</option>
                             @foreach($marcas as $marca)
                                 <option value="{{ $marca->id }}" {{ old('marca_id') == $marca->id ? 'selected' : '' }}>
@@ -50,7 +50,7 @@
                     <div>
                         <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
                         <select name="categoria_id" id="categoria_id"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <option value="">Sin categoría (opcional)</option>
                             @foreach($categorias as $categoria)
                                 <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
@@ -70,7 +70,7 @@
                         <input type="text" name="nombre" id="nombre"
                                value="{{ old('nombre') }}" required
                                placeholder="Ej: iPhone 14 Pro Max, Galaxy S23 Ultra"
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                         @error('nombre')
                             <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                         @enderror
@@ -82,7 +82,7 @@
                             <input type="text" name="codigo_modelo" id="codigo_modelo"
                                    value="{{ old('codigo_modelo') }}"
                                    placeholder="Ej: A2896, SM-S918B"
-                                   class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                   class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <button type="button" onclick="sugerirCodigo()"
                                     class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-xs text-gray-600 transition whitespace-nowrap">
                                 <i class="fas fa-magic mr-1"></i>Sugerir
@@ -100,7 +100,7 @@
                         </label>
                         <textarea name="especificaciones_tecnicas" id="especificaciones_tecnicas" rows="3"
                                   placeholder="Ej: Pantalla 6.7&quot;, 256GB, Cámara 48MP, Batería 4500mAh..."
-                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">{{ old('especificaciones_tecnicas') }}</textarea>
+                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">{{ old('especificaciones_tecnicas') }}</textarea>
                     </div>
 
                     <div>
@@ -116,8 +116,8 @@
                                        onchange="previewImage(event)"
                                        class="block w-full text-sm text-gray-500
                                               file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
-                                              file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
-                                              hover:file:bg-blue-100">
+                                              file:text-sm file:font-semibold file:bg-[#2B2E2C]/10 file:text-[#2B2E2C]
+                                              hover:file:bg-[#2B2E2C]/10">
                                 <p class="mt-1 text-xs text-gray-400">JPG, PNG, WEBP. Máx 2MB</p>
                             </div>
                         </div>
@@ -129,7 +129,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
                         <select name="estado"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-transparent transition">
                             <option value="activo"   {{ old('estado', 'activo') == 'activo'   ? 'selected' : '' }}>Activo</option>
                             <option value="inactivo" {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                         </select>
@@ -140,7 +140,7 @@
                            class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm">
                             Cancelar
                         </a>
-                        <button type="submit" class="px-5 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition">
+                        <button type="submit" class="px-5 py-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white rounded-lg text-sm font-medium transition">
                             <i class="fas fa-save mr-2"></i>Guardar Modelo
                         </button>
                     </div>

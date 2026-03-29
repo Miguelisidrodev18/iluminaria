@@ -20,7 +20,7 @@
         {{-- Navegación rápida --}}
         <div class="flex flex-wrap gap-3 mb-6">
             <a href="{{ route('traslados.index') }}"
-               class="text-sm text-gray-600 hover:text-blue-700 flex items-center gap-1">
+               class="text-sm text-gray-600 hover:text-[#2B2E2C] flex items-center gap-1">
                 <i class="fas fa-exchange-alt"></i> Historial
             </a>
             <span class="text-gray-300">|</span>
@@ -30,11 +30,11 @@
             </a>
             <span class="text-gray-300">|</span>
             <a href="{{ route('traslados.stock') }}"
-               class="text-sm text-gray-600 hover:text-blue-700 flex items-center gap-1">
+               class="text-sm text-gray-600 hover:text-[#2B2E2C] flex items-center gap-1">
                 <i class="fas fa-boxes"></i> Stock por Almacén
             </a>
             <span class="text-gray-300">|</span>
-            <span class="text-sm font-semibold text-blue-700 flex items-center gap-1">
+            <span class="text-sm font-semibold text-[#2B2E2C] flex items-center gap-1">
                 <i class="fas fa-plus-circle"></i> Nuevo Traslado
             </span>
         </div>
@@ -53,13 +53,13 @@
             <div class="bg-white rounded-2xl shadow-md overflow-hidden">
 
                 {{-- Header --}}
-                <div class="bg-linear-to-r from-blue-900 to-blue-700 px-6 py-5 flex items-center gap-3">
+                <div class="px-6 py-5 flex items-center gap-3" style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <div class="bg-white/20 rounded-xl p-2.5">
                         <i class="fas fa-exchange-alt text-white text-xl"></i>
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white">Registrar Traslado</h2>
-                        <p class="text-blue-200 text-sm">El stock se desconta del origen al crear</p>
+                        <p class="text-white/70 text-sm">El stock se desconta del origen al crear</p>
                     </div>
                 </div>
 
@@ -69,13 +69,13 @@
                     {{-- Producto --}}
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
-                            <i class="fas fa-box mr-1 text-blue-500"></i>Producto *
+                            <i class="fas fa-box mr-1 text-[#2B2E2C]"></i>Producto *
                         </label>
                         <select name="producto_id"
                                 required
                                 x-model="productoId"
                                 @change="onProductoChange()"
-                                class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] bg-white">
                             <option value="">— Seleccione un producto —</option>
                             @foreach($productos as $prod)
                                 <option value="{{ $prod->id }}"
@@ -96,7 +96,7 @@
 
                     {{-- Badge producto serie --}}
                     <div x-show="esSerie" x-cloak
-                         class="flex items-start gap-2 bg-purple-50 border border-purple-200 rounded-lg px-4 py-3 text-sm text-purple-800">
+                         class="flex items-start gap-2 bg-[#2B2E2C]/10 border border-purple-200 rounded-lg px-4 py-3 text-sm text-[#2B2E2C]">
                         <i class="fas fa-barcode mt-0.5 text-purple-500"></i>
                         <span><strong>Producto rastreado por IMEI.</strong> Deberás seleccionar los IMEIs específicos al confirmar la recepción.</span>
                     </div>
@@ -111,7 +111,7 @@
                                     required
                                     x-model="almacenId"
                                     @change="onAlmacenChange()"
-                                    class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                    class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] bg-white">
                                 <option value="">— Seleccione origen —</option>
                                 @foreach($almacenes as $alm)
                                     <option value="{{ $alm->id }}" {{ old('almacen_id') == $alm->id ? 'selected' : '' }}>
@@ -130,7 +130,7 @@
                                     <i class="fas fa-cubes mr-1"></i>
                                     Stock disponible:
                                     <strong x-text="stockOrigen"></strong>
-                                    <span x-show="esSerie" x-cloak class="text-purple-600">(IMEIs)</span>
+                                    <span x-show="esSerie" x-cloak class="text-[#2B2E2C]">(IMEIs)</span>
                                     <span x-show="!esSerie" x-cloak>unidades</span>
                                 </span>
                             </div>
@@ -143,7 +143,7 @@
                             <select name="almacen_destino_id"
                                     required
                                     x-model="almacenDestinoId"
-                                    class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                    class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] bg-white">
                                 <option value="">— Seleccione destino —</option>
                                 @foreach($almacenes as $alm)
                                     <option value="{{ $alm->id }}" {{ old('almacen_destino_id') == $alm->id ? 'selected' : '' }}>
@@ -166,7 +166,7 @@
                     {{-- Cantidad --}}
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
-                            <i class="fas fa-hashtag mr-1 text-blue-500"></i>Cantidad *
+                            <i class="fas fa-hashtag mr-1 text-[#2B2E2C]"></i>Cantidad *
                         </label>
                         <input type="number"
                                name="cantidad"
@@ -174,7 +174,7 @@
                                required
                                x-model="cantidad"
                                :max="stockOrigen ?? undefined"
-                               class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]"
                                value="{{ old('cantidad', 1) }}">
                         @error('cantidad')
                             <p class="text-red-500 text-xs mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -197,7 +197,7 @@
                             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 text-sm font-mono pointer-events-none">GR-</span>
                             <input type="text"
                                    name="numero_guia"
-                                   class="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono uppercase"
+                                   class="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] font-mono uppercase"
                                    placeholder="Ej: GR-00042 o TRS-2024-001"
                                    value="{{ old('numero_guia') }}"
                                    oninput="this.value = this.value.toUpperCase()">
@@ -217,7 +217,7 @@
                         </label>
                         <input type="text"
                                name="transportista"
-                               class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]"
                                placeholder="Nombre del transportista o empresa"
                                value="{{ old('transportista') }}">
                     </div>
@@ -229,13 +229,13 @@
                         </label>
                         <textarea name="observaciones"
                                   rows="2"
-                                  class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                  class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] resize-none"
                                   placeholder="Motivo del traslado, instrucciones especiales...">{{ old('observaciones') }}</textarea>
                     </div>
 
                     {{-- Info box --}}
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 flex gap-2 text-sm text-blue-800">
-                        <i class="fas fa-info-circle mt-0.5 text-blue-500 shrink-0"></i>
+                    <div class="bg-[#2B2E2C]/10 border border-blue-200 rounded-lg px-4 py-3 flex gap-2 text-sm text-[#2B2E2C]">
+                        <i class="fas fa-info-circle mt-0.5 text-[#2B2E2C] shrink-0"></i>
                         <span>El stock se descuenta del almacén origen al registrar. El destino recibirá el stock cuando <strong>confirme la recepción</strong>.</span>
                     </div>
 
@@ -247,7 +247,7 @@
                         </a>
                         <button type="submit"
                                 :disabled="almacenId && almacenDestinoId && almacenId === almacenDestinoId"
-                                class="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                class="px-6 py-2.5 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white text-sm font-semibold rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fas fa-paper-plane"></i>Enviar Traslado
                         </button>
                     </div>

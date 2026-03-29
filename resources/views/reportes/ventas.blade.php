@@ -26,7 +26,7 @@
         <div class="bg-white shadow-sm px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 no-print">
             <div>
                 <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-chart-line text-blue-600"></i>
+                    <i class="fas fa-chart-line text-[#2B2E2C]"></i>
                     Reporte de Ventas — Márgenes de Ganancia
                 </h1>
                 <p class="text-sm text-gray-500 mt-0.5">
@@ -79,7 +79,7 @@
                             <button type="submit" name="periodo" value="{{ $key }}"
                                     class="px-3 py-1.5 text-xs rounded-lg font-medium transition-colors
                                         {{ $periodo === $key
-                                            ? 'bg-blue-700 text-white'
+                                            ? 'bg-[#2B2E2C] text-white'
                                             : 'border border-gray-300 text-gray-600 hover:bg-gray-50' }}">
                                 {{ $tabLabel }}
                             </button>
@@ -92,15 +92,15 @@
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">Desde</label>
                                 <input type="date" name="desde" value="{{ $desde }}"
-                                       class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500">
+                                       class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-[#F7D600]">
                             </div>
                             <div>
                                 <label class="block text-xs text-gray-500 mb-1">Hasta</label>
                                 <input type="date" name="hasta" value="{{ $hasta }}"
-                                       class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500">
+                                       class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-[#F7D600]">
                             </div>
                             <input type="hidden" name="periodo" value="personalizado">
-                            <button type="submit" class="px-4 py-1.5 bg-blue-700 text-white text-sm rounded-lg hover:bg-blue-800">
+                            <button type="submit" class="px-4 py-1.5 bg-[#2B2E2C] text-white text-sm rounded-lg hover:bg-[#2B2E2C]">
                                 <i class="fas fa-search mr-1"></i>Aplicar
                             </button>
                         </div>
@@ -111,7 +111,7 @@
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Almacén</label>
                             <select name="almacen_id" onchange="this.form.submit()"
-                                    class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 bg-white">
+                                    class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-[#F7D600] bg-white">
                                 <option value="">Todos los almacenes</option>
                                 @foreach($almacenes as $alm)
                                     <option value="{{ $alm->id }}" {{ $almacenId == $alm->id ? 'selected' : '' }}>{{ $alm->nombre }}</option>
@@ -121,7 +121,7 @@
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Categoría</label>
                             <select name="categoria_id" onchange="this.form.submit()"
-                                    class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 bg-white">
+                                    class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-[#F7D600] bg-white">
                                 <option value="">Todas las categorías</option>
                                 @foreach($categorias as $cat)
                                     <option value="{{ $cat->id }}" {{ $categoriaId == $cat->id ? 'selected' : '' }}>{{ $cat->nombre }}</option>
@@ -153,14 +153,14 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
                 {{-- Ventas totales --}}
-                <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+                <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-[#F7D600]">
                     <div class="flex items-start justify-between">
                         <div>
                             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ventas Totales</p>
                             <p class="text-2xl font-bold text-gray-800 mt-1">S/ {{ number_format($kpis['total_ventas'], 2) }}</p>
                             <p class="text-xs text-gray-400 mt-1">{{ $kpis['num_ventas'] }} ventas · {{ $kpis['unidades_vendidas'] }} uds.</p>
                         </div>
-                        <div class="bg-blue-50 rounded-lg p-2 text-blue-500">
+                        <div class="bg-[#2B2E2C]/10 rounded-lg p-2 text-[#2B2E2C]">
                             <i class="fas fa-shopping-cart text-xl"></i>
                         </div>
                     </div>
@@ -217,7 +217,7 @@
                             <p class="text-2xl font-bold text-gray-800 mt-1">{{ number_format($kpis['margen_promedio'], 1) }}%</p>
                             <p class="text-xs text-gray-400 mt-1">(Ganancia / Venta) × 100</p>
                         </div>
-                        <div class="bg-purple-50 rounded-lg p-2 text-purple-500">
+                        <div class="bg-[#2B2E2C]/10 rounded-lg p-2 text-purple-500">
                             <i class="fas fa-percentage text-xl"></i>
                         </div>
                     </div>
@@ -235,7 +235,7 @@
                 {{-- Línea: evolución ventas vs ganancia --}}
                 <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-5">
                     <h2 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                        <i class="fas fa-chart-line text-blue-500"></i>
+                        <i class="fas fa-chart-line text-[#2B2E2C]"></i>
                         Evolución: Ventas vs Ganancia
                     </h2>
                     @if($tendencia->isEmpty())
@@ -305,7 +305,7 @@
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                        <i class="fas fa-table text-blue-500"></i>
+                        <i class="fas fa-table text-[#2B2E2C]"></i>
                         Detalle por Producto
                         <span class="bg-gray-100 text-gray-500 text-xs rounded-full px-2 py-0.5 ml-1">
                             {{ $tablaProductos->count() }} productos
@@ -398,7 +398,7 @@
 
 {{-- ── SCRIPTS CHART.JS ──────────────────────── --}}
 <script>
-const PALETTE = ['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899','#84cc16','#f97316','#14b8a6'];
+const PALETTE = ['#F7D600','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#ec4899','#84cc16','#f97316','#14b8a6'];
 
 const fmtSoles = (v) => 'S/ ' + Number(v).toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
 
@@ -411,8 +411,8 @@ new Chart(document.getElementById('chartTendencia'), {
             {
                 label: 'Ventas (S/)',
                 data: @json($tendencia->pluck('total_ventas')),
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.08)',
+                borderColor: '#F7D600',
+                backgroundColor: 'rgba(247,214,0,0.08)',
                 fill: true,
                 tension: 0.35,
                 pointRadius: {{ $tendencia->count() > 30 ? 2 : 4 }},

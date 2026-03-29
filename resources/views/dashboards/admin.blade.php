@@ -32,7 +32,7 @@
             <div class="px-6 py-3 flex justify-between items-center">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800">
-                        <i class="fas fa-chart-line text-blue-900 mr-2"></i>
+                        <i class="fas fa-chart-line text-[#2B2E2C] mr-2"></i>
                         ¡Hola, {{ auth()->user()->name }}!
                     </h1>
                     <p class="text-sm text-gray-500 mt-1">
@@ -60,11 +60,11 @@
                              x-cloak
                              class="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
 
-                            <div class="px-4 py-3 bg-blue-900 text-white flex justify-between items-center">
+                            <div class="px-4 py-3 bg-[#2B2E2C] text-white flex justify-between items-center">
                                 <span class="font-semibold text-sm">
                                     <i class="fas fa-bell mr-2"></i>Notificaciones
                                 </span>
-                                <span class="bg-white text-blue-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                                <span class="bg-white text-[#2B2E2C] text-xs font-bold px-2 py-0.5 rounded-full">
                                     {{ $total_notificaciones }}
                                 </span>
                             </div>
@@ -152,7 +152,7 @@
 
                             <div class="px-4 py-2 bg-gray-50 border-t border-gray-200 text-center">
                                 <a href="{{ route('cuentas-por-pagar.index') }}"
-                                   class="text-xs text-blue-900 hover:underline font-medium">
+                                   class="text-xs text-[#2B2E2C] hover:underline font-medium">
                                     Ver cuentas por pagar <i class="fas fa-arrow-right ml-1"></i>
                                 </a>
                             </div>
@@ -160,7 +160,7 @@
                     </div>
 
                     {{-- Avatar + nombre --}}
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-900 to-blue-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg" style="background-color: #F7D600; color: #2B2E2C;">
                         {{ substr(auth()->user()->name, 0, 2) }}
                     </div>
                     <div class="hidden md:block">
@@ -179,7 +179,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
 
                 {{-- Ventas del Mes --}}
-                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale border-l-4 border-blue-900">
+                <div class="bg-white rounded-xl shadow-lg p-6 hover-scale border-l-4 border-[#2B2E2C]">
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-sm text-gray-500 font-medium">Ventas del Mes</p>
@@ -195,8 +195,8 @@
                                 <span class="text-xs text-gray-500">vs mes anterior</span>
                             </div>
                         </div>
-                        <div class="bg-blue-100 p-3 rounded-lg">
-                            <i class="fas fa-chart-line text-blue-900 text-2xl"></i>
+                        <div class="bg-[#2B2E2C]/10 p-3 rounded-lg">
+                            <i class="fas fa-chart-line text-[#2B2E2C] text-2xl"></i>
                         </div>
                     </div>
                     <div class="mt-4 pt-3 border-t border-gray-100">
@@ -215,8 +215,8 @@
                             <p class="stat-value text-gray-900">{{ number_format($stock_total) }}</p>
                             <p class="text-xs text-gray-500 mt-1">unidades en inventario</p>
                         </div>
-                        <div class="bg-purple-100 p-3 rounded-lg">
-                            <i class="fas fa-boxes text-purple-600 text-2xl"></i>
+                        <div class="bg-[#2B2E2C]/10 p-3 rounded-lg">
+                            <i class="fas fa-boxes text-[#2B2E2C] text-2xl"></i>
                         </div>
                     </div>
                     <div class="mt-4 grid grid-cols-2 gap-2 text-center">
@@ -241,7 +241,7 @@
                                 <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
                                     <i class="fas fa-check-circle mr-1"></i>{{ number_format($con_ficha_tecnica) }} con esp.
                                 </span>
-                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                                <span class="text-xs bg-[#2B2E2C]/10 text-[#2B2E2C] px-2 py-1 rounded-full">
                                     <i class="fas fa-tags mr-1"></i>{{ number_format($con_clasificacion) }} clasif.
                                 </span>
                             </div>
@@ -291,8 +291,8 @@
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
 
                 <div class="bg-white rounded-lg shadow p-4 flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-                        <i class="fas fa-store text-blue-900"></i>
+                    <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-full flex items-center justify-center shrink-0">
+                        <i class="fas fa-store text-[#2B2E2C]"></i>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500">Sucursales</p>
@@ -311,8 +311,8 @@
                 </div>
 
                 <div class="bg-white rounded-lg shadow p-4 flex items-center gap-3">
-                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
-                        <i class="fas fa-truck text-purple-600"></i>
+                    <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-full flex items-center justify-center shrink-0">
+                        <i class="fas fa-truck text-[#2B2E2C]"></i>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500">Proveedores</p>
@@ -341,8 +341,8 @@
                 </div>
 
                 <div class="bg-white rounded-lg shadow p-4 flex items-center gap-3">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center shrink-0">
-                        <i class="fas fa-shopping-bag text-indigo-600"></i>
+                    <div class="w-10 h-10 bg-[#2B2E2C]/10 rounded-full flex items-center justify-center shrink-0">
+                        <i class="fas fa-shopping-bag text-[#2B2E2C]"></i>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500">Compras Mes</p>
@@ -360,7 +360,7 @@
                 <div class="bg-white rounded-xl shadow-lg p-6 chart-card">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-900">
-                            <i class="fas fa-chart-line text-blue-900 mr-2"></i>
+                            <i class="fas fa-chart-line text-[#2B2E2C] mr-2"></i>
                             Ventas Mensuales {{ $anio_chart }}
                         </h3>
                         <span class="text-xs text-gray-500 bg-gray-100 rounded px-2 py-1">S/ Soles</span>
@@ -396,7 +396,7 @@
                                     <span class="text-gray-900 font-bold ml-2 shrink-0">{{ $prod->total_vendido }} und</span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-blue-900 h-2 rounded-full" style="width: {{ $pct }}%"></div>
+                                    <div class="bg-[#2B2E2C] h-2 rounded-full" style="width: {{ $pct }}%"></div>
                                 </div>
                             </div>
                             @endforeach
@@ -411,10 +411,10 @@
             <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-gray-900">
-                        <i class="fas fa-history text-blue-900 mr-2"></i>
+                        <i class="fas fa-history text-[#2B2E2C] mr-2"></i>
                         Últimos Movimientos de Inventario
                     </h3>
-                    <a href="{{ route('inventario.movimientos.index') }}" class="text-sm text-blue-900 hover:text-blue-700 font-semibold">
+                    <a href="{{ route('inventario.movimientos.index') }}" class="text-sm text-[#2B2E2C] hover:text-[#2B2E2C] font-semibold">
                         Ver todos <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
@@ -437,7 +437,7 @@
                                     'ingreso'       => 'bg-green-100 text-green-800',
                                     'salida'        => 'bg-red-100 text-red-800',
                                     'transferencia' => 'bg-yellow-100 text-yellow-800',
-                                    'ajuste'        => 'bg-blue-100 text-blue-800',
+                                    'ajuste'        => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                                     'devolucion'    => 'bg-orange-100 text-orange-800',
                                     'merma'         => 'bg-gray-100 text-gray-800',
                                 ];
@@ -490,13 +490,13 @@
                 {{-- Usuarios por Rol --}}
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">
-                        <i class="fas fa-users text-blue-900 mr-2"></i>
+                        <i class="fas fa-users text-[#2B2E2C] mr-2"></i>
                         Usuarios del Sistema
                     </h3>
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <div class="bg-[#2B2E2C]/10 rounded-lg p-4 text-center">
                             <p class="text-xs text-gray-500">Total</p>
-                            <p class="text-2xl font-bold text-blue-900">{{ $total_usuarios }}</p>
+                            <p class="text-2xl font-bold text-[#2B2E2C]">{{ $total_usuarios }}</p>
                         </div>
                         <div class="bg-green-50 rounded-lg p-4 text-center">
                             <p class="text-xs text-gray-500">Activos</p>
@@ -511,7 +511,7 @@
                             <div class="flex items-center gap-3">
                                 <span class="text-sm font-semibold text-gray-900">{{ $rol->total }}</span>
                                 <div class="w-24 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-blue-900 h-2 rounded-full" style="width: {{ $porcentaje }}%"></div>
+                                    <div class="bg-[#2B2E2C] h-2 rounded-full" style="width: {{ $porcentaje }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -521,9 +521,9 @@
 
                 {{-- Acciones Rápidas --}}
                 <div class="rounded-xl shadow-lg p-6 text-white"
-                     style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);">
+                     style="background: linear-gradient(135deg, #2B2E2C 0%, #3A3E3B 100%);">
                     <h3 class="text-lg font-bold mb-4 text-white">
-                        <i class="fas fa-bolt mr-2 text-yellow-300"></i>Acciones Rápidas
+                        <i class="fas fa-bolt mr-2" style="color: #F7D600;"></i>Acciones Rápidas
                     </h3>
                     <div class="grid grid-cols-3 gap-3">
                         <a href="{{ route('ventas.create') }}"
@@ -580,11 +580,11 @@
                 datasets: [{
                     label: 'Ventas {{ $anio_chart }}',
                     data: ventasData,
-                    borderColor: '#1e3a8a',
-                    backgroundColor: 'rgba(30, 58, 138, 0.1)',
+                    borderColor: '#F7D600',
+                    backgroundColor: 'rgba(247, 214, 0, 0.1)',
                     tension: 0.4,
                     fill: true,
-                    pointBackgroundColor: '#1e3a8a',
+                    pointBackgroundColor: '#F7D600',
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
                     pointRadius: 4

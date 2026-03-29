@@ -30,13 +30,13 @@
 
         <div class="max-w-5xl">
             <div class="mb-6 flex justify-between items-center">
-                <a href="{{ route('pedidos.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">
+                <a href="{{ route('pedidos.index') }}" class="text-[#2B2E2C] hover:text-[#2B2E2C] text-sm">
                     <i class="fas fa-arrow-left mr-1"></i>Volver a pedidos
                 </a>
                 @php
                     $ep = match($pedido->estado) {
                         'pendiente' => 'bg-yellow-100 text-yellow-800',
-                        'aprobado' => 'bg-blue-100 text-blue-800',
+                        'aprobado' => 'bg-[#2B2E2C]/10 text-[#2B2E2C]',
                         'recibido' => 'bg-green-100 text-green-800',
                         'cancelado' => 'bg-red-100 text-red-800',
                         default => 'bg-gray-100 text-gray-800',
@@ -49,16 +49,16 @@
 
             {{-- Info y Cambio de Estado --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-6">
+                <div class="bg-white rounded-xl shadow-sm border-l-4 border-[#F7D600] p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                        <i class="fas fa-info-circle mr-2 text-blue-600"></i>Información del Pedido
+                        <i class="fas fa-info-circle mr-2 text-[#2B2E2C]"></i>Información del Pedido
                     </h3>
                     <dl class="space-y-3 text-sm">
-                        <div class="flex justify-between"><dt class="text-gray-500">Código:</dt><dd class="font-mono font-bold text-blue-900">{{ $pedido->codigo }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-gray-500">Código:</dt><dd class="font-mono font-bold text-[#2B2E2C]">{{ $pedido->codigo }}</dd></div>
                         <div class="flex justify-between">
                             <dt class="text-gray-500">Proveedor:</dt>
                             <dd class="font-semibold">
-                                <a href="{{ route('proveedores.show', $pedido->proveedor) }}" class="text-blue-600 hover:underline">
+                                <a href="{{ route('proveedores.show', $pedido->proveedor) }}" class="text-[#2B2E2C] hover:underline">
                                     {{ $pedido->proveedor->razon_social ?? '-' }}
                                 </a>
                             </dd>
@@ -71,7 +71,7 @@
 
                 <div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-6">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                        <i class="fas fa-exchange-alt mr-2 text-purple-600"></i>Cambiar Estado
+                        <i class="fas fa-exchange-alt mr-2 text-[#2B2E2C]"></i>Cambiar Estado
                     </h3>
 
                     @if($pedido->estado !== 'cancelado' && $pedido->estado !== 'recibido')
@@ -80,7 +80,7 @@
                                 <form action="{{ route('pedidos.cambiar-estado', $pedido) }}" method="POST">
                                     @csrf @method('PATCH')
                                     <input type="hidden" name="estado" value="aprobado">
-                                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors"
+                                    <button type="submit" class="w-full bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2.5 px-4 rounded-lg transition-colors"
                                             onclick="return confirm('¿Aprobar este pedido?')">
                                         <i class="fas fa-check mr-2"></i>Aprobar Pedido
                                     </button>
@@ -153,7 +153,7 @@
 
             {{-- Detalle de Productos --}}
             <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-                <div class="bg-blue-900 px-6 py-4">
+                <div class="bg-[#2B2E2C] px-6 py-4">
                     <h2 class="text-lg font-bold text-white">
                         <i class="fas fa-boxes mr-2"></i>Productos Solicitados
                     </h2>

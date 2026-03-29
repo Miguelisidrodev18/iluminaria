@@ -19,7 +19,7 @@
             <h1 class="text-xl font-bold text-gray-800">Dashboard Ejecutivo de Cajas</h1>
             <p class="text-sm text-gray-500">
                 Supervisión en tiempo real · Actualiza en
-                <span class="font-semibold text-blue-600" x-text="refreshIn"></span> s
+                <span class="font-semibold text-[#2B2E2C]" x-text="refreshIn"></span> s
                 · {{ now()->format('d/m/Y H:i') }}
             </p>
         </div>
@@ -34,7 +34,7 @@
                 @endif
             </a>
             <a href="{{ route('admin.cajas.apertura-remota') }}"
-               class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+               class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] rounded-lg text-sm font-medium hover:bg-[#e8c900] transition">
                 <i class="fas fa-cash-register mr-1"></i> Apertura Remota
             </a>
             <a href="{{ route('admin.cajas.reportes') }}"
@@ -52,10 +52,10 @@
 
         {{-- KPI Cards --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+            <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-[#F7D600]">
                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Ventas hoy</p>
                 <p class="text-2xl font-bold text-gray-800 mt-1">S/ {{ number_format($totalVentasHoy, 2) }}</p>
-                <p class="text-xs text-blue-500 mt-1">Efectivo: S/ {{ number_format($totalEfectivoHoy, 2) }}</p>
+                <p class="text-xs text-[#2B2E2C] mt-1">Efectivo: S/ {{ number_format($totalEfectivoHoy, 2) }}</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Cajas abiertas</p>
@@ -82,7 +82,7 @@
         {{-- Estado por sucursal --}}
         <div class="bg-white rounded-xl shadow-sm p-5">
             <h2 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                <i class="fas fa-store text-blue-500"></i> Estado por Sucursal
+                <i class="fas fa-store text-[#2B2E2C]"></i> Estado por Sucursal
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 @forelse($estadoSucursales as $item)
@@ -121,7 +121,7 @@
                                 </div>
                             </div>
                             <a href="{{ route('admin.cajas.show', $item['caja_abierta']->id) }}"
-                               class="text-xs text-blue-600 hover:underline mt-2 block">Ver caja →</a>
+                               class="text-xs text-[#2B2E2C] hover:underline mt-2 block">Ver caja →</a>
                         @elseif($item['ultima_caja'])
                             <p class="text-xs text-gray-400 mt-2">
                                 Último cierre: {{ $item['ultima_caja']->fecha_cierre?->format('d/m H:i') ?? '—' }}
@@ -155,7 +155,7 @@
                             </div>
                         </div>
                         <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-blue-500 rounded-full"
+                            <div class="h-full bg-[#F7D600] text-[#2B2E2C] rounded-full"
                                  style="width: {{ min(100, ($v->total / $max) * 100) }}%"></div>
                         </div>
                     </div>
@@ -173,7 +173,7 @@
                         'efectivo'      => ['label' => 'Efectivo',      'icon' => 'fas fa-money-bill-wave', 'color' => 'bg-green-500'],
                         'yape'          => ['label' => 'Yape',          'icon' => 'fas fa-mobile-alt',      'color' => 'bg-purple-500'],
                         'plin'          => ['label' => 'Plin',          'icon' => 'fas fa-mobile-alt',      'color' => 'bg-teal-500'],
-                        'transferencia' => ['label' => 'Transferencia', 'icon' => 'fas fa-university',      'color' => 'bg-blue-500'],
+                        'transferencia' => ['label' => 'Transferencia', 'icon' => 'fas fa-university',      'color' => 'bg-[#F7D600] text-[#2B2E2C]'],
                         'mixto'         => ['label' => 'Mixto',         'icon' => 'fas fa-layer-group',     'color' => 'bg-orange-500'],
                     ];
                     $totalPago = $metodoPago->sum('total') ?: 1;

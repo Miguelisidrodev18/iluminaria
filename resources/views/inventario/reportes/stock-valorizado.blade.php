@@ -42,7 +42,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Sucursal</label>
-                    <select name="sucursal_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="sucursal_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">Todas las sucursales</option>
                         @foreach($sucursales as $s)
                             <option value="{{ $s->id }}" {{ $sucursalId == $s->id ? 'selected' : '' }}>{{ $s->nombre }}</option>
@@ -51,7 +51,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Categoría</label>
-                    <select name="categoria_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="categoria_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">Todas las categorías</option>
                         @foreach($categorias as $c)
                             <option value="{{ $c->id }}" {{ $categoriaId == $c->id ? 'selected' : '' }}>{{ $c->nombre }}</option>
@@ -60,7 +60,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Marca</label>
-                    <select name="marca_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="marca_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]">
                         <option value="">Todas las marcas</option>
                         @foreach($marcas as $m)
                             <option value="{{ $m->id }}" {{ $marcaId == $m->id ? 'selected' : '' }}>{{ $m->nombre }}</option>
@@ -68,7 +68,7 @@
                     </select>
                 </div>
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2.5 text-sm font-semibold transition flex items-center justify-center gap-2">
+                    <button type="submit" class="flex-1 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] rounded-lg py-2.5 text-sm font-semibold transition flex items-center justify-center gap-2">
                         <i class="fas fa-filter"></i> Aplicar
                     </button>
                     <a href="{{ route('inventario.reportes.stock-valorizado') }}"
@@ -81,10 +81,10 @@
 
         {{-- KPI Cards --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
+            <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-[#F7D600]">
                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Productos</p>
                 <p class="text-2xl font-bold text-gray-800 mt-1">{{ number_format($totales['items']) }}</p>
-                <p class="text-xs text-blue-500 mt-1">{{ number_format($totales['unidades']) }} unidades</p>
+                <p class="text-xs text-[#2B2E2C] mt-1">{{ number_format($totales['unidades']) }} unidades</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-orange-500">
                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Val. Compra</p>
@@ -138,7 +138,7 @@
                                     <td class="px-4 py-3 text-gray-500">{{ $p['marca'] }}</td>
                                     <td class="px-4 py-3 text-center">
                                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold
-                                            {{ $p['tipo'] === 'serie' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                                            {{ $p['tipo'] === 'serie' ? 'bg-[#2B2E2C]/10 text-[#2B2E2C]' : 'bg-[#2B2E2C]/10 text-[#2B2E2C]' }}">
                                             {{ ucfirst($p['tipo']) }}
                                         </span>
                                     </td>
@@ -152,7 +152,7 @@
                                             {{ $p['margen_pct'] }}%
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-right font-semibold {{ $p['utilidad'] > 0 ? 'text-purple-700' : 'text-red-600' }}">
+                                    <td class="px-4 py-3 text-right font-semibold {{ $p['utilidad'] > 0 ? 'text-[#2B2E2C]' : 'text-red-600' }}">
                                         S/ {{ number_format($p['utilidad'], 2) }}
                                     </td>
                                 </tr>
@@ -168,7 +168,7 @@
                                 <td class="px-4 py-3 text-right font-bold text-orange-700">S/ {{ number_format($totales['valor_compra'], 2) }}</td>
                                 <td class="px-4 py-3 text-right font-bold text-green-700">S/ {{ number_format($totales['valor_venta'], 2) }}</td>
                                 <td class="px-4 py-3 text-right font-bold text-gray-700">{{ number_format($margenGlobal, 1) }}%</td>
-                                <td class="px-4 py-3 text-right font-bold text-purple-700">S/ {{ number_format($totales['utilidad'], 2) }}</td>
+                                <td class="px-4 py-3 text-right font-bold text-[#2B2E2C]">S/ {{ number_format($totales['utilidad'], 2) }}</td>
                             </tr>
                         </tfoot>
                     </table>

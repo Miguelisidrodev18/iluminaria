@@ -17,17 +17,17 @@
         <!-- Header con breadcrumb -->
         <div class="mb-6">
             <div class="flex items-center text-sm text-gray-500 mb-2">
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-blue-900">Dashboard</a>
+                <a href="{{ route('admin.dashboard') }}" class="hover:text-[#2B2E2C]">Dashboard</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
-                <a href="{{ route('compras.index') }}" class="hover:text-blue-900">Compras</a>
+                <a href="{{ route('compras.index') }}" class="hover:text-[#2B2E2C]">Compras</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
-                <a href="{{ route('compras.show', $compra) }}" class="hover:text-blue-900">Compra #{{ $compra->numero_factura }}</a>
+                <a href="{{ route('compras.show', $compra) }}" class="hover:text-[#2B2E2C]">Compra #{{ $compra->numero_factura }}</a>
                 <i class="fas fa-chevron-right mx-2 text-xs"></i>
                 <span class="text-gray-700 font-medium">Editar</span>
             </div>
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold text-gray-900 flex items-center">
-                    <i class="fas fa-edit mr-3 text-blue-900"></i>
+                    <i class="fas fa-edit mr-3 text-[#2B2E2C]"></i>
                     Editar Compra #{{ $compra->numero_factura }}
                 </h1>
                 <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
@@ -68,8 +68,8 @@
                 <!-- SECCIÓN 1: INFORMACIÓN PRINCIPAL (SOLO EDITABLE EN CIERTOS CASOS) -->
                 <div class="mb-10">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
-                            <i class="fas fa-file-invoice text-blue-900 text-sm"></i>
+                        <span class="w-8 h-8 bg-[#2B2E2C]/10 rounded-lg flex items-center justify-center mr-2">
+                            <i class="fas fa-file-invoice text-[#2B2E2C] text-sm"></i>
                         </span>
                         Información General
                     </h3>
@@ -225,15 +225,15 @@
                                 <tfoot class="bg-gray-50">
                                     <tr>
                                         <td colspan="6" class="px-6 py-3 text-right font-bold text-gray-700">Subtotal:</td>
-                                        <td class="px-6 py-3 text-right font-bold text-blue-900">{{ number_format($compra->subtotal, 2) }}</td>
+                                        <td class="px-6 py-3 text-right font-bold text-[#2B2E2C]">{{ number_format($compra->subtotal, 2) }}</td>
                                     </tr>
                                     <tr>
                                         <td colspan="6" class="px-6 py-3 text-right font-bold text-gray-700">IGV (18%):</td>
-                                        <td class="px-6 py-3 text-right font-bold text-blue-900">{{ number_format($compra->igv, 2) }}</td>
+                                        <td class="px-6 py-3 text-right font-bold text-[#2B2E2C]">{{ number_format($compra->igv, 2) }}</td>
                                     </tr>
                                     <tr>
                                         <td colspan="6" class="px-6 py-3 text-right font-bold text-gray-900 text-lg">Total:</td>
-                                        <td class="px-6 py-3 text-right font-bold text-blue-900 text-lg">{{ number_format($compra->total, 2) }}</td>
+                                        <td class="px-6 py-3 text-right font-bold text-[#2B2E2C] text-lg">{{ number_format($compra->total, 2) }}</td>
                                     </tr>
                                 </tfoot>
                             </table>

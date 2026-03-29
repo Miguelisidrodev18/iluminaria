@@ -40,12 +40,12 @@
         <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
             @foreach($clasificaciones as $clf)
             <label class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer hover:border-purple-400 transition-colors
-                          {{ in_array($clf->id, (array) $clasificacionesAsignadas) ? 'border-purple-400 bg-purple-50' : '' }}">
+                          {{ in_array($clf->id, (array) $clasificacionesAsignadas) ? 'border-purple-400 bg-[#2B2E2C]/10' : '' }}">
                 <input type="checkbox"
                        name="clasificacion_ids[]"
                        value="{{ $clf->id }}"
                        {{ in_array($clf->id, (array) $clasificacionesAsignadas) ? 'checked' : '' }}
-                       class="w-4 h-4 text-purple-600 rounded border-gray-300">
+                       class="w-4 h-4 text-[#2B2E2C] rounded border-gray-300">
                 <span class="text-sm text-gray-700">{{ $clf->nombre }}</span>
                 <span class="ml-auto text-xs text-gray-400 font-mono">{{ $clf->codigo }}</span>
             </label>
@@ -63,12 +63,12 @@
         <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
             @foreach(\App\Models\Luminaria\ProductoClasificacion::TIPOS_INSTALACION as $val => $lbl)
             <label class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer hover:border-purple-400 transition-colors
-                          {{ in_array($val, $tipoInstalacionActual) ? 'border-purple-400 bg-purple-50' : '' }}">
+                          {{ in_array($val, $tipoInstalacionActual) ? 'border-purple-400 bg-[#2B2E2C]/10' : '' }}">
                 <input type="checkbox"
                        name="clasificacion[tipo_instalacion][]"
                        value="{{ $val }}"
                        {{ in_array($val, $tipoInstalacionActual) ? 'checked' : '' }}
-                       class="w-4 h-4 text-purple-600 rounded border-gray-300">
+                       class="w-4 h-4 text-[#2B2E2C] rounded border-gray-300">
                 <span class="text-sm text-gray-700">{{ $lbl }}</span>
             </label>
             @endforeach
@@ -86,7 +86,7 @@
         <div class="flex flex-wrap gap-1 mb-2">
             @foreach(\App\Models\Luminaria\ProductoClasificacion::ESTILOS_SUGERIDOS as $sug)
             <button type="button" @click="toggle('{{ $sug }}')"
-                    :class="tags.includes('{{ $sug }}') ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-600 border-gray-300 hover:border-purple-400'"
+                    :class="tags.includes('{{ $sug }}') ? 'bg-[#2B2E2C] text-white border-purple-600' : 'bg-white text-gray-600 border-gray-300 hover:border-purple-400'"
                     class="text-xs border rounded-full px-3 py-1 transition-colors">
                 {{ $sug }}
             </button>
@@ -96,7 +96,7 @@
         <div class="flex flex-wrap gap-1 min-h-10 border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:ring-2 focus-within:ring-purple-400 cursor-text"
              @click="$refs.tagInputClasif.focus()">
             <template x-for="(tag, i) in tags" :key="i">
-                <span class="inline-flex items-center gap-1 bg-purple-100 text-purple-800 text-xs rounded-full px-2 py-0.5">
+                <span class="inline-flex items-center gap-1 bg-[#2B2E2C]/10 text-[#2B2E2C] text-xs rounded-full px-2 py-0.5">
                     <span x-text="tag"></span>
                     <input type="hidden" :name="'clasificacion[estilo][]'" :value="tag">
                     <button type="button" @click.stop="remove(i)"
@@ -122,12 +122,12 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
             @foreach($tiposProyecto as $tp)
             <label class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer hover:border-purple-400 transition-colors
-                          {{ in_array($tp->id, $tiposProyectoAsignados) ? 'border-purple-400 bg-purple-50' : '' }}">
+                          {{ in_array($tp->id, $tiposProyectoAsignados) ? 'border-purple-400 bg-[#2B2E2C]/10' : '' }}">
                 <input type="checkbox"
                        name="tipo_proyecto_ids[]"
                        value="{{ $tp->id }}"
                        {{ in_array($tp->id, $tiposProyectoAsignados) ? 'checked' : '' }}
-                       class="w-4 h-4 text-purple-600 rounded border-gray-300">
+                       class="w-4 h-4 text-[#2B2E2C] rounded border-gray-300">
                 <span class="text-sm text-gray-700">{{ $tp->nombre }}</span>
             </label>
             @endforeach
