@@ -72,12 +72,8 @@ class ProductoController extends Controller
             $query->buscar($request->buscar);
         }
 
-        // Filtro por categoría
-        if ($request->filled('categoria_id')) {
-            $query->where('categoria_id', $request->categoria_id);
-        }
+        // Filtro por categoría (= tipo de producto)
 
-        // Filtro por tipo de producto
         if ($request->filled('tipo_producto_id')) {
             $query->where('tipo_producto_id', $request->tipo_producto_id);
         }
@@ -106,8 +102,7 @@ class ProductoController extends Controller
             $query->where('estado_aprobacion', $request->estado_aprobacion);
         }
 
-        $productos    = $query->orderBy('nombre')->paginate(15);
-        $categorias   = Categoria::activas()->orderBy('nombre')->get();
+        $productos     = $query->orderBy('nombre')->paginate(15);
         $tiposProducto = TipoProducto::activos()->orderBy('nombre')->get();
 
         // Verificar permisos
@@ -116,7 +111,7 @@ class ProductoController extends Controller
         $canDelete = auth()->user()->role->nombre === 'Administrador';
 
         return view('inventario.productos.index', compact(
-            'productos', 'categorias', 'tiposProducto',
+            'productos', 'tiposProducto',
             'canCreate', 'canEdit', 'canDelete'
         ));
     }

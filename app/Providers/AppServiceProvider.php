@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use App\Models\User;
 use App\Models\ProductoVariante;
 use App\Observers\ProductoVarianteObserver;
+use App\Models\Luminaria\TipoProducto;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // ── Route model bindings ─────────────────────────────────────────────
+        Route::model('tipoProducto', TipoProducto::class);
 
         // ── Observers ────────────────────────────────────────────────────────
         ProductoVariante::observe(ProductoVarianteObserver::class);

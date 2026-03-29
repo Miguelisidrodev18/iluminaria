@@ -185,7 +185,7 @@
                             <li>
                                 <a href="{{ route('inventario.categorias.index') }}"
                                     class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.categorias.*') ? 'bg-[#484E4A]' : '' }}">
-                                    <i class="fas fa-tags mr-3 text-sm"></i>Categorías
+                                    <i class="fas fa-layer-group mr-3 text-sm"></i>Tipos de Producto
                                 </a>
                             </li>
                             <li>

@@ -84,29 +84,15 @@
                         </div>
                     </div>
 
-                    {{-- Tipo de Producto --}}
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Tipo de Producto</label>
-                        <select name="tipo_producto_id"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
-                            <option value="">Todos los tipos</option>
-                            @foreach($tiposProducto as $tp)
-                                <option value="{{ $tp->id }}" {{ request('tipo_producto_id') == $tp->id ? 'selected' : '' }}>
-                                    {{ $tp->codigo }} — {{ $tp->nombre }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Categoría --}}
+                    {{-- Categoría (= Tipo de Producto) --}}
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Categoría</label>
-                        <select name="categoria_id"
+                        <select name="tipo_producto_id"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
-                            <option value="">Todas</option>
-                            @foreach($categorias as $cat)
-                                <option value="{{ $cat->id }}" {{ request('categoria_id') == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->nombre }}
+                            <option value="">Todas las categorías</option>
+                            @foreach($tiposProducto as $tp)
+                                <option value="{{ $tp->id }}" {{ request('tipo_producto_id') == $tp->id ? 'selected' : '' }}>
+                                    {{ $tp->nombre }}
                                 </option>
                             @endforeach
                         </select>
@@ -179,7 +165,7 @@
                         <h2 class="text-base font-bold text-white leading-tight">Listado de Productos</h2>
                         <p class="text-xs text-gray-400">
                             {{ $productos->total() }} producto(s)
-                            @if(request()->hasAny(['buscar','tipo_producto_id','categoria_id','stock_estado']))
+                            @if(request()->hasAny(['buscar','tipo_producto_id','stock_estado']))
                                 con filtros activos
                             @endif
                         </p>

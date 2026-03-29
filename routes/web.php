@@ -176,16 +176,9 @@ Route::middleware('auth')->group(function () {
     // ========================================
     Route::prefix('inventario')->name('inventario.')->group(function () {
         
-        // CATEGORÍAS
-        Route::middleware('role:Administrador,Almacenero')->group(function () {
-            Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
-            Route::get('/categorias/create', [CategoriaController::class, 'create'])->name('categorias.create');
-            Route::post('/categorias', [CategoriaController::class, 'store'])->name('categorias.store');
-            Route::get('/categorias/{categoria}/edit', [CategoriaController::class, 'edit'])->name('categorias.edit');
-            Route::put('/categorias/{categoria}', [CategoriaController::class, 'update'])->name('categorias.update');
-            Route::delete('/categorias/{categoria}', [CategoriaController::class, 'destroy'])->middleware('role:Administrador')->name('categorias.destroy');
-            Route::get('/categorias/{categoria}', [CategoriaController::class, 'show'])->name('categorias.show');
-        });
+        // CATEGORÍAS (= Tipos de Producto)
+        Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
+        Route::get('/categorias/{tipoProducto}', [CategoriaController::class, 'show'])->name('categorias.show');
 
         // PRODUCTOS
             Route::middleware('role:Administrador,Almacenero')->group(function () {
