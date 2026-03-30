@@ -65,6 +65,7 @@ class VentaController extends Controller
             : ($user->almacen_id ?: null);
 
         $productos = Producto::where('estado', 'activo')
+            ->where('estado_aprobacion', '!=', 'borrador')
             ->with(['categoria', 'variantesActivas.color', 'precios' => function ($q) {
                 $q->where('activo', true)
                   ->whereNull('almacen_id')
