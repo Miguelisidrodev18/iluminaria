@@ -429,12 +429,23 @@
             return [...document.querySelectorAll('.chk-producto:checked')].map(c => c.value);
         }
 
+        const btnEditarUno = document.getElementById('btn-editar-uno');
+        const baseEditUrl  = '{{ route("inventario.productos.edit", "__ID__") }}';
+
         function actualizarBotones() {
             const ids = getSeleccionados();
             const n   = ids.length;
             btnAprobar.disabled = n === 0;
             labelSel.classList.toggle('hidden', n === 0);
             cntSel.textContent = n;
+
+            // Botón editar: solo visible cuando exactamente 1 producto seleccionado
+            if (n === 1) {
+                btnEditarUno.href = baseEditUrl.replace('__ID__', ids[0]);
+                btnEditarUno.classList.remove('hidden');
+            } else {
+                btnEditarUno.classList.add('hidden');
+            }
         }
 
         chkTodos.addEventListener('change', () => {

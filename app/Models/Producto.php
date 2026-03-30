@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Categoria;
 use App\Models\Catalogo\Marca;
+use App\Models\Catalogo\Modelo;
 use App\Models\Catalogo\UnidadMedida;
 use App\Models\Catalogo\Color;
 use App\Models\Luminaria\ProductoEspecificacion;
@@ -337,6 +338,11 @@ class Producto extends Model
     public function marca()
     {
         return $this->belongsTo(Marca::class, 'marca_id');
+    }
+
+    public function modelo()
+    {
+        return $this->belongsTo(Modelo::class, 'modelo_id');
     }
 
     public function unidadMedida()

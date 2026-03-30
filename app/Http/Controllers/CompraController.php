@@ -51,7 +51,7 @@ class CompraController extends Controller
             
         $marcas = Marca::where('estado', 'activo')->orderBy('nombre')->get();
 
-        $productos = Producto::with(['categoria', 'marca', 'modelo', 'variantesActivas.color'])
+        $productos = Producto::with(['categoria', 'marca', 'variantesActivas.color'])
             ->where('estado', 'activo')
             ->orderBy('nombre')
             ->get()
@@ -72,8 +72,6 @@ class CompraController extends Controller
                     'categoria_id'    => $producto->categoria_id,
                     'marca_id'        => $producto->marca_id,
                     'marca'           => $producto->marca?->nombre,
-                    'modelo_id'       => $producto->modelo_id,
-                    'modelo'          => $producto->modelo?->nombre,
                     'unidad_medida'   => $producto->unidadMedida?->abreviatura ?? 'UND',
                     'requiere_imei'   => $producto->tipo_inventario === 'serie',
                     'tiene_variantes' => $variantes->isNotEmpty(),
@@ -480,13 +478,12 @@ public function importarIMEI(Request $request)
     {
         $termino = $request->get('q', '');
 
-        $query = Producto::with(['marca', 'modelo', 'categoria', 'variantesActivas.color'])
+        $query = Producto::with(['marca', 'categoria', 'variantesActivas.color'])
             ->where('estado', 'activo')
             ->where(function($q) use ($termino) {
                 $q->where('nombre', 'like', "%{$termino}%")
                   ->orWhere('codigo', 'like', "%{$termino}%")
-                  ->orWhereHas('marca',  fn($m) => $m->where('nombre', 'like', "%{$termino}%"))
-                  ->orWhereHas('modelo', fn($m) => $m->where('nombre', 'like', "%{$termino}%"))
+                  ->orWhereHas('marca', fn($m) => $m->where('nombre', 'like', "%{$termino}%"))
                   ->orWhereHas('variantesActivas', fn($v) => $v->where('sku', 'like', "%{$termino}%"));
             })
             ->limit(20)
@@ -509,12 +506,10 @@ public function importarIMEI(Request $request)
                     'nombre'          => $producto->nombre,
                     'codigo'          => $producto->codigo,
                     'marca'           => $producto->marca?->nombre,
-                    'modelo'          => $producto->modelo?->nombre,
                     'categoria'       => $producto->categoria?->nombre,
                     'categoria_id'    => $producto->categoria_id,
                     'tipo_inventario' => $producto->tipo_inventario,
                     'marca_id'        => $producto->marca_id,
-                    'modelo_id'       => $producto->modelo_id,
                     'imagen'          => $producto->imagen_url ?? null,
                     'tiene_variantes' => $variantes->isNotEmpty(),
                     'variantes'       => $variantes,
@@ -550,7 +545,6 @@ public function importarIMEI(Request $request)
                 'nombre'          => $validated['nombre'],
                 'categoria_id'    => $validated['categoria_id'],
                 'marca_id'        => $validated['marca_id'],
-                'modelo_id'       => $validated['modelo_id'] ?? null,
                 'color_id'        => $validated['color_id'] ?? null,
                 'tipo_inventario' => $validated['tipo_inventario'],
                 'codigo_barras'   => $validated['codigo_barras'] ?? null,
@@ -561,7 +555,7 @@ public function importarIMEI(Request $request)
                 'creado_por'      => auth()->id(),
             ]);
 
-            $producto->load('categoria', 'marca', 'modelo');
+            $producto->load('categoria', 'marca');
 
             return response()->json([
                 'success'         => true,
@@ -571,8 +565,6 @@ public function importarIMEI(Request $request)
                 'categoria'       => $producto->categoria?->nombre,
                 'marca'           => $producto->marca?->nombre,
                 'marca_id'        => $producto->marca_id,
-                'modelo'          => $producto->modelo?->nombre,
-                'modelo_id'       => $producto->modelo_id,
                 'color_id'        => $producto->color_id,
                 'codigo_barras'   => $producto->codigo_barras,
                 'requiere_imei'   => $producto->tipo_inventario === 'serie',
@@ -594,7 +586,7 @@ public function importarIMEI(Request $request)
 public function getProductoDetalle($id)
 {
     try {
-        $producto = Producto::with(['marca', 'modelo', 'categoria', 'variantesActivas.color'])
+        $producto = Producto::with(['marca', 'categoria', 'variantesActivas.color'])
             ->findOrFail($id);
 
         $variantes = $producto->variantesActivas->map(fn($v) => [
@@ -618,8 +610,6 @@ public function getProductoDetalle($id)
             'tipo_inventario' => $producto->tipo_inventario,
             'marca_id'        => $producto->marca_id,
             'marca_nombre'    => $producto->marca?->nombre,
-            'modelo_id'       => $producto->modelo_id,
-            'modelo_nombre'   => $producto->modelo?->nombre,
             'categoria_id'    => $producto->categoria_id,
             'categoria_nombre'=> $producto->categoria?->nombre,
             'tiene_variantes' => $variantes->isNotEmpty(),
