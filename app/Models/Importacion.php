@@ -46,8 +46,9 @@ class Importacion extends Model
 
     public function porcentaje(): int
     {
+        if ($this->estado === 'completado') return 100;
         if ($this->total_filas === 0) return 0;
-        return (int) round(($this->procesadas / $this->total_filas) * 100);
+        return (int) min(99, round(($this->procesadas / $this->total_filas) * 100));
     }
 
     public function estaActiva(): bool

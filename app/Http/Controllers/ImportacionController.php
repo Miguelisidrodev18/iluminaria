@@ -13,6 +13,7 @@ use PhpOffice\PhpSpreadsheet\Style\Font;
 
 use App\Models\Importacion;
 use App\Models\Producto;
+use App\Models\Luminaria\ProductoClasificacion;
 use App\Jobs\ProcesarImportacionJob;
 
 class ImportacionController extends Controller
@@ -31,11 +32,7 @@ class ImportacionController extends Controller
             ->limit(10)
             ->get();
 
-        $categorias = \App\Models\Categoria::where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get(['id', 'nombre', 'codigo']);
-
-        return view('inventario.importacion.index', compact('recientes', 'categorias'));
+        return view('inventario.importacion.index', compact('recientes'));
     }
 
     // ── Subir archivo y procesar ──────────────────────────────────────────────
@@ -43,8 +40,7 @@ class ImportacionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'archivo'      => 'required|file|mimes:xlsx,xls|max:20480',
-            'categoria_id' => 'required|exists:categorias,id',
+            'archivo' => 'required|file|mimes:xlsx,xls|max:20480',
         ]);
 
         $archivo      = $request->file('archivo');
@@ -58,7 +54,6 @@ class ImportacionController extends Controller
         $importacion = Importacion::create([
             'nombre_archivo' => $nombreOrigen,
             'ruta_archivo'   => Storage::path($ruta),
-            'categoria_id'   => $request->input('categoria_id'),
             'creado_por'     => auth()->id(),
             'estado'         => 'pendiente',
         ]);
@@ -194,10 +189,50 @@ class ImportacionController extends Controller
                 ],
             ],
             [
-                'nombre'   => 'CLASIFICACIONES',
-                'color'    => '7030A0',
-                'cabeceras' => ['codigo_fabrica','uso','ambiente','instalacion','Estilo'],
-                'ejemplo'  => ['25-0573-N3-B9','oficina','interior','plafon','moderno'],
+                'nombre'    => 'CLASIFICACIONES',
+                'color'     => '7030A0',
+                'cabeceras' => [
+                    'codigo_fabrica',
+                    'uso',
+                    'tipo_proyecto',
+                    'ambiente',
+                    'instalacion',
+                    'estilo',
+                ],
+                'ejemplo' => [
+                    '25-0573-N3-B9',
+                    'interiores, exteriores',
+                    'Residencial, Hotelero',
+                    'Sala, Cocina, Dormitorio',
+                    'plafon, colgante',
+                    'Moderno, Minimalista',
+                ],
+                'notas' => [
+                    '',
+                    'Valores: interiores | exteriores | alumbrado_publico | piscina  (separar con coma)',
+                    'Nombre exacto del tipo de proyecto — múltiples separados por coma',
+                    'Nombre del ambiente — múltiples separados por coma (ej: Sala, Cocina, Dormitorio)',
+                    'Ver hoja INSTALACION_VALORES — múltiples separados por coma',
+                    'Ver hoja ESTILOS_VALORES — múltiples separados por coma',
+                ],
+            ],
+            [
+                'nombre'    => 'INSTALACION_VALORES',
+                'color'     => 'C9B1D9',
+                'cabeceras' => ['valor_instalacion', 'descripcion'],
+                'ejemplo'   => ['plafon', 'Plafón'],
+                'notas'     => [],
+                'extra_rows' => collect(\App\Models\Luminaria\ProductoClasificacion::TIPOS_INSTALACION)
+                    ->map(fn($lbl, $val) => [$val, $lbl])->values()->toArray(),
+            ],
+            [
+                'nombre'    => 'ESTILOS_VALORES',
+                'color'     => 'E2BCFF',
+                'cabeceras' => ['estilo_sugerido'],
+                'ejemplo'   => ['Moderno'],
+                'notas'     => [],
+                'extra_rows' => collect(\App\Models\Luminaria\ProductoClasificacion::ESTILOS_SUGERIDOS)
+                    ->map(fn($e) => [$e])->values()->toArray(),
             ],
         ];
 
@@ -221,10 +256,38 @@ class ImportacionController extends Controller
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             ]);
 
+            // Fila de notas (fila 2) si existen
+            $filaEjemplo = 2;
+            if (!empty($def['notas'])) {
+                foreach ($def['notas'] as $idx => $nota) {
+                    if ($nota) {
+                        $coord = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($idx + 1) . '2';
+                        $ws->setCellValue($coord, $nota);
+                    }
+                }
+                $ws->getStyle("A2:{$lastCol}2")->applyFromArray([
+                    'font' => ['italic' => true, 'color' => ['rgb' => '666666'], 'size' => 9],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F5F5F5']],
+                ]);
+                $filaEjemplo = 3;
+            }
+
             // Fila de ejemplo
             foreach ($def['ejemplo'] as $idx => $val) {
-                $coord = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($idx + 1) . '2';
+                $coord = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($idx + 1) . $filaEjemplo;
                 $ws->setCellValue($coord, $val);
+            }
+
+            // Filas extras (catálogos de referencia)
+            if (!empty($def['extra_rows'])) {
+                $filaExtra = $filaEjemplo + 1;
+                foreach ($def['extra_rows'] as $row) {
+                    foreach ($row as $idx => $val) {
+                        $coord = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($idx + 1) . $filaExtra;
+                        $ws->setCellValue($coord, $val);
+                    }
+                    $filaExtra++;
+                }
             }
 
             // Autoajustar ancho
@@ -265,9 +328,19 @@ class ImportacionController extends Controller
     public function aprobarLote(Request $request)
     {
         $request->validate([
-            'ids'   => 'required|array|min:1',
-            'ids.*' => 'integer|exists:productos,id',
+            'ids'      => 'required|array|min:1',
+            'ids.*'    => 'integer|exists:productos,id',
+            'password' => 'required|string',
         ]);
+
+        // Verificar contraseña maestra
+        $masterPassword = env('MASTER_PASSWORD', 'ImportMaster2024');
+        if ($request->password !== $masterPassword) {
+            return response()->json([
+                'ok'      => false,
+                'error'   => 'Contraseña incorrecta.',
+            ], 422);
+        }
 
         $cantidad = Producto::whereIn('id', $request->ids)
             ->where('estado_aprobacion', 'borrador')

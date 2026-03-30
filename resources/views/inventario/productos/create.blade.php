@@ -163,24 +163,9 @@
                             </div>
                         </div>
 
-                        {{-- Categoría --}}
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Categoría <span class="text-red-500">*</span>
-                            </label>
-                            <select name="categoria_id" id="categoria_id"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]" required>
-                                <option value="">Seleccione una categoría</option>
-                                @foreach($categorias as $cat)
-                                    <option value="{{ $cat->id }}" {{ old('categoria_id') == $cat->id ? 'selected' : '' }}>
-                                        {{ $cat->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('categoria_id')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        {{-- Categoría oculta (requerida en BD) --}}
+                        <input type="hidden" name="categoria_id"
+                               value="{{ old('categoria_id', $categorias->first()?->id) }}">
 
                         {{-- Marca --}}
                         <div>
@@ -188,10 +173,15 @@
                             <div class="flex gap-2">
                                 <select name="marca_id" id="marca_id"
                                         class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
-                                    <option value="">Seleccione categoría primero</option>
+                                    <option value="">— Sin marca —</option>
+                                    @foreach($marcas as $m)
+                                        <option value="{{ $m->id }}" {{ old('marca_id') == $m->id ? 'selected' : '' }}>
+                                            {{ $m->nombre }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 <button type="button" onclick="abrirModalMarca()"
-                                        class="px-3 py-2 bg-[#2B2E2C]/10 text-[#2B2E2C] border border-blue-300 rounded-lg hover:bg-[#2B2E2C]/10 transition shrink-0">
+                                        class="px-3 py-2 bg-[#2B2E2C]/10 text-[#2B2E2C] border border-gray-300 rounded-lg hover:bg-[#2B2E2C]/20 transition shrink-0">
                                     <i class="fas fa-plus text-sm"></i>
                                 </button>
                             </div>
@@ -395,14 +385,6 @@
                 </div>
 
                 {{-- ══════════════════════════════════════════════════════════
-                    BLOQUE CONFIGURADOR DE ATRIBUTOS DINÁMICOS
-                ══════════════════════════════════════════════════════════ --}}
-                @include('inventario.productos.partials.atributos-dinamicos', [
-                    'atributosGrupos'  => $atributosGrupos,
-                    'atributosActuales'=> [],
-                ])
-
-                {{-- ══════════════════════════════════════════════════════════
                     BLOQUE 8 — VARIANTES
                 ══════════════════════════════════════════════════════════ --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5"
@@ -519,21 +501,7 @@
 
     @include('inventario.productos.partials.modales-rapidos')
 
-    @php
-        $atributosParaNombre = $atributosGrupos->flatten()
-            ->filter(fn($a) => $a->en_nombre_auto)
-            ->sortBy('orden_nombre')
-            ->map(fn($a) => ['slug' => $a->slug, 'nombre' => $a->nombre, 'unidad' => $a->unidad])
-            ->values();
-        $valoresMap = \App\Models\Catalogo\CatalogoValor::whereHas('atributo', fn($q) => $q->where('en_nombre_auto', true))
-            ->get()
-            ->mapWithKeys(fn($v) => [$v->id => $v->etiqueta ?? $v->valor]);
-    @endphp
     <script>
-    // ─── Atributos para nombre auto-generado ──────────────────────────────────────
-    window.ATRIBUTOS_PARA_NOMBRE = @json($atributosParaNombre);
-    window.VALORES_MAP = @json($valoresMap);
-
     // ─── Tipos de producto (desde BD, datos serializados) ────────────────────────
     const TIPOS_DATA = @json($tiposProducto->keyBy('id'));
     // Tipos que muestran ficha técnica (los que no son puro "accesorio/fuente sin specs")
@@ -700,73 +668,14 @@
         .finally(() => { btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync-alt"></i>'; });
     });
 
-    // ─── Marca/Modelo en cascada ──────────────────────────────────────────────
-    function cargarMarcasPorCategoria(categoriaId, marcaSeleccionada = null) {
-        const marcaSelect  = document.getElementById('marca_id');
-        const modeloSelect = document.getElementById('modelo_id');
-        marcaSelect.innerHTML = '<option value="">Cargando...</option>';
-        marcaSelect.disabled = true;
-        modeloSelect.innerHTML = '<option value="">Primero selecciona marca</option>';
-        modeloSelect.disabled = true;
-
-        if (!categoriaId) {
-            marcaSelect.innerHTML = '<option value="">Sin marca</option>';
-            marcaSelect.disabled = false;
-            return;
-        }
-
-        fetch(`/catalogo/marcas-por-categoria/${categoriaId}`)
-            .then(r => r.json())
-            .then(data => {
-                marcaSelect.innerHTML = '<option value="">Sin marca</option>';
-                data.forEach(m => {
-                    const sel = (marcaSeleccionada && m.id == marcaSeleccionada) ? 'selected' : '';
-                    marcaSelect.innerHTML += `<option value="${m.id}" ${sel}>${m.nombre}</option>`;
-                });
-                marcaSelect.disabled = false;
-                if (marcaSeleccionada) cargarModelosPorMarca(marcaSeleccionada);
-            })
-            .catch(() => { marcaSelect.innerHTML = '<option value="">Error</option>'; marcaSelect.disabled = false; });
-    }
-
-    function cargarModelosPorMarca(marcaId, modeloSel = null) {
-        const modeloSelect = document.getElementById('modelo_id');
-        modeloSelect.innerHTML = '<option value="">Cargando...</option>';
-        modeloSelect.disabled = true;
-
-        if (!marcaId) {
-            modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
-            modeloSelect.disabled = false;
-            return;
-        }
-
-        fetch(`/catalogo/modelos-por-marca/${marcaId}`)
-            .then(r => r.json())
-            .then(data => {
-                modeloSelect.innerHTML = '<option value="">Sin modelo</option>';
-                data.forEach(m => {
-                    const sel = (modeloSel && m.id == modeloSel) ? 'selected' : '';
-                    modeloSelect.innerHTML += `<option value="${m.id}" ${sel}>${m.nombre}</option>`;
-                });
-                modeloSelect.disabled = false;
-            })
-            .catch(() => { modeloSelect.innerHTML = '<option value="">Error</option>'; modeloSelect.disabled = false; });
-    }
-
-    document.getElementById('categoria_id')?.addEventListener('change', function () {
-        cargarMarcasPorCategoria(this.value);
-    });
+    // ─── Marca — inicializar desde el select ya renderizado server-side ──────
     document.getElementById('marca_id')?.addEventListener('change', function () {
         marcaId = this.value || null;
-        cargarModelosPorMarca(this.value);
         limpiarKyrios();
     });
-
-    // Pre-cargar si hay old values
-    const _cat = {{ old('categoria_id', 'null') }};
-    const _mar = {{ old('marca_id', 'null') }};
-    const _mod = {{ old('modelo_id', 'null') }};
-    if (_cat) cargarMarcasPorCategoria(_cat, _mar);
+    // Inicializar marcaId con el valor actual del select
+    const _marcaSelectVal = document.getElementById('marca_id')?.value;
+    if (_marcaSelectVal) marcaId = _marcaSelectVal;
 
     // ─── Sugerir nombre ───────────────────────────────────────────────────────
     document.getElementById('btnSugerirNombre')?.addEventListener('click', () => {

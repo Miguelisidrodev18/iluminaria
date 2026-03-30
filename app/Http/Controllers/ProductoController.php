@@ -67,6 +67,9 @@ class ProductoController extends Controller
     {
         $query = Producto::with(['categoria', 'variantesActivas.color', 'tipoProducto', 'marca', 'unidadMedida']);
 
+        // Excluir borradores — solo se gestionan en "Aprobar Importados"
+        $query->where('estado_aprobacion', '!=', 'borrador');
+
         // Filtro por búsqueda
         if ($request->filled('buscar')) {
             $query->buscar($request->buscar);
@@ -133,14 +136,11 @@ public function create()
     $colores = Color::where('estado', 'activo')->orderBy('nombre')->get();
     $unidades = UnidadMedida::where('estado', 'activo')->orderBy('nombre')->get(); // ✅ YA LO TIENES
     
-    $tiposProyecto   = TipoProyecto::activos()->orderBy('nombre')->get();
+    $tiposProyecto   = TipoProyecto::activos()->with(['espacios' => fn($q) => $q->where('activo', true)->orderBy('nombre')])->orderBy('nombre')->get();
     $tiposProducto   = TipoProducto::activos()->orderBy('nombre')->get();
     $tiposLuminaria  = TipoLuminaria::activos()->orderBy('nombre')->get();
     $clasificaciones = Clasificacion::activos()->orderBy('nombre')->get();
     $ubicaciones     = Ubicacion::activas()->orderBy('nombre')->get();
-
-    // Atributos dinámicos agrupados para el configurador
-    $atributosGrupos = \App\Models\Catalogo\CatalogoAtributo::paraFormulario();
 
     return view('inventario.productos.create', compact(
         'categorias',
@@ -152,8 +152,7 @@ public function create()
         'tiposProducto',
         'tiposLuminaria',
         'clasificaciones',
-        'ubicaciones',
-        'atributosGrupos'
+        'ubicaciones'
     ));
 }
 
@@ -166,7 +165,7 @@ public function create()
         // Campos básicos
         'nombre' => 'required|string|max:255',
         'descripcion' => 'nullable|string',
-        'categoria_id' => 'required|exists:categorias,id',
+        'categoria_id' => 'nullable|exists:categorias,id',
         
         // ✅ NUEVO: Foreign Keys desde catálogos
         'marca_id' => 'nullable|exists:marcas,id',           // Cambiado de 'marca'
@@ -221,9 +220,6 @@ public function create()
         // Dimensiones
         'dimensiones.peso' => 'nullable|numeric|min:0',
 
-        // Clasificaciones de uso (array de IDs de clasificaciones)
-        'clasificacion_ids'    => 'nullable|array',
-        'clasificacion_ids.*'  => 'exists:clasificaciones,id',
         // Tipos de proyecto (multi-valor, pivot)
         'tipo_proyecto_ids'    => 'nullable|array',
         'tipo_proyecto_ids.*'  => 'exists:tipos_proyecto,id',
@@ -252,27 +248,24 @@ public function create()
         $validated['imagen'] = $request->file('imagen')->store('productos', 'public');
     }
 
+    // Fallback de categoria_id si no se envió (campo oculto)
+    if (empty($validated['categoria_id'])) {
+        $validated['categoria_id'] = \App\Models\Categoria::where('estado', 'activo')->value('id') ?? 1;
+    }
+
     \DB::transaction(function () use ($validated, $request) {
         // Crear producto — siempre inicia como borrador
         $validated['estado_aprobacion'] = 'borrador';
         $validated['creado_por'] = auth()->id();
         $producto = Producto::create($validated);
 
-        // Sincronizar clasificaciones de uso (pivot)
-        $clasificacionIds = array_filter((array) $request->input('clasificacion_ids', []));
-        $producto->clasificaciones()->sync($clasificacionIds);
+        // (usos y ambientes se guardan dentro de guardarFichaTecnica)
 
         // Guardar ficha técnica luminaria
         $this->guardarFichaTecnica($producto, $request);
 
         // Sincronizar ubicaciones físicas (pivot con cantidad)
         $this->sincronizarUbicaciones($producto, $request);
-
-        // Sincronizar atributos dinámicos del configurador
-        $atributosInput = $request->input('atributos', []);
-        if (!empty($atributosInput)) {
-            $producto->sincronizarAtributos($atributosInput);
-        }
 
         \Log::info('Producto creado:', [
             'id' => $producto->id,
@@ -379,16 +372,13 @@ public function create()
         // Obtener códigos de barras (opcional)
         $codigosBarras = $producto->codigosBarras ?? collect();
 
-        $tiposProyecto   = TipoProyecto::activos()->orderBy('nombre')->get();
+        $tiposProyecto   = TipoProyecto::activos()->with(['espacios' => fn($q) => $q->where('activo', true)->orderBy('nombre')])->orderBy('nombre')->get();
         $tiposProducto   = TipoProducto::activos()->orderBy('nombre')->get();
         $tiposLuminaria  = TipoLuminaria::activos()->orderBy('nombre')->get();
         $clasificaciones = Clasificacion::activos()->orderBy('nombre')->get();
         $ubicaciones     = Ubicacion::activas()->orderBy('nombre')->get();
 
         // Atributos dinámicos agrupados + valores actuales del producto
-        $atributosGrupos    = \App\Models\Catalogo\CatalogoAtributo::paraFormulario();
-        $atributosActuales  = $producto->atributos_para_formulario;
-
         return view('inventario.productos.edit', compact(
             'producto',
             'categorias',
@@ -400,9 +390,7 @@ public function create()
             'tiposProducto',
             'tiposLuminaria',
             'clasificaciones',
-            'ubicaciones',
-            'atributosGrupos',
-            'atributosActuales'
+            'ubicaciones'
         ));
     }
 
@@ -420,7 +408,7 @@ public function create()
     $validated = $request->validate([
         'nombre' => 'required|string|max:200',
         'descripcion' => 'nullable|string',
-        'categoria_id' => 'required|exists:categorias,id',
+        'categoria_id' => 'nullable|exists:categorias,id',
         
         // Foreign Keys
         'marca_id' => 'nullable|exists:marcas,id',
@@ -497,9 +485,7 @@ public function create()
         // Actualizar producto
         $producto->update($validated);
 
-        // Sincronizar clasificaciones de uso (pivot)
-        $clasificacionIds = array_filter((array) $request->input('clasificacion_ids', []));
-        $producto->clasificaciones()->sync($clasificacionIds);
+        // (usos y ambientes se guardan dentro de guardarFichaTecnica)
 
         // Guardar ficha técnica luminaria
         $this->guardarFichaTecnica($producto, $request);
@@ -511,9 +497,6 @@ public function create()
         $this->sincronizarUbicaciones($producto, $request);
 
         // Sincronizar atributos dinámicos del configurador
-        $atributosInput = $request->input('atributos', []);
-        $producto->sincronizarAtributos($atributosInput);
-
         // Actualizar código de barras principal si cambió
         if ($producto->wasChanged('codigo_barras') && $producto->codigo_barras) {
             $principal = $producto->codigosBarras()->where('es_principal', true)->first();
@@ -562,20 +545,22 @@ public function create()
             );
         }
 
-        // Guardar atributos de instalación (tipo_instalacion[], estilo[]) — multi-valor
-        $clData = $request->input('clasificacion', []);
+        // Guardar clasificación de uso (usos, ambientes, tipo_instalacion, estilo)
+        $clData          = $request->input('clasificacion', []);
+        $usos            = array_values(array_filter((array) ($clData['usos']            ?? [])));
+        $ambientes       = array_values(array_filter((array) ($clData['ambientes']       ?? [])));
         $tipoInstalacion = array_values(array_filter((array) ($clData['tipo_instalacion'] ?? [])));
-        $estilos         = array_values(array_filter((array) ($clData['estilo'] ?? [])));
+        $estilos         = array_values(array_filter((array) ($clData['estilo']           ?? [])));
 
-        if (!empty($tipoInstalacion) || !empty($estilos)) {
-            $producto->clasificacion()->updateOrCreate(
-                ['producto_id' => $producto->id],
-                [
-                    'tipo_instalacion' => $tipoInstalacion,
-                    'estilo'           => $estilos,
-                ]
-            );
-        }
+        $producto->clasificacion()->updateOrCreate(
+            ['producto_id' => $producto->id],
+            [
+                'usos'             => $usos,
+                'ambientes'        => $ambientes,
+                'tipo_instalacion' => $tipoInstalacion,
+                'estilo'           => $estilos,
+            ]
+        );
 
         // Sincronizar tipos de proyecto (pivot multi-valor)
         $tiposProyectoIds = array_filter((array) $request->input('tipo_proyecto_ids', []));

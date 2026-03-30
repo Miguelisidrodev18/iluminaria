@@ -26,35 +26,19 @@
                     <i class="fas fa-file-excel text-green-600 mr-2"></i>Subir archivo Excel
                 </h2>
 
-                <p class="text-sm text-gray-500 mb-4">
-                    El archivo debe contener las hojas:
-                    <span class="font-mono text-xs bg-gray-100 px-1 rounded">PRODUCTOS</span>
-                    <span class="font-mono text-xs bg-gray-100 px-1 rounded">ATRIBUTOS_PRODUCTO</span>
-                    <span class="font-mono text-xs bg-gray-100 px-1 rounded">DIMENSIONES</span>
-                    <span class="font-mono text-xs bg-gray-100 px-1 rounded">EMBALAJE</span>
-                    <span class="font-mono text-xs bg-gray-100 px-1 rounded">VARIANTES</span>
-                    <span class="font-mono text-xs bg-gray-100 px-1 rounded">CLASIFICACIONES</span>
-                    <span class="font-mono text-xs bg-gray-100 px-1 rounded">COMPONENTES</span>
-                </p>
+                <p class="text-sm text-gray-500 mb-3">Usa la plantilla oficial. Hojas requeridas:</p>
+                <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800">completo_kyrios</span>
+                    <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800">ATRIBUTOS_PRODUCTO</span>
+                    <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">DIMENSIONES</span>
+                    <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-800">EMBALAJE</span>
+                    <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">VARIANTES</span>
+                    <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">CLASIFICACIONES</span>
+                    <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">COMPONENTES</span>
+                </div>
 
                 <form id="form-upload" enctype="multipart/form-data">
                     @csrf
-
-                    {{-- Selector de categoría --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-tags mr-1 text-yellow-500"></i>
-                            Categoría destino <span class="text-red-500">*</span>
-                        </label>
-                        <select name="categoria_id" required
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
-                            <option value="">— Selecciona una categoría —</option>
-                            @foreach($categorias as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->nombre }} ({{ $cat->codigo }})</option>
-                            @endforeach
-                        </select>
-                        <p class="text-xs text-gray-400 mt-1">Todos los productos nuevos se asignarán a esta categoría. Los que ya tengan categoría en el Excel la respetan.</p>
-                    </div>
 
                     {{-- Input fuera del label para evitar doble disparo del selector --}}
                     <input type="file" id="archivo" name="archivo"
@@ -337,16 +321,20 @@
             iconProgreso.classList.remove('fa-spin', 'fa-spinner');
 
             if (data.estado === 'completado') {
+                // Forzar barra al 100% al completar
+                barra.style.width    = '100%';
+                pctLabel.textContent = '100%';
+
                 iconProgreso.classList.add('fa-check-circle');
                 iconProgreso.classList.replace('text-[#2B2E2C]', 'text-green-500');
                 tituloProgreso.textContent = 'Importación completada';
-                barra.classList.replace('bg-[#F7D600] text-[#2B2E2C]', 'bg-green-500');
+                barra.classList.replace('bg-[#F7D600]', 'bg-green-500');
                 document.getElementById('bloque-finalizado').style.display = 'flex';
             } else {
                 iconProgreso.classList.add('fa-times-circle');
                 iconProgreso.classList.replace('text-[#2B2E2C]', 'text-red-500');
                 tituloProgreso.textContent = 'Importación con errores';
-                barra.classList.replace('bg-[#F7D600] text-[#2B2E2C]', 'bg-red-500');
+                barra.classList.replace('bg-[#F7D600]', 'bg-red-500');
             }
 
             btnImportar.disabled = false;

@@ -81,12 +81,14 @@ class ImportadorMasivoService
     ];
 
     // ── Catálogos en memoria (lookup cache) ───────────────────────────────────
-    private array $marcas          = [];
-    private array $colores         = [];
-    private array $tiposProducto   = [];
-    private array $tiposLuminaria  = [];
-    private array $atributosSlug   = [];
-    private array $clasificaciones = [];
+    private array $marcas           = [];
+    private array $colores          = [];
+    private array $tiposProducto    = [];
+    private array $tiposLuminaria   = [];
+    private array $atributosSlug    = [];
+    private array $clasificaciones  = [];
+    private array $tiposProyecto    = [];   // nombre → id
+    private array $espaciosProyecto = [];   // nombre_lower → id
     private int   $unidadDefaultId    = 1;
     private int   $categoriaDefaultId = 1;
 
@@ -154,6 +156,12 @@ class ImportadorMasivoService
         $this->atributosSlug = CatalogoAtributo::pluck('id', 'slug')->toArray();
 
         $this->clasificaciones = Clasificacion::pluck('id', 'nombre')
+            ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
+
+        $this->tiposProyecto = \App\Models\Luminaria\TipoProyecto::pluck('id', 'nombre')
+            ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
+
+        $this->espaciosProyecto = \App\Models\Luminaria\EspacioProyecto::pluck('id', 'nombre')
             ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
 
         $this->unidadDefaultId = UnidadMedida::where('abreviatura', 'und')
@@ -228,6 +236,13 @@ class ImportadorMasivoService
                         // Si ya existía, actualizar solo los campos de datos
                         if (!$producto->wasRecentlyCreated) {
                             $producto->update($datosProducto);
+                        }
+
+                        // Generar código Kyrios si aún no tiene uno
+                        if (!$producto->codigo_kyrios) {
+                            $producto->update([
+                                'codigo_kyrios' => $this->generarCodigoKyrios($producto),
+                            ]);
                         }
 
                         $mapa[$codigo] = $producto->id;
@@ -512,8 +527,15 @@ class ImportadorMasivoService
     // ── Hoja CLASIFICACIONES ──────────────────────────────────────────────────
 
     /**
-     * Columnas aceptadas: uso, ambiente, instalacion, Estilo
-     * Cada valor no vacío se crea/busca como Clasificacion y se adjunta al producto.
+     * Columnas: codigo_fabrica, uso, tipo_proyecto, ambiente, instalacion, estilo
+     *
+     * - uso          → clasificacion.usos (interiores|exteriores|alumbrado_publico|piscina)
+     * - tipo_proyecto → producto_tipos_proyecto pivot (por nombre)
+     * - ambiente     → clasificacion.ambientes (espacio_proyecto_id por nombre)
+     * - instalacion  → clasificacion.tipo_instalacion (clave del mapa TIPOS_INSTALACION)
+     * - estilo       → clasificacion.estilo (texto libre o sugerido)
+     *
+     * Múltiples filas para el mismo codigo_fabrica se acumulan (merge).
      */
     private function procesarHojaClasificaciones(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
     {
@@ -522,34 +544,139 @@ class ImportadorMasivoService
 
         $filas = $this->extraerFilas($sheet);
 
-        // Columnas que se mapean a clasificaciones (además de codigo_fabrica)
-        $camposClasificacion = ['uso', 'ambiente', 'instalacion', 'estilo'];
+        // Acumular por producto (múltiples filas = múltiples valores)
+        $acumulado = []; // codigo → ['usos'=>[], 'tipo_proyecto_ids'=>[], 'ambientes'=>[], 'instalacion'=>[], 'estilo'=>[]]
 
-        foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
-            DB::transaction(function () use ($chunk, $mapa, $camposClasificacion) {
-                foreach ($chunk as $fila) {
+        foreach ($filas as $fila) {
+            $codigo = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
+            if (!$codigo || !isset($mapa[$codigo])) continue;
+
+            if (!isset($acumulado[$codigo])) {
+                $acumulado[$codigo] = ['usos' => [], 'tipo_proyecto_ids' => [], 'ambientes' => [], 'instalacion' => [], 'estilo' => []];
+            }
+
+            // Helper: split a cell by comma to support multiple values in one cell
+            $splitCelda = fn(string $raw): array => array_filter(
+                array_map('trim', explode(',', $raw)),
+                fn($v) => $v !== ''
+            );
+
+            $usoMapa = [
+                'interior'          => 'interior',
+                'interiores'        => 'interior',
+                'exterior'          => 'exterior',
+                'exteriores'        => 'exterior',
+                'alumbrado publico' => 'alumbrado_publico',
+                'alumbrado_publico' => 'alumbrado_publico',
+                'piscina'           => 'piscina',
+            ];
+
+            $instalacionMapa = [
+                'plafon'                    => 'plafon',
+                'plafón'                    => 'plafon',
+                'colgante'                  => 'colgante',
+                'colgante doble altura'     => 'colgante_doble_altura',
+                'aplique'                   => 'aplique',
+                'empotrado'                 => 'empotrado_techo',
+                'empotrado techo'           => 'empotrado_techo',
+                'empotrado de techo'        => 'empotrado_techo',
+                'empotrado piso'            => 'empotrado_piso',
+                'empotrado de piso'         => 'empotrado_piso',
+                'empotrado muro'            => 'empotrado_muro',
+                'empotrado sobre muro'      => 'empotrado_muro',
+                'sobre mesa'                => 'sobre_mesa',
+                'pie'                       => 'pie',
+                'escritorio'                => 'escritorio',
+                'lectura'                   => 'lectura',
+                'ventilador'                => 'ventilador',
+                'estacas'                   => 'estacas',
+                'balizas'                   => 'balizas',
+                'empotrado sumergible'      => 'empotrado_sumergible',
+                'portatil'                  => 'portatil',
+                'portátil'                  => 'portatil',
+                'luminarias portatiles'     => 'portatil',
+                'luminarias portátiles'     => 'portatil',
+                'proyector'                 => 'proyector',
+                'proyectores'               => 'proyector',
+                'riel'                      => 'riel',
+                'sistema de riel'           => 'riel',
+                'tira led'                  => 'tira_led',
+                'tiras led'                 => 'tira_led',
+                'poste'                     => 'poste',
+                'postes'                    => 'poste',
+                'luz guia'                  => 'luz_guia',
+                'luz guía'                  => 'luz_guia',
+            ];
+
+            // uso → usos[] — soporta múltiples valores separados por coma
+            foreach ($splitCelda($this->norm($fila['uso'] ?? '')) as $u) {
+                $usoKey = $usoMapa[strtolower($u)] ?? strtolower($u);
+                if (!in_array($usoKey, $acumulado[$codigo]['usos'])) {
+                    $acumulado[$codigo]['usos'][] = $usoKey;
+                }
+            }
+
+            // tipo_proyecto → pivot ids — soporta múltiples valores separados por coma
+            foreach ($splitCelda($this->norm($fila['tipo_proyecto'] ?? '')) as $tp) {
+                $tpKey = strtolower($tp);
+                if (isset($this->tiposProyecto[$tpKey])) {
+                    $tpId = $this->tiposProyecto[$tpKey];
+                    if (!in_array($tpId, $acumulado[$codigo]['tipo_proyecto_ids'])) {
+                        $acumulado[$codigo]['tipo_proyecto_ids'][] = $tpId;
+                    }
+                }
+            }
+
+            // ambiente → espacio_proyecto_id — soporta múltiples valores separados por coma
+            foreach ($splitCelda($this->norm($fila['ambiente'] ?? '')) as $amb) {
+                $ambKey = strtolower($amb);
+                if (isset($this->espaciosProyecto[$ambKey])) {
+                    $espId = $this->espaciosProyecto[$ambKey];
+                    if (!in_array($espId, $acumulado[$codigo]['ambientes'])) {
+                        $acumulado[$codigo]['ambientes'][] = $espId;
+                    }
+                }
+            }
+
+            // instalacion → tipo_instalacion key — soporta múltiples valores separados por coma
+            foreach ($splitCelda($this->norm($fila['instalacion'] ?? '')) as $inst) {
+                $instKey = $instalacionMapa[strtolower($inst)] ?? strtolower($inst);
+                if (!in_array($instKey, $acumulado[$codigo]['instalacion'])) {
+                    $acumulado[$codigo]['instalacion'][] = $instKey;
+                }
+            }
+
+            // estilo → texto libre — soporta múltiples valores separados por coma
+            foreach ($splitCelda($this->norm($fila['estilo'] ?? '')) as $est) {
+                if (!in_array($est, $acumulado[$codigo]['estilo'])) {
+                    $acumulado[$codigo]['estilo'][] = $est;
+                }
+            }
+        }
+
+        // Persistir acumulado
+        foreach (array_chunk($acumulado, self::CHUNK_SIZE, true) as $chunk) {
+            DB::transaction(function () use ($chunk, $mapa) {
+                foreach ($chunk as $codigo => $datos) {
                     try {
-                        $codigo     = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
-                        $productoId = $mapa[$codigo] ?? null;
-                        if (!$productoId) continue;
-
-                        $producto = Producto::find($productoId);
+                        $productoId = $mapa[$codigo];
+                        $producto   = Producto::find($productoId);
                         if (!$producto) continue;
 
-                        $idsAdjuntar = [];
+                        // Clasificación: usos, ambientes, instalacion, estilo
+                        $producto->clasificacion()->updateOrCreate(
+                            ['producto_id' => $producto->id],
+                            [
+                                'usos'             => $datos['usos'],
+                                'ambientes'        => $datos['ambientes'],
+                                'tipo_instalacion' => $datos['instalacion'],
+                                'estilo'           => $datos['estilo'],
+                            ]
+                        );
 
-                        foreach ($camposClasificacion as $campo) {
-                            // extraerFilas() normaliza headers a minúsculas, así que $campo ya coincide
-                            $valor = $this->norm($fila[$campo] ?? '');
-                            if (!$valor) continue;
-
-                            $clf = $this->resolverClasificacion($valor);
-                            $idsAdjuntar[] = $clf;
-                        }
-
-                        if ($idsAdjuntar) {
-                            // syncWithoutDetaching: agrega sin eliminar los existentes
-                            $producto->clasificaciones()->syncWithoutDetaching($idsAdjuntar);
+                        // Tipos de proyecto (pivot)
+                        if (!empty($datos['tipo_proyecto_ids'])) {
+                            $producto->tiposProyecto()->syncWithoutDetaching($datos['tipo_proyecto_ids']);
                         }
 
                         $this->exitosas++;
@@ -661,12 +788,20 @@ class ImportadorMasivoService
         $key = strtolower($valor);
         if (isset($this->marcas[$key])) return $this->marcas[$key];
 
+        // Auto-generar código de 2-3 chars: iniciales de palabras o primeras letras
+        $codigoMarca = $this->generarCodigoMarca($valor);
+
         $marca = Marca::firstOrCreate(
             ['nombre' => $valor],
-            ['estado' => 'activo']
+            ['estado' => 'activo', 'codigo' => $codigoMarca]
         );
 
-        // Vincular la marca a la categoría de importación para que aparezca en el selector
+        // Si ya existía sin código, asignarlo
+        if (!$marca->codigo) {
+            $marca->update(['codigo' => $codigoMarca]);
+        }
+
+        // Vincular la marca a la categoría por defecto para que aparezca en el selector
         DB::table('categoria_marca')->insertOrIgnore([
             'categoria_id' => $this->categoriaDefaultId,
             'marca_id'     => $marca->id,
@@ -675,6 +810,80 @@ class ImportadorMasivoService
         ]);
 
         return $this->marcas[$key] = $marca->id;
+    }
+
+    /**
+     * Genera un código corto de 2-3 chars para una marca.
+     * Toma las iniciales de cada palabra, o las primeras 2 letras si es una sola palabra.
+     * Garantiza que no colisione con códigos existentes.
+     */
+    private function generarCodigoMarca(string $nombre): string
+    {
+        // Limpiar caracteres especiales y separar palabras
+        $palabras = preg_split('/[\s\-_\.]+/', preg_replace('/[^a-zA-Z0-9\s\-_\.]/', '', $nombre));
+        $palabras = array_filter($palabras);
+
+        if (count($palabras) >= 2) {
+            // Iniciales de las primeras 2-3 palabras
+            $base = strtoupper(implode('', array_map(fn($p) => substr($p, 0, 1), array_slice($palabras, 0, 3))));
+        } else {
+            // Una sola palabra: primeras 2-3 letras
+            $base = strtoupper(substr(reset($palabras), 0, 3));
+        }
+        $base = substr($base, 0, 3) ?: 'MK';
+
+        // Garantizar unicidad
+        $codigo = $base;
+        $sufijo = 2;
+        while (Marca::where('codigo', $codigo)->exists()) {
+            $codigo = $base . $sufijo;
+            $sufijo++;
+        }
+        return $codigo;
+    }
+
+    /**
+     * Genera el código Kyrios para un producto: KY-[TP][TL][M]-[NNNN]
+     * Replica la lógica de ProductoController::generarCodigoKyrios()
+     */
+    private function generarCodigoKyrios(Producto $producto): string
+    {
+        $tipoProducto = \App\Models\Luminaria\TipoProducto::find($producto->tipo_producto_id);
+        $segTP = $tipoProducto ? strtoupper(substr($tipoProducto->codigo ?? 'XX', 0, 2)) : 'XX';
+
+        $segTL = '00';
+        if ($producto->tipo_luminaria_id) {
+            $tipoLuminaria = \App\Models\Luminaria\TipoLuminaria::find($producto->tipo_luminaria_id);
+            if ($tipoLuminaria?->codigo) {
+                $segTL = strtoupper(substr($tipoLuminaria->codigo, 0, 2));
+            }
+        }
+
+        $segM = 'XX';
+        if ($producto->marca_id) {
+            $marca = Marca::find($producto->marca_id);
+            if ($marca?->codigo) {
+                $segM = strtoupper(substr($marca->codigo, 0, 2));
+            }
+        }
+
+        $prefijo = "KY-{$segTP}{$segTL}{$segM}";
+
+        $correlativo = Producto::where('tipo_producto_id', $producto->tipo_producto_id)
+            ->where('tipo_luminaria_id', $producto->tipo_luminaria_id ?: null)
+            ->where('marca_id', $producto->marca_id ?: null)
+            ->where('id', '!=', $producto->id)
+            ->whereNotNull('codigo_kyrios')
+            ->count() + 1;
+
+        $codigo = $prefijo . '-' . str_pad($correlativo, 4, '0', STR_PAD_LEFT);
+
+        while (Producto::where('codigo_kyrios', $codigo)->where('id', '!=', $producto->id)->exists()) {
+            $correlativo++;
+            $codigo = $prefijo . '-' . str_pad($correlativo, 4, '0', STR_PAD_LEFT);
+        }
+
+        return $codigo;
     }
 
     private function resolverColor(string $valor): ?int

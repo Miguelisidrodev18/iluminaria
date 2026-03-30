@@ -69,6 +69,46 @@
                 <p class="text-sm text-green-700 font-medium" id="msg-aprobacion"></p>
             </div>
 
+            {{-- ── Modal contraseña maestra ─────────────────────────────────── --}}
+            <div id="modal-password" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-10 h-10 rounded-xl bg-[#F7D600] flex items-center justify-center shrink-0">
+                            <i class="fas fa-shield-alt text-[#2B2E2C]"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-base">Confirmar aprobación</h3>
+                            <p class="text-xs text-gray-500" id="modal-subtitulo">Se aprobarán los productos seleccionados</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-key text-yellow-500 mr-1"></i>
+                            Contraseña maestra
+                        </label>
+                        <input type="password" id="input-master-password"
+                               placeholder="Ingresa la contraseña maestra"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600] outline-none" />
+                        <p id="error-password" class="text-xs text-red-600 mt-1.5 hidden">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            Contraseña incorrecta. Inténtalo de nuevo.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" id="modal-cancelar"
+                                class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="button" id="modal-confirmar"
+                                class="flex-1 px-4 py-2.5 text-sm font-semibold text-[#2B2E2C] bg-[#F7D600] hover:bg-[#e8c900] rounded-xl transition-colors">
+                            <i class="fas fa-check mr-1"></i>Aprobar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             {{-- ── Tabla ────────────────────────────────────────────────────── --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <table class="w-full text-sm text-left">
@@ -417,64 +457,161 @@
             actualizarBotones();
         });
 
-        // ── Aprobar en lote ──────────────────────────────────────────────────
-        btnAprobar.addEventListener('click', async () => {
-            const ids = getSeleccionados();
-            if (!ids.length) return;
-            if (!confirm(`¿Aprobar ${ids.length} producto(s)? Esta acción cambiará su estado a "aprobado".`)) return;
+        // ── Modal contraseña maestra ─────────────────────────────────────────
+        const modal          = document.getElementById('modal-password');
+        const inputPassword  = document.getElementById('input-master-password');
+        const errorPassword  = document.getElementById('error-password');
+        const modalSubtitulo = document.getElementById('modal-subtitulo');
+        const modalConfirmar = document.getElementById('modal-confirmar');
+        const modalCancelar  = document.getElementById('modal-cancelar');
 
-            btnAprobar.disabled = true;
-            btnAprobar.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Aprobando...';
+        let pendingIds    = [];
+        let pendingBtn    = null;
+        let pendingLabel  = '';
+
+        function abrirModal(ids, label, btn = null) {
+            pendingIds   = ids;
+            pendingBtn   = btn;
+            pendingLabel = label;
+            modalSubtitulo.textContent = label;
+            inputPassword.value = '';
+            errorPassword.classList.add('hidden');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => inputPassword.focus(), 50);
+        }
+
+        function cerrarModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            if (pendingBtn) {
+                pendingBtn.disabled = false;
+                pendingBtn.innerHTML = '<i class="fas fa-check"></i> Aprobar este producto';
+            }
+        }
+
+        modalCancelar.addEventListener('click', cerrarModal);
+        modal.addEventListener('click', e => { if (e.target === modal) cerrarModal(); });
+        inputPassword.addEventListener('keydown', e => { if (e.key === 'Enter') modalConfirmar.click(); });
+
+        modalConfirmar.addEventListener('click', async () => {
+            const password = inputPassword.value.trim();
+            if (!password) { errorPassword.textContent = 'Ingresa la contraseña.'; errorPassword.classList.remove('hidden'); return; }
+
+            modalConfirmar.disabled = true;
+            modalConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Verificando...';
 
             const resp = await fetch('{{ route("inventario.importacion.aprobar-lote") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
-                body: JSON.stringify({ ids }),
+                body: JSON.stringify({ ids: pendingIds, password }),
             });
 
             const data = await resp.json();
 
-            if (data.ok) {
-                ids.forEach(id => {
-                    document.querySelector(`tr[data-id="${id}"]`)?.remove();
-                    document.getElementById(`detalle-${id}`)?.remove();
-                });
-                alerta.classList.remove('hidden');
-                msgAlerta.textContent = `${data.aprobados} producto(s) aprobados correctamente.`;
-                setTimeout(() => alerta.classList.add('hidden'), 4000);
-                chkTodos.checked = false;
-                actualizarBotones();
-            } else {
-                alert('Ocurrió un error al aprobar. Inténtalo de nuevo.');
+            modalConfirmar.disabled = false;
+            modalConfirmar.innerHTML = '<i class="fas fa-check mr-1"></i>Aprobar';
+
+            if (!data.ok) {
+                errorPassword.textContent = data.error ?? 'Contraseña incorrecta.';
+                errorPassword.classList.remove('hidden');
+                inputPassword.value = '';
+                inputPassword.focus();
+                return;
             }
 
+            // Éxito
+            cerrarModal();
+            pendingIds.forEach(id => {
+                document.querySelector(`tr[data-id="${id}"]`)?.remove();
+                document.getElementById(`detalle-${id}`)?.remove();
+            });
+            alerta.classList.remove('hidden');
+            msgAlerta.textContent = `${data.aprobados} producto(s) aprobados correctamente.`;
+            setTimeout(() => alerta.classList.add('hidden'), 5000);
+            chkTodos.checked = false;
+            actualizarBotones();
+
+            // Si era botón individual, quitar de DOM
+            if (pendingBtn) {
+                pendingBtn.closest('tr')?.remove();
+            }
+
+            // Botones lote
             btnAprobar.disabled = false;
             btnAprobar.innerHTML = '<i class="fas fa-check mr-1"></i> Aprobar seleccionados';
+        });
+
+        // ── Aprobar en lote ──────────────────────────────────────────────────
+        btnAprobar.addEventListener('click', () => {
+            const ids = getSeleccionados();
+            if (!ids.length) return;
+            abrirModal(ids, `Se aprobarán ${ids.length} producto(s) seleccionados`);
         });
     })();
 
     // ── Aprobar producto individual ──────────────────────────────────────────
-    async function aprobarUno(id, btn) {
-        if (!confirm('¿Aprobar este producto?')) return;
-        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    function aprobarUno(id, btn) {
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+        // Reusar modal del scope principal
+        const modal         = document.getElementById('modal-password');
+        const inputPassword = document.getElementById('input-master-password');
+        const errorPassword = document.getElementById('error-password');
+        const modalSubtitulo = document.getElementById('modal-subtitulo');
+        const modalConfirmar = document.getElementById('modal-confirmar');
+        const modalCancelar  = document.getElementById('modal-cancelar');
 
-        const resp = await fetch('{{ route("inventario.importacion.aprobar-lote") }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
-            body: JSON.stringify({ ids: [id] }),
-        });
+        modalSubtitulo.textContent = 'Se aprobará 1 producto';
+        inputPassword.value = '';
+        errorPassword.classList.add('hidden');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => inputPassword.focus(), 50);
 
-        const data = await resp.json();
-        if (data.ok) {
-            document.querySelector(`tr[data-id="${id}"]`)?.remove();
-            document.getElementById(`detalle-${id}`)?.remove();
-        } else {
+        const onCancelar = () => {
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-check"></i> Aprobar este producto';
-            alert('Error al aprobar.');
-        }
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modalConfirmar.replaceWith(modalConfirmar.cloneNode(true));
+            modalCancelar.replaceWith(modalCancelar.cloneNode(true));
+        };
+
+        const newCancelar = document.getElementById('modal-cancelar');
+        newCancelar.addEventListener('click', onCancelar, { once: true });
+        modal.addEventListener('click', e => { if (e.target === modal) onCancelar(); }, { once: true });
+
+        document.getElementById('modal-confirmar').addEventListener('click', async () => {
+            const password = inputPassword.value.trim();
+            if (!password) { errorPassword.textContent = 'Ingresa la contraseña.'; errorPassword.classList.remove('hidden'); return; }
+
+            const resp = await fetch('{{ route("inventario.importacion.aprobar-lote") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                body: JSON.stringify({ ids: [id], password }),
+            });
+            const data = await resp.json();
+
+            if (!data.ok) {
+                errorPassword.textContent = data.error ?? 'Contraseña incorrecta.';
+                errorPassword.classList.remove('hidden');
+                inputPassword.value = '';
+                return;
+            }
+
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.querySelector(`tr[data-id="${id}"]`)?.remove();
+            document.getElementById(`detalle-${id}`)?.remove();
+
+            const alerta   = document.getElementById('alerta-aprobacion');
+            const msgAlerta = document.getElementById('msg-aprobacion');
+            alerta.classList.remove('hidden');
+            msgAlerta.textContent = 'Producto aprobado correctamente.';
+            setTimeout(() => alerta.classList.add('hidden'), 5000);
+        }, { once: true });
     }
     </script>
 </body>
