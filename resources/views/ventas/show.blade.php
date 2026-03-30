@@ -98,7 +98,12 @@
             </div>
 
             <div class="flex items-center gap-2 flex-wrap">
-                @if($venta->tipo_comprobante !== 'cotizacion')
+                @if($venta->tipo_comprobante === 'cotizacion')
+                <a href="{{ route('ventas.pdf', [$venta]) }}" target="_blank"
+                   class="inline-flex items-center gap-2 bg-[#2B2E2C] text-[#F7D600] hover:bg-[#3a3d3b] px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+                    <i class="fas fa-file-pdf"></i> Proforma PDF
+                </a>
+                @else
                 <a href="{{ route('ventas.pdf', [$venta, 'formato' => 'a4']) }}" target="_blank"
                    class="inline-flex items-center gap-2 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
                     <i class="fas fa-file-pdf"></i> PDF A4
@@ -354,6 +359,44 @@
             </div>
         </div>
 
+        {{-- Datos de Cotización --}}
+        @if($venta->tipo_comprobante === 'cotizacion' && ($venta->contacto || $venta->moneda === 'USD' || $venta->vigencia_dias))
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 mb-6">
+            <p class="text-sm font-semibold text-amber-700 mb-3 flex items-center gap-2">
+                <i class="fas fa-file-contract text-amber-500"></i> Datos de Cotización
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <dt class="text-xs text-gray-400">Moneda</dt>
+                    <dd class="font-semibold text-gray-800">
+                        {{ $venta->moneda === 'USD' ? 'Dólares (USD)' : 'Soles (PEN)' }}
+                    </dd>
+                </div>
+                @if($venta->moneda === 'USD' && $venta->tipo_cambio > 1)
+                <div>
+                    <dt class="text-xs text-gray-400">Tipo de cambio</dt>
+                    <dd class="font-semibold text-gray-800">S/ {{ number_format($venta->tipo_cambio, 3) }}</dd>
+                </div>
+                @endif
+                @if($venta->contacto)
+                <div>
+                    <dt class="text-xs text-gray-400">Contacto</dt>
+                    <dd class="font-semibold text-gray-800">{{ $venta->contacto }}</dd>
+                </div>
+                @endif
+                @if($venta->vigencia_dias)
+                <div>
+                    <dt class="text-xs text-gray-400">Vigencia</dt>
+                    <dd class="font-semibold text-gray-800">
+                        {{ $venta->vigencia_dias }} días
+                        <span class="text-xs text-gray-400 block">(hasta {{ $venta->fecha->addDays($venta->vigencia_dias)->format('d/m/Y') }})</span>
+                    </dd>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
         {{-- Observaciones --}}
         @if($venta->observaciones)
         <div class="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 mb-6 flex items-start gap-3">
@@ -386,6 +429,9 @@
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">IMEI / Serie</th>
                             <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Cant.</th>
                             <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Precio unit.</th>
+                            @if($venta->tipo_comprobante === 'cotizacion')
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Dcto.</th>
+                            @endif
                             <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Subtotal</th>
                         </tr>
                     </thead>
@@ -425,28 +471,53 @@
                             <td class="px-6 py-5 text-right">
                                 <span class="text-gray-700">S/ {{ number_format($detalle->precio_unitario, 2) }}</span>
                             </td>
+                            @if($venta->tipo_comprobante === 'cotizacion')
+                            <td class="px-6 py-5 text-center">
+                                @if(($detalle->descuento_pct ?? 0) > 0)
+                                    <span class="inline-flex items-center bg-amber-50 text-amber-700 border border-amber-200 text-xs px-2 py-0.5 rounded-full font-semibold">
+                                        {{ number_format($detalle->descuento_pct, 0) }}%
+                                    </span>
+                                @else
+                                    <span class="text-gray-400">—</span>
+                                @endif
+                            </td>
+                            @endif
                             <td class="px-6 py-5 text-right">
                                 <span class="font-bold text-gray-900">S/ {{ number_format($detalle->subtotal, 2) }}</span>
                             </td>
                         </tr>
                         @endforeach
                     </tbody>
+                    @php $colspanBase = $venta->tipo_comprobante === 'cotizacion' ? 5 : 4; @endphp
                     <tfoot class="bg-gray-50 border-t-2 border-gray-100">
                         <tr>
-                            <td colspan="4" class="px-6 py-4"></td>
+                            <td colspan="{{ $colspanBase }}" class="px-6 py-4"></td>
                             <td class="px-6 py-4 text-right text-sm font-semibold text-gray-500">Subtotal</td>
-                            <td class="px-6 py-4 text-right font-bold text-gray-700">S/ {{ number_format($venta->subtotal, 2) }}</td>
+                            <td class="px-6 py-4 text-right font-bold text-gray-700">
+                                {{ $venta->moneda === 'USD' ? 'US$' : 'S/' }} {{ number_format($venta->subtotal, 2) }}
+                            </td>
                         </tr>
                         <tr>
-                            <td colspan="4" class="px-6 py-1"></td>
+                            <td colspan="{{ $colspanBase }}" class="px-6 py-1"></td>
                             <td class="px-6 py-1 text-right text-sm font-semibold text-gray-500">IGV (18%)</td>
-                            <td class="px-6 py-1 text-right font-bold text-gray-700">S/ {{ number_format($venta->igv, 2) }}</td>
+                            <td class="px-6 py-1 text-right font-bold text-gray-700">
+                                {{ $venta->moneda === 'USD' ? 'US$' : 'S/' }} {{ number_format($venta->igv, 2) }}
+                            </td>
                         </tr>
                         <tr>
-                            <td colspan="4" class="px-6 py-4"></td>
+                            <td colspan="{{ $colspanBase }}" class="px-6 py-4"></td>
                             <td class="px-6 py-4 text-right text-lg font-bold text-gray-900">Total</td>
-                            <td class="px-6 py-4 text-right text-2xl font-bold text-[#2B2E2C]">S/ {{ number_format($venta->total, 2) }}</td>
+                            <td class="px-6 py-4 text-right text-2xl font-bold text-[#2B2E2C]">
+                                {{ $venta->moneda === 'USD' ? 'US$' : 'S/' }} {{ number_format($venta->total, 2) }}
+                            </td>
                         </tr>
+                        @if($venta->tipo_comprobante === 'cotizacion' && $venta->moneda === 'USD' && $venta->tipo_cambio > 1)
+                        <tr>
+                            <td colspan="{{ $colspanBase }}" class="px-6 py-2"></td>
+                            <td class="px-6 py-2 text-right text-xs text-gray-400">Equivalente S/ (T.C. {{ number_format($venta->tipo_cambio, 3) }})</td>
+                            <td class="px-6 py-2 text-right text-sm font-semibold text-gray-500">S/ {{ number_format($venta->total * $venta->tipo_cambio, 2) }}</td>
+                        </tr>
+                        @endif
                     </tfoot>
                 </table>
             </div>

@@ -23,9 +23,15 @@
     $tiposProyectoAsignados = old('tipo_proyecto_ids',
         isset($producto) ? $producto->tiposProyecto->pluck('id')->toArray() : []
     );
+    $ambientesActuales = old('clasificacion.ambientes',
+        isset($inst?->ambientes)
+            ? (is_array($inst->ambientes) ? $inst->ambientes : (json_decode($inst->ambientes, true) ?? []))
+            : []
+    );
     if (!is_array($tipoInstalacionActual))  $tipoInstalacionActual  = [];
     if (!is_array($estilosActuales))        $estilosActuales        = [];
     if (!is_array($tiposProyectoAsignados)) $tiposProyectoAsignados = [];
+    if (!is_array($ambientesActuales))      $ambientesActuales      = [];
 @endphp
 
 <div class="space-y-6">
@@ -112,24 +118,59 @@
         <p class="text-xs text-gray-400 mt-1">Selecciona de las sugerencias o escribe un estilo y presiona Enter</p>
     </div>
 
-    {{-- Tipo de Proyecto --}}
+    {{-- Tipo de Proyecto + Ambientes (EspacioProyecto) --}}
     <div>
         <label class="block text-xs font-semibold text-gray-600 mb-2">
             <i class="fas fa-building mr-1 text-purple-400"></i>
             Tipo de Proyecto
-            <span class="text-gray-400 font-normal">(selección múltiple)</span>
+            <span class="text-gray-400 font-normal">(selección múltiple — expande para elegir ambientes)</span>
         </label>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div class="space-y-2">
             @foreach($tiposProyecto as $tp)
-            <label class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer hover:border-purple-400 transition-colors
-                          {{ in_array($tp->id, $tiposProyectoAsignados) ? 'border-purple-400 bg-[#2B2E2C]/10' : '' }}">
-                <input type="checkbox"
-                       name="tipo_proyecto_ids[]"
-                       value="{{ $tp->id }}"
-                       {{ in_array($tp->id, $tiposProyectoAsignados) ? 'checked' : '' }}
-                       class="w-4 h-4 text-[#2B2E2C] rounded border-gray-300">
-                <span class="text-sm text-gray-700">{{ $tp->nombre }}</span>
-            </label>
+            @php $tpChecked = in_array($tp->id, $tiposProyectoAsignados); @endphp
+            <div x-data="{ open: {{ $tpChecked ? 'true' : 'false' }} }" class="border border-gray-200 rounded-lg overflow-hidden">
+
+                {{-- Cabecera del tipo de proyecto --}}
+                <label class="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors
+                              {{ $tpChecked ? 'bg-[#2B2E2C]/10 border-purple-400' : 'bg-white' }}">
+                    <input type="checkbox"
+                           name="tipo_proyecto_ids[]"
+                           value="{{ $tp->id }}"
+                           {{ $tpChecked ? 'checked' : '' }}
+                           @change="open = $event.target.checked"
+                           class="w-4 h-4 text-[#2B2E2C] rounded border-gray-300">
+                    <span class="text-sm font-medium text-gray-700 flex-1">{{ $tp->nombre }}</span>
+                    @if($tp->espacios->count())
+                    <button type="button" @click.prevent="open = !open"
+                            class="text-xs text-purple-500 hover:text-purple-700 transition-colors flex items-center gap-1">
+                        <span x-text="open ? 'ocultar' : 'ver ambientes'"></span>
+                        <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                    </button>
+                    @endif
+                </label>
+
+                {{-- Ambientes (EspacioProyecto) --}}
+                @if($tp->espacios->count())
+                <div x-show="open" x-cloak class="border-t border-gray-100 bg-gray-50 px-4 py-3">
+                    <p class="text-xs text-gray-400 mb-2">Ambientes de {{ $tp->nombre }}:</p>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        @foreach($tp->espacios->unique('nombre') as $espacio)
+                        @php $espChecked = in_array($espacio->id, $ambientesActuales); @endphp
+                        <label class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1.5 cursor-pointer hover:border-purple-300 transition-colors
+                                      {{ $espChecked ? 'border-purple-400 bg-purple-50' : '' }}">
+                            <input type="checkbox"
+                                   name="clasificacion[ambientes][]"
+                                   value="{{ $espacio->id }}"
+                                   {{ $espChecked ? 'checked' : '' }}
+                                   class="w-3.5 h-3.5 text-purple-500 rounded border-gray-300">
+                            <span class="text-xs text-gray-600">{{ $espacio->nombre }}</span>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+            </div>
             @endforeach
         </div>
     </div>

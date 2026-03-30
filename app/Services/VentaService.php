@@ -280,27 +280,29 @@ class VentaService
             $venta    = Venta::create($datosVenta);
             $subtotal = 0;
 
-            foreach ($detalles as $detalle) {
-                $precioUnitario  = (float) $detalle['precio_unitario'];
-                $subtotalDetalle = $detalle['cantidad'] * $precioUnitario;
+            foreach ($detalles as $d) {
+                $dcto            = floatval($d['descuento_pct'] ?? 0);
+                $precioConDcto   = round($d['precio_unitario'] * (1 - $dcto / 100), 4);
+                $subtotalDetalle = round($precioConDcto * $d['cantidad'], 2);
                 $subtotal       += $subtotalDetalle;
 
                 DetalleVenta::create([
                     'venta_id'        => $venta->id,
-                    'producto_id'     => $detalle['producto_id'],
-                    'variante_id'     => $detalle['variante_id'] ?? null,
-                    'cantidad'        => $detalle['cantidad'],
-                    'precio_unitario' => $precioUnitario,
+                    'producto_id'     => $d['producto_id'],
+                    'variante_id'     => $d['variante_id'] ?? null,
+                    'cantidad'        => $d['cantidad'],
+                    'precio_unitario' => $precioConDcto,
+                    'descuento_pct'   => $dcto,
                     'subtotal'        => $subtotalDetalle,
                 ]);
             }
 
-            $igv   = $subtotal * 0.18;
+            $igv   = round($subtotal * 0.18, 2);
             $total = $subtotal + $igv;
 
             $venta->update(['subtotal' => $subtotal, 'igv' => $igv, 'total' => $total]);
 
-            Log::info('Cotización creada', ['venta_id' => $venta->id, 'user_id' => $venta->user_id]);
+            Log::info('Cotizacion creada', ['venta_id' => $venta->id, 'user_id' => $venta->user_id]);
 
             return $venta->fresh(['detalles.producto', 'cliente']);
         });

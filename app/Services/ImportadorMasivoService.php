@@ -88,7 +88,7 @@ class ImportadorMasivoService
     private array $atributosSlug    = [];
     private array $clasificaciones  = [];
     private array $tiposProyecto    = [];   // nombre → id
-    private array $espaciosProyecto = [];   // nombre_lower → id
+    private array $espaciosProyecto = [];   // tipo_proyecto_id → [nombre_lower → id]
     private int   $unidadDefaultId    = 1;
     private int   $categoriaDefaultId = 1;
 
@@ -141,7 +141,8 @@ class ImportadorMasivoService
 
     private function cargarCatalogos(): void
     {
-        $this->marcas = Marca::pluck('id', 'nombre')
+        // Solo cachear marcas que ya tienen código; las sin código caen al path de creación/actualización
+        $this->marcas = Marca::whereNotNull('codigo')->where('codigo', '!=', '')->pluck('id', 'nombre')
             ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
 
         $this->colores = Color::pluck('id', 'nombre')
@@ -161,8 +162,15 @@ class ImportadorMasivoService
         $this->tiposProyecto = \App\Models\Luminaria\TipoProyecto::pluck('id', 'nombre')
             ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
 
-        $this->espaciosProyecto = \App\Models\Luminaria\EspacioProyecto::pluck('id', 'nombre')
-            ->mapWithKeys(fn($id, $n) => [strtolower(trim($n)) => $id])->toArray();
+        // 2D map: tipo_proyecto_id → [nombre_lower → espacio_id]
+        $this->espaciosProyecto = [];
+        \App\Models\Luminaria\EspacioProyecto::all()->each(function ($esp) {
+            $key = strtolower(trim($esp->nombre));
+            // Guardar solo la primera aparición para evitar duplicados de datos
+            if (!isset($this->espaciosProyecto[$esp->tipo_proyecto_id][$key])) {
+                $this->espaciosProyecto[$esp->tipo_proyecto_id][$key] = $esp->id;
+            }
+        });
 
         $this->unidadDefaultId = UnidadMedida::where('abreviatura', 'und')
             ->orWhere('nombre', 'like', '%unidad%')->value('id') ?? 1;
@@ -238,12 +246,10 @@ class ImportadorMasivoService
                             $producto->update($datosProducto);
                         }
 
-                        // Generar código Kyrios si aún no tiene uno
-                        if (!$producto->codigo_kyrios) {
-                            $producto->update([
-                                'codigo_kyrios' => $this->generarCodigoKyrios($producto),
-                            ]);
-                        }
+                        // Generar/regenerar código Kyrios en cada importación
+                        $producto->update([
+                            'codigo_kyrios' => $this->generarCodigoKyrios($producto),
+                        ]);
 
                         $mapa[$codigo] = $producto->id;
                         $this->exitosas++;
@@ -545,14 +551,14 @@ class ImportadorMasivoService
         $filas = $this->extraerFilas($sheet);
 
         // Acumular por producto (múltiples filas = múltiples valores)
-        $acumulado = []; // codigo → ['usos'=>[], 'tipo_proyecto_ids'=>[], 'ambientes'=>[], 'instalacion'=>[], 'estilo'=>[]]
+        $acumulado = []; // codigo → ['usos'=>[], 'clasificacion_ids'=>[], 'tipo_proyecto_ids'=>[], 'ambientes'=>[], 'instalacion'=>[], 'estilo'=>[]]
 
         foreach ($filas as $fila) {
             $codigo = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
             if (!$codigo || !isset($mapa[$codigo])) continue;
 
             if (!isset($acumulado[$codigo])) {
-                $acumulado[$codigo] = ['usos' => [], 'tipo_proyecto_ids' => [], 'ambientes' => [], 'instalacion' => [], 'estilo' => []];
+                $acumulado[$codigo] = ['usos' => [], 'clasificacion_ids' => [], 'tipo_proyecto_ids' => [], 'ambientes' => [], 'instalacion' => [], 'estilo' => []];
             }
 
             // Helper: split a cell by comma to support multiple values in one cell
@@ -608,11 +614,26 @@ class ImportadorMasivoService
                 'luz guía'                  => 'luz_guia',
             ];
 
-            // uso → usos[] — soporta múltiples valores separados por coma
+            // uso → usos[] (JSON) + clasificaciones pivot por nombre
             foreach ($splitCelda($this->norm($fila['uso'] ?? '')) as $u) {
                 $usoKey = $usoMapa[strtolower($u)] ?? strtolower($u);
                 if (!in_array($usoKey, $acumulado[$codigo]['usos'])) {
                     $acumulado[$codigo]['usos'][] = $usoKey;
+                }
+                // También buscar en la tabla clasificaciones por nombre (ej: "interior" → Clasificacion "Interior")
+                if (isset($this->clasificaciones[$usoKey])) {
+                    $clfId = $this->clasificaciones[$usoKey];
+                    if (!in_array($clfId, $acumulado[$codigo]['clasificacion_ids'])) {
+                        $acumulado[$codigo]['clasificacion_ids'][] = $clfId;
+                    }
+                }
+                // Intentar también con el valor original normalizado (ej: "comercial" → Clasificacion "Comercial")
+                $usoOrig = strtolower($u);
+                if ($usoOrig !== $usoKey && isset($this->clasificaciones[$usoOrig])) {
+                    $clfId = $this->clasificaciones[$usoOrig];
+                    if (!in_array($clfId, $acumulado[$codigo]['clasificacion_ids'])) {
+                        $acumulado[$codigo]['clasificacion_ids'][] = $clfId;
+                    }
                 }
             }
 
@@ -627,13 +648,15 @@ class ImportadorMasivoService
                 }
             }
 
-            // ambiente → espacio_proyecto_id — soporta múltiples valores separados por coma
+            // ambiente → espacio_proyecto_id — busca bajo cada tipo_proyecto seleccionado en esta fila
             foreach ($splitCelda($this->norm($fila['ambiente'] ?? '')) as $amb) {
                 $ambKey = strtolower($amb);
-                if (isset($this->espaciosProyecto[$ambKey])) {
-                    $espId = $this->espaciosProyecto[$ambKey];
-                    if (!in_array($espId, $acumulado[$codigo]['ambientes'])) {
-                        $acumulado[$codigo]['ambientes'][] = $espId;
+                foreach ($acumulado[$codigo]['tipo_proyecto_ids'] as $tpId) {
+                    if (isset($this->espaciosProyecto[$tpId][$ambKey])) {
+                        $espId = $this->espaciosProyecto[$tpId][$ambKey];
+                        if (!in_array($espId, $acumulado[$codigo]['ambientes'])) {
+                            $acumulado[$codigo]['ambientes'][] = $espId;
+                        }
                     }
                 }
             }
@@ -677,6 +700,11 @@ class ImportadorMasivoService
                         // Tipos de proyecto (pivot)
                         if (!empty($datos['tipo_proyecto_ids'])) {
                             $producto->tiposProyecto()->syncWithoutDetaching($datos['tipo_proyecto_ids']);
+                        }
+
+                        // Clasificaciones de uso (pivot) — ej: Interior, Exterior, Comercial
+                        if (!empty($datos['clasificacion_ids'])) {
+                            $producto->clasificaciones()->syncWithoutDetaching($datos['clasificacion_ids']);
                         }
 
                         $this->exitosas++;

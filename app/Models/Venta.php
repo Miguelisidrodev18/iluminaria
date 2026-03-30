@@ -33,6 +33,10 @@ class Venta extends Model
         'sucursal_id',
         'serie_comprobante_id',
         'correlativo',
+        'moneda',
+        'tipo_cambio',
+        'contacto',
+        'vigencia_dias',
     ];
 
     protected $casts = [
@@ -42,6 +46,7 @@ class Venta extends Model
         'igv' => 'decimal:2',
         'total' => 'decimal:2',
         'pagos_detalle' => 'array',
+        'tipo_cambio' => 'decimal:4',
     ];
 
     public function vendedor()

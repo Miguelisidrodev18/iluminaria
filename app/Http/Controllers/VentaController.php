@@ -198,6 +198,11 @@ class VentaController extends Controller
             'detalles.*.precio_unitario'     => 'required|numeric|min:0.01',
             'detalles.*.imeis'               => 'nullable|array',
             'detalles.*.imeis.*.codigo_imei' => 'nullable|string',
+            'moneda'                    => 'nullable|in:PEN,USD',
+            'tipo_cambio'               => 'nullable|numeric|min:1',
+            'contacto'                  => 'nullable|string|max:150',
+            'vigencia_dias'             => 'nullable|integer|min:1|max:365',
+            'detalles.*.descuento_pct'  => 'nullable|numeric|min:0|max:100',
         ], [
             'detalles.required' => 'Debe agregar al menos un producto',
         ]);
@@ -221,6 +226,10 @@ class VentaController extends Controller
             'transportista'    => $validated['transportista'] ?? null,
             'placa_vehiculo'   => $validated['placa_vehiculo'] ?? null,
             'pagos_detalle'    => $validated['pagos_detalle'] ?? null,
+            'moneda'        => $validated['moneda'] ?? 'PEN',
+            'tipo_cambio'   => $validated['tipo_cambio'] ?? 1,
+            'contacto'      => $validated['contacto'] ?? null,
+            'vigencia_dias' => $validated['vigencia_dias'] ?? 5,
         ];
 
         try {
@@ -306,7 +315,7 @@ class VentaController extends Controller
     {
         $formato = $request->get('formato', 'a4'); // a4 | ticket
 
-        $venta->load('vendedor', 'cliente', 'almacen', 'sucursal', 'serieComprobante',
+        $venta->load('vendedor.role', 'cliente', 'almacen', 'sucursal', 'serieComprobante',
             'detalles.producto', 'detalles.variante.color', 'detalles.imei');
 
         $empresa  = Empresa::first() ?? new Empresa(['razon_social' => config('app.name'), 'ruc' => '']);
@@ -315,7 +324,11 @@ class VentaController extends Controller
             ? $sucursal->pagos()->where('activo', true)->get()->keyBy('tipo_pago')
             : collect();
 
-        $view = $formato === 'ticket' ? 'pdf.factura-ticket' : 'pdf.factura-a4';
+        $view = match(true) {
+            $venta->tipo_comprobante === 'cotizacion' => 'pdf.proforma-kyrios',
+            $formato === 'ticket'                      => 'pdf.factura-ticket',
+            default                                    => 'pdf.factura-a4',
+        };
 
         $pdf = Pdf::setOptions([
             'isHtml5ParserEnabled' => true,

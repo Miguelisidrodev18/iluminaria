@@ -159,8 +159,6 @@
                                 <template x-if="!producto.imagen">
                                     <i class="fas fa-box text-gray-300 dark:text-gray-600 text-2xl group-hover:text-gray-400 transition"></i>
                                 </template>
-                                <span x-show="producto.tipo_inventario === 'serie'" x-cloak
-                                      class="absolute top-1 right-1 bg-[#2B2E2C] text-white text-[9px] px-1.5 py-0.5 rounded font-bold leading-tight">IMEI</span>
                                 <span x-show="producto.tiene_variantes" x-cloak
                                       class="absolute top-1 left-1 bg-[#F7D600] text-[#2B2E2C]/90 text-[9px] px-1.5 py-0.5 rounded leading-tight">VAR</span>
                             </div>
@@ -168,12 +166,9 @@
                                 <p class="text-[11px] text-gray-700 dark:text-gray-200 font-medium line-clamp-2 leading-tight mb-1" x-text="producto.nombre"></p>
                                 <div class="flex items-center justify-between gap-1">
                                     <p class="text-sm font-bold text-[#2B2E2C] dark:text-blue-400" x-text="'S/ ' + producto.precio_venta.toFixed(2)"></p>
-                                    <span x-show="orden.almacenId && producto.tipo_inventario !== 'serie'" x-cloak
+                                    <span x-show="orden.almacenId" x-cloak
                                           class="text-[9px] font-semibold text-gray-400 dark:text-gray-500 shrink-0"
                                           x-text="stockEnAlmacen(producto) + ' u.'"></span>
-                                    <span x-show="orden.almacenId && producto.tipo_inventario === 'serie'" x-cloak
-                                          class="text-[9px] font-semibold text-purple-400 shrink-0"
-                                          x-text="stockEnAlmacen(producto) + ' IMEI'"></span>
                                 </div>
                             </div>
                         </div>
@@ -276,14 +271,6 @@
                                     <i class="fas fa-times text-xs"></i>
                                 </button>
                             </div>
-                            {{-- IMEIs --}}
-                            <template x-if="item.imeis && item.imeis.length">
-                                <div class="mb-2 flex flex-wrap gap-1">
-                                    <template x-for="imei in item.imeis">
-                                        <span class="bg-[#2B2E2C]/10 dark:bg-[#2B2E2C]/50 text-[#2B2E2C] dark:text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono" x-text="imei.codigo_imei || imei"></span>
-                                    </template>
-                                </div>
-                            </template>
                             {{-- Qty + Price --}}
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
@@ -301,6 +288,15 @@
                                     <p class="text-[11px] text-gray-400" x-text="'S/ ' + item.precio_unitario.toFixed(2) + ' c/u'"></p>
                                     <p class="text-base font-bold text-gray-800 dark:text-gray-100" x-text="'S/ ' + (item.cantidad * item.precio_unitario).toFixed(2)"></p>
                                 </div>
+                            </div>
+                            {{-- Descuento (cotizacion only) --}}
+                            <div x-show="orden.tipoComprobante === 'cotizacion'" x-cloak class="mt-2 flex items-center gap-2">
+                                <label class="text-[10px] text-gray-400 shrink-0">Dcto %</label>
+                                <input type="number" x-model.number="item.descuento_pct" min="0" max="100" step="1"
+                                       placeholder="0"
+                                       class="w-20 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 text-xs text-right font-mono text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
+                                <span x-show="item.descuento_pct > 0" x-cloak class="text-[10px] text-amber-500 font-semibold"
+                                      x-text="'Precio final: S/ ' + (item.precio_unitario * (1 - (item.descuento_pct||0)/100)).toFixed(2)"></span>
                             </div>
                         </div>
                     </template>
@@ -412,6 +408,38 @@
                     <p x-show="orden.tipoComprobante === 'factura' && !orden.clienteId" x-cloak class="text-xs text-orange-400 mt-1.5 flex items-center gap-1">
                         <i class="fas fa-exclamation-triangle"></i> Requiere cliente con RUC
                     </p>
+                </div>
+
+                {{-- Datos de Cotización (cotizacion only) --}}
+                <div x-show="orden.tipoComprobante === 'cotizacion'" x-cloak class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Datos de Cotización</p>
+                    <div class="space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Moneda</label>
+                                <select x-model="orden.moneda"
+                                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
+                                    <option value="PEN">S/ Soles (PEN)</option>
+                                    <option value="USD">US$ Dólares (USD)</option>
+                                </select>
+                            </div>
+                            <div x-show="orden.moneda === 'USD'" x-cloak>
+                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Tipo de cambio</label>
+                                <input type="number" x-model.number="orden.tipoCambio" min="1" step="0.001"
+                                       class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Contacto</label>
+                            <input type="text" x-model="orden.contacto" placeholder="Nombre del contacto..."
+                                   class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Vigencia (días)</label>
+                            <input type="number" x-model.number="orden.vigenciaDias" min="1" max="365"
+                                   class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-2 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Envío a provincia (factura only) --}}
@@ -804,13 +832,7 @@
                         <div class="flex items-center justify-between text-xs">
                             <span class="font-mono text-gray-400 dark:text-gray-500" x-text="v.sku"></span>
                             <span :class="stockVarianteEnAlmacen(v) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'"
-                                  x-text="productoActual?.tipo_inventario === 'serie'
-                                      ? (orden.almacenId && v.stock_por_almacen?.[orden.almacenId] !== undefined
-                                          ? v.stock_por_almacen[orden.almacenId] + ' IMEI aquí'
-                                          : v.stock_actual + ' IMEI total')
-                                      : (stockVarianteEnAlmacen(v) > 0
-                                          ? stockVarianteEnAlmacen(v) + ' en stock'
-                                          : 'Sin stock')"></span>
+                                  x-text="stockVarianteEnAlmacen(v) > 0 ? stockVarianteEnAlmacen(v) + ' en stock' : 'Sin stock'"></span>
                         </div>
                         <div x-show="v.sobreprecio > 0" class="text-xs text-[#2B2E2C] dark:text-gray-400 mt-1 font-semibold" x-text="'+S/ ' + v.sobreprecio.toFixed(2)"></div>
                     </button>
@@ -826,91 +848,6 @@
     </div>
 </div>
 
-{{-- ============================
-     MODAL: IMEI
-============================== --}}
-<div x-show="mostrarModalIMEI" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="_limpiarModalIMEI()"></div>
-    <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl animate-fade-up">
-        <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                <i class="fas fa-barcode text-purple-500"></i> Seleccionar IMEI/Serie
-            </h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5" x-text="(productoActual?.nombre || '') + (varianteActual?.nombre_completo ? ' — ' + varianteActual.nombre_completo : '')"></p>
-        </div>
-        <div class="p-5 space-y-4">
-            {{-- Manual entry --}}
-            <div>
-                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Ingresar IMEI/Serie manualmente</label>
-                <div class="flex gap-2">
-                    <input type="text" x-model="imeiActual"
-                           @keydown.enter.prevent="agregarIMEIManual()"
-                           placeholder="15 dígitos..."
-                           maxlength="15"
-                           class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm font-mono text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-purple-500 placeholder-gray-400">
-                    <button @click="agregarIMEIManual()"
-                            class="px-4 py-2 bg-[#2B2E2C] hover:bg-[#2B2E2C] text-white rounded-lg text-sm font-semibold transition">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-
-            {{-- Selected IMEIs --}}
-            <div x-show="imeisTemp.length > 0" x-cloak>
-                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Seleccionados (<span x-text="imeisTemp.length"></span>)</p>
-                <div class="flex flex-wrap gap-1.5">
-                    <template x-for="imei in imeisTemp" :key="imei.codigo_imei">
-                        <span class="flex items-center gap-1.5 bg-[#2B2E2C]/10 dark:bg-[#2B2E2C]/50 text-[#2B2E2C] dark:text-purple-300 text-xs px-2.5 py-1 rounded-lg font-mono">
-                            <span x-text="imei.codigo_imei"></span>
-                            <button @click="quitarImeiManual(imei.codigo_imei)" class="text-purple-400 hover:text-red-500 transition">
-                                <i class="fas fa-times text-[10px]"></i>
-                            </button>
-                        </span>
-                    </template>
-                </div>
-            </div>
-
-            {{-- Available IMEIs from DB --}}
-            <div>
-                <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                    Disponibles en almacén
-                    <span x-show="cargandoImeis" x-cloak><i class="fas fa-spinner fa-spin ml-1"></i></span>
-                </p>
-                <div x-show="!cargandoImeis && imeisDisponibles.length === 0" x-cloak
-                     class="text-xs text-gray-400 text-center py-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                    <i class="fas fa-inbox block text-2xl mb-1 text-gray-300 dark:text-gray-600"></i>
-                    No hay unidades disponibles en el almacén
-                </div>
-                <div class="max-h-36 overflow-y-auto space-y-1">
-                    <template x-for="imei in imeisDisponibles" :key="imei.id">
-                        <button @click="toggleImei(imei)"
-                                :class="isImeiSeleccionado(imei) ? 'bg-[#2B2E2C]/10 dark:bg-[#2B2E2C]/30 border-purple-400 dark:border-purple-600 text-[#2B2E2C] dark:text-purple-300' : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-300 dark:hover:border-purple-700'"
-                                class="w-full text-left flex items-center justify-between px-3 py-2 border rounded-lg text-sm font-mono transition">
-                            <span x-text="imei.codigo_imei"></span>
-                            <i class="fas" :class="isImeiSeleccionado(imei) ? 'fa-check-circle text-purple-500' : 'fa-circle text-gray-200 dark:text-gray-600'"></i>
-                        </button>
-                    </template>
-                </div>
-            </div>
-        </div>
-        <div class="flex gap-2 p-5 border-t border-gray-100 dark:border-gray-700">
-            <button @click="_limpiarModalIMEI()"
-                    class="border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl py-2.5 px-4 font-semibold text-sm transition">
-                Cancelar
-            </button>
-            <button @click="confirmarYSeguir()" :disabled="imeisTemp.length === 0"
-                    class="flex-1 bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] disabled:opacity-40 rounded-xl py-2.5 font-bold text-sm transition">
-                <i class="fas fa-plus mr-1"></i>
-                Agregar y continuar
-            </button>
-            <button @click="confirmarIMEIs()" :disabled="imeisTemp.length === 0"
-                    class="flex-1 bg-[#2B2E2C] hover:bg-[#2B2E2C] disabled:opacity-40 text-white rounded-xl py-2.5 font-bold text-sm transition">
-                <i class="fas fa-check mr-1"></i>
-                Agregar (<span x-text="imeisTemp.length"></span>)
-            </button>
-        </div>
-    </div>
-</div>
 
 @php
 $clientesJson = $clientes->map(fn($c) => [
@@ -937,6 +874,11 @@ function crearOrden(id) {
         placaVehiculo:   '',
         carrito:         [],
         pagos:           [{ metodo: 'efectivo', monto: 0 }],
+        // Proforma fields
+        moneda:          'PEN',
+        tipoCambio:      3.700,
+        contacto:        '',
+        vigenciaDias:    5,
     };
 }
 
@@ -965,15 +907,9 @@ function posApp() {
         _nextId:    2,
 
         // ── Product modals ──
-        mostrarModalIMEI:     false,
         mostrarModalVariante: false,
         productoActual:       null,
         varianteActual:       null,
-        imeiActual:           '',
-        imeisTemp:            [],
-        imeisDisponibles:     [],
-        cargandoImeis:        false,
-        cartItemEditIndex:    null,  // null = nuevo ítem, number = agregar IMEIs a ítem existente
 
         // ── Client modal ──
         showModalCliente: false,
@@ -1033,16 +969,10 @@ function posApp() {
             return parseInt(v.stock_por_almacen[this.orden.almacenId] ?? 0);
         },
         get productosConStock()  {
-            return this._productosFiltrados.filter(p =>
-                p.tipo_inventario === 'serie'
-                    ? (this.orden.almacenId ? this.stockEnAlmacen(p) > 0 : true)
-                    : this.stockEnAlmacen(p) > 0
-            );
+            return this._productosFiltrados.filter(p => this.stockEnAlmacen(p) > 0);
         },
         get productosSinStock()  {
-            return this._productosFiltrados.filter(p =>
-                p.tipo_inventario !== 'serie' && this.stockEnAlmacen(p) === 0
-            );
+            return this._productosFiltrados.filter(p => this.stockEnAlmacen(p) === 0);
         },
 
         // ══════════════════════════════════════
@@ -1141,13 +1071,8 @@ function posApp() {
                 return;
             }
             const stockAlmacen = this.stockEnAlmacen(producto);
-            if (stockAlmacen === 0 && producto.tipo_inventario !== 'serie') {
+            if (stockAlmacen === 0) {
                 this.toast('warning', 'Sin stock en este almacén');
-                return;
-            }
-            if (producto.tipo_inventario === 'serie') {
-                this.productoActual = producto;
-                this.abrirModalIMEI();
                 return;
             }
             const existente = this.orden.carrito.find(i => i.producto_id === producto.id && !i.variante_id);
@@ -1166,7 +1091,7 @@ function posApp() {
                         ? Math.round((producto.precio_venta / 1.18) * 100) / 100
                         : producto.precio_venta,
                     cantidad: 1, stock_disponible: stockAlmacen,
-                    tipo_inventario: producto.tipo_inventario, imeis: []
+                    descuento_pct: 0,
                 });
                 this.toast('success', producto.nombre + ' agregado');
             }
@@ -1178,10 +1103,6 @@ function posApp() {
             const precioFinal    = parseFloat(this.productoActual.precio_venta) + parseFloat(v.sobreprecio || 0);
             const nombreCompleto = this.productoActual.nombre + (v.nombre_completo ? ' — ' + v.nombre_completo : '');
             const stockDisponible = this.stockVarianteEnAlmacen(v);
-            if (this.productoActual.tipo_inventario === 'serie') {
-                this.abrirModalIMEI();
-                return;
-            }
             if (stockDisponible === 0) { this.toast('warning', 'Esta variante no tiene stock en este almacén'); return; }
             const existente = this.orden.carrito.find(i => i.producto_id === this.productoActual.id && i.variante_id === v.id);
             if (existente) {
@@ -1195,7 +1116,7 @@ function posApp() {
                         ? Math.round((precioFinal / 1.18) * 100) / 100
                         : precioFinal,
                     cantidad: 1, stock_disponible: stockDisponible,
-                    tipo_inventario: this.productoActual.tipo_inventario, imeis: []
+                    descuento_pct: 0,
                 });
                 this.toast('success', nombreCompleto + ' agregado');
             }
@@ -1205,16 +1126,6 @@ function posApp() {
         vaciarCarrito() { this.orden.carrito = []; },
         incrementarCantidad(index) {
             const item = this.orden.carrito[index];
-            if (item.tipo_inventario === 'serie') {
-                // Para IMEI: abrir modal para registrar el nuevo IMEI
-                const producto = this.productos.find(p => p.id === item.producto_id);
-                if (!producto) return;
-                this.productoActual   = producto;
-                this.varianteActual   = producto.variantes?.find(v => v.id === item.variante_id) ?? null;
-                this.cartItemEditIndex = index;
-                this.abrirModalIMEI();
-                return;
-            }
             if (item.cantidad >= item.stock_disponible) { this.toast('warning', 'Stock máximo alcanzado'); return; }
             item.cantidad++;
         },
@@ -1222,9 +1133,6 @@ function posApp() {
             const item = this.orden.carrito[index];
             if (item.cantidad > 1) {
                 item.cantidad--;
-                if (item.tipo_inventario === 'serie' && item.imeis?.length > item.cantidad) {
-                    item.imeis.splice(item.cantidad);  // quita el último IMEI
-                }
             } else {
                 this.eliminarDelCarrito(index);
             }
@@ -1283,12 +1191,16 @@ function posApp() {
                         metodo_pago:      metodoPago,
                         pagos_detalle:    pagosDetalle,
                         formato_impresion: this.formatoImpresion,
+                        moneda:           this.orden.tipoComprobante === 'cotizacion' ? this.orden.moneda : null,
+                        tipo_cambio:      this.orden.tipoComprobante === 'cotizacion' && this.orden.moneda === 'USD' ? this.orden.tipoCambio : null,
+                        contacto:         this.orden.tipoComprobante === 'cotizacion' ? (this.orden.contacto || null) : null,
+                        vigencia_dias:    this.orden.tipoComprobante === 'cotizacion' ? this.orden.vigenciaDias : null,
                         detalles: this.orden.carrito.map(i => ({
                             producto_id:      i.producto_id,
                             variante_id:      i.variante_id || null,
                             cantidad:         i.cantidad,
                             precio_unitario:  i.precio_unitario,
-                            imeis:            i.imeis || []
+                            descuento_pct:    i.descuento_pct || 0,
                         }))
                     })
                 });
@@ -1308,100 +1220,6 @@ function posApp() {
             }
         },
 
-        // ══════════════════════════════════════
-        // IMEI MODAL
-        // ══════════════════════════════════════
-        async abrirModalIMEI() {
-            this.imeisTemp       = [];
-            this.imeiActual      = '';
-            this.imeisDisponibles= [];
-            this.cargandoImeis   = true;
-            this.mostrarModalIMEI= true;
-            try {
-                const params = new URLSearchParams({ producto_id: this.productoActual.id, almacen_id: this.orden.almacenId });
-                if (this.varianteActual?.id) params.append('variante_id', this.varianteActual.id);
-                const res = await fetch('{{ route("ventas.imeis-disponibles") }}?' + params.toString());
-                let todos = await res.json();
-                // Si estamos editando un ítem existente, excluir los IMEIs que ya tiene
-                if (this.cartItemEditIndex !== null) {
-                    const yaEnCarrito = (this.orden.carrito[this.cartItemEditIndex]?.imeis || []).map(i => i.codigo_imei);
-                    todos = todos.filter(i => !yaEnCarrito.includes(i.codigo_imei));
-                }
-                this.imeisDisponibles = todos;
-            } catch(e) {
-                console.error('Error al cargar IMEIs', e);
-                this.imeisDisponibles = [];
-            } finally {
-                this.cargandoImeis = false;
-            }
-        },
-        toggleImei(imei) {
-            const idx = this.imeisTemp.findIndex(i => i.id === imei.id);
-            if (idx >= 0) this.imeisTemp.splice(idx, 1);
-            else this.imeisTemp.push({ id: imei.id, codigo_imei: imei.codigo_imei });
-        },
-        isImeiSeleccionado(imei) { return this.imeisTemp.some(i => i.id === imei.id); },
-        agregarIMEIManual() {
-            if (!this.imeiActual) return;
-            if (!/^\d{15}$/.test(this.imeiActual)) { this.toast('warning', 'El IMEI debe tener 15 dígitos'); return; }
-            if (this.imeisTemp.some(i => i.codigo_imei === this.imeiActual)) { this.toast('warning', 'IMEI ya ingresado'); return; }
-            this.imeisTemp.push({ id: null, codigo_imei: this.imeiActual });
-            this.imeiActual = '';
-        },
-        quitarImeiManual(codigo_imei) { this.imeisTemp = this.imeisTemp.filter(i => i.codigo_imei !== codigo_imei); },
-        _empujarIMEIsAlCarrito() {
-            if (this.cartItemEditIndex !== null) {
-                // Modo edición: agregar nuevos IMEIs al ítem ya existente
-                const item = this.orden.carrito[this.cartItemEditIndex];
-                const nuevos = this.imeisTemp.map(i => ({ codigo_imei: i.codigo_imei }));
-                item.imeis.push(...nuevos);
-                item.cantidad        = item.imeis.length;
-                item.stock_disponible = item.imeis.length;
-                this.toast('success', this.imeisTemp.length + ' IMEI(s) agregado(s)');
-                return;
-            }
-            // Modo nuevo: crear ítem en el carrito
-            const v = this.varianteActual;
-            const precioFinal    = parseFloat(this.productoActual.precio_venta) + (v ? parseFloat(v.sobreprecio || 0) : 0);
-            const nombreCompleto = this.productoActual.nombre + (v?.nombre_completo ? ' — ' + v.nombre_completo : '');
-            this.orden.carrito.push({
-                producto_id: this.productoActual.id, variante_id: v ? v.id : null,
-                nombre: nombreCompleto,
-                precio_unitario: this.productoActual.incluye_igv
-                    ? Math.round((precioFinal / 1.18) * 100) / 100
-                    : precioFinal,
-                cantidad: this.imeisTemp.length, stock_disponible: this.imeisTemp.length,
-                tipo_inventario: 'serie', imeis: this.imeisTemp.map(i => ({ codigo_imei: i.codigo_imei }))
-            });
-            this.toast('success', this.imeisTemp.length + ' unidad(es) agregada(s)');
-        },
-        _limpiarModalIMEI() {
-            this.mostrarModalIMEI  = false;
-            this.productoActual    = null;
-            this.varianteActual    = null;
-            this.cartItemEditIndex = null;
-            this.imeiActual        = '';
-            this.imeisTemp         = [];
-            this.imeisDisponibles  = [];
-        },
-        confirmarIMEIs() {
-            if (!this.imeisTemp.length) return;
-            this._empujarIMEIsAlCarrito();
-            this._limpiarModalIMEI();
-        },
-        async confirmarYSeguir() {
-            if (!this.imeisTemp.length) return;
-            this._empujarIMEIsAlCarrito();
-            // Guardar contexto y reabrir para el mismo producto/variante/ítem
-            const productoGuardado   = this.productoActual;
-            const varianteGuardada   = this.varianteActual;
-            const editIndexGuardado  = this.cartItemEditIndex;
-            this.imeisTemp = []; this.imeiActual = '';
-            this.productoActual    = productoGuardado;
-            this.varianteActual    = varianteGuardada;
-            this.cartItemEditIndex = editIndexGuardado;
-            await this.abrirModalIMEI();
-        },
 
         // ══════════════════════════════════════
         // CLIENT SEARCH
