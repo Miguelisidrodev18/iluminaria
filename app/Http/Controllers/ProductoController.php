@@ -304,20 +304,25 @@ public function create()
         $variantesData = array_filter(
             (array)$request->input('variantes_iniciales', []),
             fn($v) => !empty($v['color_id']) || !empty($v['especificacion']) || !empty($v['nombre'])
+                   || !empty(array_filter($v['atributos'] ?? []))
         );
         if (!empty($variantesData)) {
             $varianteService = app(VarianteService::class);
             foreach ($variantesData as $vData) {
-                $variante = $varianteService->obtenerOCrearVariante(
+                $atributos = array_filter($vData['atributos'] ?? [], fn($a) => $a !== '' && !is_null($a));
+                $variante  = $varianteService->obtenerOCrearVariante(
                     $producto,
                     !empty($vData['color_id']) ? (int)$vData['color_id'] : null,
                     !empty($vData['especificacion']) ? $vData['especificacion'] : null,
-                    !empty($vData['sobreprecio']) ? (float)$vData['sobreprecio'] : 0
+                    !empty($vData['sobreprecio']) ? (float)$vData['sobreprecio'] : 0,
+                    $atributos
                 );
                 if (!empty($vData['nombre'])) {
                     $variante->update(['nombre' => $vData['nombre']]);
                 }
             }
+            // Marcar el producto como con variantes
+            $producto->update(['tiene_variantes' => true]);
         }
     });
 
@@ -871,14 +876,31 @@ public function validarCodigoBarras(Request $request)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
+ * POST /inventario/productos/{producto}/toggle-variantes
+ * Activar o desactivar el modo variantes del producto
+ */
+public function toggleVariantesMode(Producto $producto)
+{
+    $nuevo = !$producto->tiene_variantes;
+    $producto->update(['tiene_variantes' => $nuevo]);
+
+    $msg = $nuevo
+        ? 'Modo variantes activado. Ahora puedes agregar variantes al producto.'
+        : 'Modo variantes desactivado.';
+
+    return back()->with('success', $msg);
+}
+
+/**
  * Mostrar variantes de un producto (vista web)
  */
 public function variantes(Producto $producto)
 {
-    $producto->load(['variantes.color', 'marca', 'categoria']);
+    $producto->load(['variantes.color', 'marca', 'categoria', 'tipoProducto']);
     $colores = Color::where('estado', 'activo')->orderBy('nombre')->get();
+    $atributosLuminaria = \App\Models\ProductoVariante::ATRIBUTOS_LUMINARIA;
 
-    return view('inventario.productos.variantes', compact('producto', 'colores'));
+    return view('inventario.productos.variantes', compact('producto', 'colores', 'atributosLuminaria'));
 }
 
 /**
@@ -887,33 +909,60 @@ public function variantes(Producto $producto)
  */
 public function storeVariante(Request $request, Producto $producto, VarianteService $varianteService)
 {
-    $validated = $request->validate([
-        'nombre'        => 'nullable|string|max:100',
-        'color_id'      => 'nullable|exists:colores,id',
-        'tamano'        => 'nullable|string|max:100',
+    // Validar campos base + cada clave de atributos luminaria
+    $atributoKeys = array_keys(\App\Models\ProductoVariante::ATRIBUTOS_LUMINARIA);
+    $atributoRules = array_fill_keys(
+        array_map(fn($k) => "atributos.{$k}", $atributoKeys),
+        'nullable|string|max:150'
+    );
+
+    $validated = $request->validate(array_merge([
+        'nombre'         => 'nullable|string|max:100',
+        'color_id'       => 'nullable|exists:colores,id',
         'especificacion' => 'nullable|string|max:100',
-        'sobreprecio'   => 'nullable|numeric|min:0',
-        'stock_inicial' => 'nullable|integer|min:0',
-        'atributos'     => 'nullable|array',
-    ]);
+        'sobreprecio'    => 'nullable|numeric|min:0',
+        'precio_venta'   => 'nullable|numeric|min:0',
+        'moneda'         => 'nullable|in:PEN,USD',
+        'stock_inicial'  => 'nullable|integer|min:0',
+        'atributos'      => 'nullable|array',
+    ], $atributoRules));
+
+    // Limpiar atributos vacíos
+    $atributos = array_filter($validated['atributos'] ?? [], fn($v) => !is_null($v) && $v !== '');
 
     try {
         $variante = $varianteService->obtenerOCrearVariante(
             $producto,
             $validated['color_id'] ?? null,
             $validated['especificacion'] ?? null,
-            (float)($validated['sobreprecio'] ?? 0)
+            (float)($validated['sobreprecio'] ?? 0),
+            $atributos
         );
 
-        // Actualizar campos adicionales
-        $variante->update(array_filter([
-            'nombre'    => $validated['nombre'] ?? null,
-            'tamano'    => $validated['tamano'] ?? null,
-            'atributos' => $validated['atributos'] ?? null,
-        ], fn($v) => !is_null($v)));
+        $actualizaciones = [];
+        if (!empty($validated['nombre'])) {
+            $actualizaciones['nombre'] = $validated['nombre'];
+        }
+        if (!empty($atributos)) {
+            $actualizaciones['atributos'] = $atributos;
+        }
+        if (isset($validated['precio_venta']) && $validated['precio_venta'] !== null) {
+            $actualizaciones['precio_venta'] = $validated['precio_venta'] ?: null;
+        }
+        if (!empty($validated['moneda'])) {
+            $actualizaciones['moneda'] = $validated['moneda'];
+        }
+        if (!empty($actualizaciones)) {
+            $variante->update($actualizaciones);
+        }
 
         if (!empty($validated['stock_inicial']) && $validated['stock_inicial'] > 0) {
-            $variante->incrementarStock($validated['stock_inicial']);
+            $variante->incrementarStock((int)$validated['stock_inicial']);
+        }
+
+        // Asegurarse de que el producto tenga el flag activo
+        if (!$producto->tiene_variantes) {
+            $producto->update(['tiene_variantes' => true]);
         }
 
         return redirect()
@@ -927,28 +976,82 @@ public function storeVariante(Request $request, Producto $producto, VarianteServ
 
 /**
  * PUT /inventario/productos/variantes/{variante}
- * Actualizar variante (inline desde edit producto)
+ * Actualizar variante (inline o desde el formulario)
  */
 public function updateVariante(Request $request, \App\Models\ProductoVariante $variante)
 {
-    $validated = $request->validate([
-        'nombre'        => 'nullable|string|max:100',
-        'color_id'      => 'nullable|exists:colores,id',
-        'tamano'        => 'nullable|string|max:100',
-        'especificacion'=> 'nullable|string|max:100',
-        'sobreprecio'   => 'nullable|numeric|min:0',
-        'stock_minimo'  => 'nullable|integer|min:0',
-        'atributos'     => 'nullable|array',
-        'estado'        => 'nullable|in:activo,inactivo',
-    ]);
+    $atributoKeys = array_keys(\App\Models\ProductoVariante::ATRIBUTOS_LUMINARIA);
+    $atributoRules = array_fill_keys(
+        array_map(fn($k) => "atributos.{$k}", $atributoKeys),
+        'nullable|string|max:150'
+    );
+
+    $validated = $request->validate(array_merge([
+        'nombre'         => 'nullable|string|max:100',
+        'color_id'       => 'nullable|exists:colores,id',
+        'especificacion' => 'nullable|string|max:100',
+        'sobreprecio'    => 'nullable|numeric|min:0',
+        'precio_venta'   => 'nullable|numeric|min:0',
+        'moneda'         => 'nullable|in:PEN,USD',
+        'stock_minimo'   => 'nullable|integer|min:0',
+        'atributos'      => 'nullable|array',
+        'estado'         => 'nullable|in:activo,inactivo',
+    ], $atributoRules));
+
+    // Limpiar atributos vacíos pero conservar los que ya existían
+    if (isset($validated['atributos'])) {
+        $existentes = $variante->atributos ?? [];
+        $nuevos     = array_filter($validated['atributos'], fn($v) => !is_null($v) && $v !== '');
+        $validated['atributos'] = array_merge($existentes, $nuevos);
+    }
 
     $variante->update($validated);
 
     if ($request->wantsJson()) {
-        return response()->json(['success' => true, 'variante' => $variante->fresh()]);
+        return response()->json([
+            'success'  => true,
+            'variante' => array_merge($variante->fresh()->toArray(), [
+                'nombre_completo' => $variante->fresh()->nombre_completo,
+            ]),
+        ]);
     }
 
     return back()->with('success', 'Variante actualizada');
+}
+
+/**
+ * PATCH /inventario/productos/variantes/{variante}/precio
+ * Actualizar solo el precio de una variante (AJAX desde tabla de precios)
+ */
+public function actualizarPrecioVariante(Request $request, ProductoVariante $variante)
+{
+    $request->validate([
+        'precio_venta' => 'nullable|numeric|min:0',
+        'moneda'       => 'in:PEN,USD',
+    ]);
+
+    $variante->update([
+        'precio_venta' => $request->filled('precio_venta') ? (float)$request->precio_venta : null,
+        'moneda'       => $request->moneda ?? 'PEN',
+    ]);
+
+    return response()->json([
+        'ok'          => true,
+        'precio_venta' => $variante->precio_venta,
+        'moneda'       => $variante->moneda,
+    ]);
+}
+
+/**
+ * POST /inventario/productos/variantes/{variante}/reactivar
+ * Reactivar variante inactiva
+ */
+public function reactivarVariante(ProductoVariante $variante)
+{
+    $variante->update(['estado' => 'activo']);
+    $variante->sincronizarStockProductoBase();
+
+    return back()->with('success', 'Variante reactivada: ' . $variante->nombre_completo);
 }
 
 /**

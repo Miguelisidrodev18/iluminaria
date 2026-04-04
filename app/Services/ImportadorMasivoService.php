@@ -474,33 +474,62 @@ class ImportadorMasivoService
 
         $filas = $this->extraerFilas($sheet);
 
+        // Claves de atributos luminaria mapeadas entre columna Excel → clave JSON
+        $atributosMap = [
+            'acabado'               => 'acabado',
+            'tonalidad_luz'         => 'tonalidad_luz',
+            'tipo_lampara'          => 'tipo_lampara',
+            'angulo_haz'            => 'angulo_haz',
+            'protocolo_regulacion'  => 'protocolo_regulacion',
+            'eficiencia_luminica'   => 'eficiencia_luminica',
+            'garantia'              => 'garantia',
+            'vida_util'             => 'vida_util',
+            'ip'                    => 'ip',
+            'cri'                   => 'cri',
+            'otros'                 => 'otros',
+        ];
+
         foreach (array_chunk($filas, self::CHUNK_SIZE) as $chunk) {
-            DB::transaction(function () use ($chunk, $mapa) {
+            DB::transaction(function () use ($chunk, $mapa, $atributosMap) {
                 foreach ($chunk as $fila) {
                     try {
                         $codigo     = strtoupper($this->norm($fila['codigo_fabrica'] ?? ''));
                         $productoId = $mapa[$codigo] ?? null;
                         if (!$productoId) continue;
 
-                        $tamano         = $this->norm($fila['tamano'] ?? '') ?: null;
-                        $especificacion = $this->norm($fila['especificacion'] ?? '') ?: null;
-
-                        // Acepta columna "color" o "color_id" (alias del usuario)
-                        $colorTexto = $this->norm($fila['color'] ?? $fila['color_id'] ?? '');
+                        // Acepta columna "color", "color_id" o "variante_color" (alias)
+                        $colorTexto = $this->norm($fila['color'] ?? $fila['color_id'] ?? $fila['variante_color'] ?? '');
                         $colorId    = $this->resolverColor($colorTexto ?? '');
 
-                        // Buscar variante existente para no pisar el SKU
-                        $variante = ProductoVariante::where([
-                            'producto_id'    => $productoId,
-                            'tamano'         => $tamano,
-                            'especificacion' => $especificacion,
-                            'color_id'       => $colorId,
-                        ])->first();
+                        // Nombre descriptivo (nuevo) o legado especificacion
+                        $nombre         = $this->norm($fila['variante_nombre'] ?? '') ?: null;
+                        $especificacion = $this->norm($fila['especificacion'] ?? '') ?: null;
+                        $tamano         = $this->norm($fila['tamano'] ?? '') ?: null;
+
+                        // Recoger atributos luminaria — filtrar vacíos
+                        $atributos = [];
+                        foreach ($atributosMap as $colExcel => $claveJson) {
+                            $val = $this->norm($fila[$colExcel] ?? '');
+                            if ($val !== '' && $val !== null) {
+                                $atributos[$claveJson] = $val;
+                            }
+                        }
+
+                        // Buscar variante existente por color + especificacion (o tamano para legado)
+                        $variante = ProductoVariante::where('producto_id', $productoId)
+                            ->when($colorId, fn($q) => $q->where('color_id', $colorId), fn($q) => $q->whereNull('color_id'))
+                            ->when($especificacion, fn($q) => $q->where('especificacion', $especificacion), fn($q) => $q->whereNull('especificacion'))
+                            ->first();
+
+                        $atributosExistentes = $variante?->atributos ?? [];
+                        $atributosFinal      = array_merge($atributosExistentes, $atributos);
 
                         if ($variante) {
                             $variante->update([
-                                'stock_actual' => $this->normInt($fila['stock'] ?? '') ?? 0,
-                                'sobreprecio'  => $this->normNum($fila['precio'] ?? '') ?? 0,
+                                'nombre'       => $nombre ?: $variante->nombre,
+                                'atributos'    => !empty($atributosFinal) ? $atributosFinal : null,
+                                'stock_actual' => $this->normInt($fila['stock'] ?? '') ?? $variante->stock_actual,
+                                'sobreprecio'  => $this->normNum($fila['precio'] ?? $fila['sobreprecio'] ?? '') ?? $variante->sobreprecio,
                                 'estado'       => 'activo',
                             ]);
                         } else {
@@ -508,16 +537,21 @@ class ImportadorMasivoService
                             $colorObj = $colorId ? \App\Models\Catalogo\Color::find($colorId) : null;
                             ProductoVariante::create([
                                 'producto_id'    => $productoId,
+                                'nombre'         => $nombre,
                                 'tamano'         => $tamano,
                                 'especificacion' => $especificacion,
                                 'color_id'       => $colorId,
-                                'sku'            => ProductoVariante::generarSku($producto, $colorObj, $especificacion),
+                                'atributos'      => !empty($atributosFinal) ? $atributosFinal : null,
+                                'sku'            => ProductoVariante::generarSku($producto, $colorObj, $especificacion, $atributosFinal),
                                 'stock_actual'   => $this->normInt($fila['stock'] ?? '') ?? 0,
-                                'sobreprecio'    => $this->normNum($fila['precio'] ?? '') ?? 0,
+                                'sobreprecio'    => $this->normNum($fila['precio'] ?? $fila['sobreprecio'] ?? '') ?? 0,
                                 'estado'         => 'activo',
                                 'creado_por'     => auth()->id() ?? 1,
                             ]);
                         }
+
+                        // Marcar el producto como con variantes
+                        Producto::where('id', $productoId)->update(['tiene_variantes' => true]);
 
                         $this->exitosas++;
                     } catch (\Throwable $e) {

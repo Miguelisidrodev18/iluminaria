@@ -46,6 +46,7 @@ use App\Http\Controllers\TiendaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CuentaPorPagarController;
 use App\Http\Controllers\ReporteVentasController;
+use App\Http\Controllers\ProyectoController;
 
 // ===================== MIDDLEWARE =====================
 use App\Http\Middleware\VerifyMasterPassword;
@@ -232,7 +233,10 @@ Route::middleware('auth')->group(function () {
         Route::middleware('role:Administrador,Almacenero')->group(function () {
             Route::get('/productos/{producto}/variantes', [ProductoController::class, 'variantes'])->name('productos.variantes');
             Route::post('/productos/{producto}/variantes', [ProductoController::class, 'storeVariante'])->name('productos.variantes.store');
+            Route::post('/productos/{producto}/toggle-variantes', [ProductoController::class, 'toggleVariantesMode'])->name('productos.toggle-variantes');
             Route::put('/productos/variantes/{variante}', [ProductoController::class, 'updateVariante'])->name('productos.variantes.update');
+            Route::patch('/productos/variantes/{variante}/precio', [ProductoController::class, 'actualizarPrecioVariante'])->name('productos.variantes.precio');
+            Route::post('/productos/variantes/{variante}/reactivar', [ProductoController::class, 'reactivarVariante'])->name('productos.variantes.reactivar');
             Route::delete('/productos/variantes/{variante}', [ProductoController::class, 'destroyVariante'])->name('productos.variantes.destroy');
         });
 
@@ -297,12 +301,25 @@ Route::middleware('auth')->group(function () {
     // ========================================
     Route::prefix('clientes')->name('clientes.')->middleware('role:Administrador,Vendedor,Tienda')->group(function () {
         Route::get('/', [ClienteController::class, 'index'])->name('index');
+        Route::get('/exportar', [ClienteController::class, 'exportar'])->name('exportar');
         Route::get('/create', [ClienteController::class, 'create'])->name('create');
         Route::post('/', [ClienteController::class, 'store'])->name('store');
+        Route::post('/consultar-documento', [ClienteController::class, 'consultarDocumento'])->name('consultar-documento');
+        Route::get('/{cliente}', [ClienteController::class, 'show'])->name('show');
         Route::get('/{cliente}/edit', [ClienteController::class, 'edit'])->name('edit');
         Route::put('/{cliente}', [ClienteController::class, 'update'])->name('update');
         Route::delete('/{cliente}', [ClienteController::class, 'destroy'])->middleware('role:Administrador')->name('destroy');
-        Route::post('/consultar-documento', [ClienteController::class, 'consultarDocumento'])->name('consultar-documento');
+        Route::post('/{cliente}/visitas', [ClienteController::class, 'storeVisita'])->name('visitas.store');
+    });
+
+    // ========================================
+    // MÓDULO DE PROYECTOS
+    // ========================================
+    Route::prefix('proyectos')->name('proyectos.')->middleware('role:Administrador,Vendedor')->group(function () {
+        Route::get('/', [ProyectoController::class, 'index'])->name('index');
+        Route::post('/', [ProyectoController::class, 'store'])->name('store');
+        Route::get('/{proyecto}', [ProyectoController::class, 'show'])->name('show');
+        Route::put('/{proyecto}', [ProyectoController::class, 'update'])->name('update');
     });
 
     // ========================================

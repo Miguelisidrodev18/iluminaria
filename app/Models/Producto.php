@@ -41,6 +41,7 @@ class Producto extends Model
         'creado_por', 'modificado_por', 'codigo_barras',
         'estado_aprobacion', 'aprobado_por', 'aprobado_en', 'motivo_rechazo',
         'tipo_sistema', 'descontar_componentes',
+        'tiene_variantes',
     ];
 
     const ESTADOS_APROBACION = [
@@ -69,6 +70,7 @@ class Producto extends Model
         'costo_promedio'      => 'decimal:2',
         'aprobado_en'            => 'datetime',
         'descontar_componentes'  => 'boolean',
+        'tiene_variantes'        => 'boolean',
     ];
 
     const TIPOS_SISTEMA = [

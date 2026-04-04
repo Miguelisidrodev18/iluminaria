@@ -457,23 +457,46 @@
                 @endif
 
                 <!-- Variantes -->
+                @php $atributosLuminaria = \App\Models\ProductoVariante::ATRIBUTOS_LUMINARIA; @endphp
                 <div class="bg-white rounded-lg shadow-md overflow-hidden" x-data>
                     <div class="bg-[#2B2E2C] px-6 py-3 flex items-center justify-between">
                         <h3 class="text-white font-semibold">
                             <i class="fas fa-layer-group mr-2"></i>Variantes del Producto
                         </h3>
-                        <span class="text-white/60 text-sm">{{ $producto->variantes->count() }} variante(s)</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-white/60 text-sm">{{ $producto->variantes->count() }} variante(s)</span>
+                            @can('editar_producto')
+                            <a href="{{ route('inventario.productos.variantes', $producto) }}"
+                               class="text-xs text-[#F7D600] hover:text-white font-medium">
+                                Gestionar <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                            @endcan
+                        </div>
                     </div>
                     <div class="p-6">
 
-                        {{-- Tabla de variantes existentes --}}
-                        @if($producto->variantes->count() > 0)
-                        <div class="mb-5 overflow-x-auto">
+                        @if(!$producto->tiene_variantes)
+                            <div class="text-center py-4 text-gray-400">
+                                <p class="text-sm">Modo variantes desactivado para este producto.</p>
+                                @can('editar_producto')
+                                <a href="{{ route('inventario.productos.variantes', $producto) }}"
+                                   class="text-sm text-indigo-500 hover:underline mt-1 inline-block">Activar modo variantes</a>
+                                @endcan
+                            </div>
+                        @elseif($producto->variantes->count() === 0)
+                            <p class="text-sm text-gray-400 mb-4">Este producto no tiene variantes aún.</p>
+                            @can('editar_producto')
+                            <a href="{{ route('inventario.productos.variantes', $producto) }}"
+                               class="text-sm text-indigo-500 hover:underline">Agregar primera variante</a>
+                            @endcan
+                        @else
+                        {{-- Tabla de variantes --}}
+                        <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
                                     <tr class="text-xs text-gray-500 border-b border-gray-100">
-                                        <th class="text-left pb-2 font-medium">Nombre / Color</th>
-                                        <th class="text-left pb-2 font-medium">Especificación</th>
+                                        <th class="text-left pb-2 font-medium">Variante</th>
+                                        <th class="text-left pb-2 font-medium">Atributos</th>
                                         <th class="text-right pb-2 font-medium">Sobreprecio</th>
                                         <th class="text-right pb-2 font-medium">Stock</th>
                                         <th class="text-center pb-2 font-medium">Estado</th>
@@ -481,20 +504,36 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
-                                    @foreach($producto->variantes as $variante)
-                                    <tr x-data="{ editando: false }">
+                                    @foreach($producto->variantes->sortBy('estado') as $variante)
+                                    <tr x-data="{ editando: false }"
+                                        class="{{ $variante->estado === 'inactivo' ? 'opacity-50' : '' }}">
                                         <td class="py-2">
                                             <div class="flex items-center gap-2">
-                                                @if($variante->color)
-                                                <div class="w-4 h-4 rounded-full border border-gray-200 shrink-0"
-                                                     style="background-color:{{ $variante->color->hex ?? '#e5e7eb' }}"></div>
+                                                @if($variante->color && $variante->color->codigo_hex)
+                                                <div class="w-3.5 h-3.5 rounded-full border border-gray-200 shrink-0"
+                                                     style="background-color:{{ $variante->color->codigo_hex }}"></div>
                                                 @endif
-                                                <span class="font-medium text-gray-800">
-                                                    {{ $variante->nombre ?: ($variante->color?->nombre ?? 'Sin nombre') }}
-                                                </span>
+                                                <span class="font-medium text-gray-800">{{ $variante->nombre_completo }}</span>
                                             </div>
+                                            <span class="font-mono text-xs text-gray-400">{{ $variante->sku }}</span>
                                         </td>
-                                        <td class="py-2 text-gray-500">{{ $variante->especificacion ?: '—' }}</td>
+                                        <td class="py-2">
+                                            @php $atribs = array_filter($variante->atributos ?? []); @endphp
+                                            @if(!empty($atribs))
+                                                <div class="flex flex-wrap gap-1">
+                                                    @foreach(array_slice($atribs, 0, 3) as $clave => $valor)
+                                                        <span class="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded">
+                                                            {{ $valor }}
+                                                        </span>
+                                                    @endforeach
+                                                    @if(count($atribs) > 3)
+                                                        <span class="text-xs text-gray-400">+{{ count($atribs)-3 }}</span>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-gray-300 text-xs">—</span>
+                                            @endif
+                                        </td>
                                         <td class="py-2 text-right text-gray-700">
                                             {{ $variante->sobreprecio > 0 ? '+S/ '.number_format($variante->sobreprecio,2) : '—' }}
                                         </td>
@@ -511,16 +550,25 @@
                                         @can('editar_producto')
                                         <td class="py-2 text-right">
                                             <button type="button" @click="editando = !editando"
-                                                    class="text-[#2B2E2C] hover:text-[#2B2E2C] mr-2 transition-colors">
+                                                    class="text-indigo-400 hover:text-indigo-600 mr-1">
                                                 <i class="fas fa-pencil-alt text-xs"></i>
                                             </button>
+                                            @if($variante->estado === 'activo')
                                             <form method="POST" action="{{ route('inventario.productos.variantes.destroy', $variante) }}"
                                                   class="inline" onsubmit="return confirm('¿Desactivar esta variante?')">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="text-red-400 hover:text-red-600 transition-colors">
-                                                    <i class="fas fa-trash text-xs"></i>
+                                                <button type="submit" class="text-red-400 hover:text-red-600">
+                                                    <i class="fas fa-ban text-xs"></i>
                                                 </button>
                                             </form>
+                                            @else
+                                            <form method="POST" action="{{ route('inventario.productos.variantes.reactivar', $variante) }}" class="inline">
+                                                @csrf
+                                                <button type="submit" class="text-green-500 hover:text-green-700">
+                                                    <i class="fas fa-check-circle text-xs"></i>
+                                                </button>
+                                            </form>
+                                            @endif
                                         </td>
                                         @endcan
                                     </tr>
@@ -529,18 +577,25 @@
                                     <tr x-show="editando" x-cloak>
                                         <td colspan="6" class="py-3 px-2">
                                             <form method="POST" action="{{ route('inventario.productos.variantes.update', $variante) }}"
-                                                  class="bg-[#2B2E2C]/10 border border-gray-200 rounded-xl p-4">
+                                                  class="bg-gray-50 border border-gray-200 rounded-xl p-4">
                                                 @csrf @method('PUT')
-                                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-3">
+                                                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 mb-3">
                                                     <div>
                                                         <label class="block text-xs font-medium text-gray-600 mb-1">Nombre</label>
                                                         <input type="text" name="nombre" value="{{ $variante->nombre }}"
+                                                               placeholder="Nombre descriptivo"
                                                                class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
                                                     </div>
                                                     <div>
-                                                        <label class="block text-xs font-medium text-gray-600 mb-1">Especificación</label>
-                                                        <input type="text" name="especificacion" value="{{ $variante->especificacion }}"
-                                                               class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                                                        <label class="block text-xs font-medium text-gray-600 mb-1">Color</label>
+                                                        <select name="color_id" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                                                            <option value="">Sin color</option>
+                                                            @foreach($colores as $c)
+                                                                <option value="{{ $c->id }}" {{ $variante->color_id == $c->id ? 'selected' : '' }}>
+                                                                    {{ $c->nombre }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
                                                     </div>
                                                     <div>
                                                         <label class="block text-xs font-medium text-gray-600 mb-1">Sobreprecio S/</label>
@@ -551,10 +606,22 @@
                                                     <div>
                                                         <label class="block text-xs font-medium text-gray-600 mb-1">Estado</label>
                                                         <select name="estado" class="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
-                                                            <option value="activo" {{ $variante->estado === 'activo' ? 'selected' : '' }}>Activo</option>
+                                                            <option value="activo"   {{ $variante->estado === 'activo'   ? 'selected' : '' }}>Activo</option>
                                                             <option value="inactivo" {{ $variante->estado === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                                                         </select>
                                                     </div>
+                                                </div>
+                                                {{-- Atributos luminaria --}}
+                                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                                                    @foreach($atributosLuminaria as $clave => $meta)
+                                                        <div>
+                                                            <label class="block text-xs text-gray-500 mb-0.5">{{ $meta['label'] }}</label>
+                                                            <input type="text" name="atributos[{{ $clave }}]"
+                                                                   value="{{ ($variante->atributos ?? [])[$clave] ?? '' }}"
+                                                                   placeholder="{{ $meta['placeholder'] }}"
+                                                                   class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-[#F7D600]">
+                                                        </div>
+                                                    @endforeach
                                                 </div>
                                                 <div class="flex gap-2">
                                                     <button type="submit"
@@ -574,56 +641,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        @else
-                        <p class="text-sm text-gray-400 mb-4">Este producto no tiene variantes aún.</p>
                         @endif
-
-                        {{-- Formulario agregar variante --}}
-                        @can('editar_producto')
-                        <div x-data="{ abierto: false }">
-                            <button type="button" @click="abierto = !abierto"
-                                    class="text-sm text-[#2B2E2C] hover:text-[#2B2E2C] font-medium">
-                                <i class="fas fa-plus mr-1"></i>
-                                <span x-text="abierto ? 'Cancelar' : 'Agregar variante'"></span>
-                            </button>
-                            <div x-show="abierto" x-cloak class="mt-4">
-                                <form method="POST" action="{{ route('inventario.productos.variantes.store', $producto) }}"
-                                      class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                                    @csrf
-                                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-3">
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">Nombre variante</label>
-                                            <input type="text" name="nombre" placeholder="Ej: Versión Cálida"
-                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">Color</label>
-                                            <select name="color_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                                <option value="">Sin color</option>
-                                                @foreach($colores as $color)
-                                                <option value="{{ $color->id }}">{{ $color->nombre }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">Especificación</label>
-                                            <input type="text" name="capacidad" placeholder="Ej: 3000K, 18W"
-                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-gray-600 mb-1">Sobreprecio S/</label>
-                                            <input type="number" name="sobreprecio" min="0" step="0.01" placeholder="0.00"
-                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                                        </div>
-                                    </div>
-                                    <button type="submit"
-                                            class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] text-sm font-medium rounded-lg hover:bg-[#e8c900]">
-                                        <i class="fas fa-plus mr-1"></i>Agregar Variante
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        @endcan
 
                     </div>
                 </div>

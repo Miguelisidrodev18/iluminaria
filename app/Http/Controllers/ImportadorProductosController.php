@@ -48,6 +48,7 @@ class ImportadorProductosController extends Controller
             $handle = fopen('php://output', 'w');
             fwrite($handle, "\xEF\xBB\xBF"); // BOM UTF-8
 
+            // ── Hoja PRODUCTOS ──
             fputcsv($handle, [
                 'Código_fabrica', 'tipo_producto', 'tipo_fuente', 'ambiente', 'tipo_luminaria',
                 'nombre_origen', 'nombre_kyrios', 'color_acabado', 'Tamaño', 'diametro_lado',
@@ -73,6 +74,40 @@ class ImportadorProductosController extends Controller
                 'Kyrios', 'Premium', 'China', 'https://...',
                 '0.250', '500', '0', '20x20x10 cm', '12',
                 '',
+            ]);
+
+            // ── Separador + Hoja VARIANTES ──
+            fputcsv($handle, []);
+            fputcsv($handle, ['=== VARIANTES (una fila por variante) ===']);
+            fputcsv($handle, [
+                'codigo_fabrica',       // FK al producto base
+                'variante_nombre',      // Nombre descriptivo libre
+                'variante_color',       // Nombre del color (debe existir en catálogo)
+                'variante_acabado',     // Acabado: Negro mate, Blanco, Cromado…
+                'variante_tonalidad_luz',       // 2700K, 3000K, 4000K, 5000K…
+                'variante_tipo_lampara',        // LED, Halógeno, Fluorescente…
+                'variante_angulo_haz',          // 15°, 24°, 36°, 60°…
+                'variante_protocolo_regulacion',// DALI, 0-10V, Triac, PWM…
+                'variante_eficiencia_luminica', // 100 lm/W, 120 lm/W…
+                'variante_garantia',            // 2 años, 5 años…
+                'variante_vida_util',           // 25000h, 50000h…
+                'variante_ip',                  // IP20, IP44, IP65…
+                'variante_cri',                 // >80, >90, Ra97…
+                'variante_otros',               // Cualquier diferenciador adicional
+                'variante_sobreprecio',         // Sobreprecio sobre precio base (0 si igual)
+                'variante_stock_inicial',       // Stock inicial para esta variante
+            ]);
+            fputcsv($handle, [
+                'DL-8W-001', 'LED 3000K Negro', 'Negro',
+                'Negro mate', '3000K', 'LED', '36°', 'DALI',
+                '110 lm/W', '3 años', '50000h', 'IP65', '>80', '',
+                '0', '10',
+            ]);
+            fputcsv($handle, [
+                'DL-8W-001', 'LED 4000K Blanco', 'Blanco',
+                'Blanco', '4000K', 'LED', '36°', '0-10V',
+                '115 lm/W', '3 años', '50000h', 'IP65', '>80', '',
+                '5', '5',
             ]);
 
             fclose($handle);

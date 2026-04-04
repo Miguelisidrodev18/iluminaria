@@ -387,8 +387,12 @@
                 {{-- ══════════════════════════════════════════════════════════
                     BLOQUE 8 — VARIANTES
                 ══════════════════════════════════════════════════════════ --}}
+                @php
+                    $atributosLuminaria = \App\Models\ProductoVariante::ATRIBUTOS_LUMINARIA;
+                    $coloresJs = $colores->map(fn($c) => ['id' => $c->id, 'nombre' => $c->nombre, 'hex' => $c->codigo_hex ?? '#cccccc'])->values();
+                @endphp
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5"
-                     x-data="variantesManager(@js($colores->map(fn($c)=>['id'=>$c->id,'nombre'=>$c->nombre,'hex'=>$c->hex??'#cccccc'])->values()))">
+                     x-data="variantesManager(@js($coloresJs), @js(array_keys($atributosLuminaria)))">
                     <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:#2B2E2C;">8</span>
@@ -404,41 +408,58 @@
 
                         {{-- Lista de variantes agregadas --}}
                         <template x-if="variantes.length > 0">
-                            <div class="mb-5">
+                            <div class="mb-5 overflow-x-auto">
                                 <table class="w-full text-sm">
                                     <thead>
                                         <tr class="text-xs text-gray-500 border-b border-gray-100">
                                             <th class="text-left pb-2 font-medium">Nombre / Color</th>
-                                            <th class="text-left pb-2 font-medium">Especificación</th>
+                                            <th class="text-left pb-2 font-medium">Atributos luminaria</th>
                                             <th class="text-right pb-2 font-medium">Sobreprecio</th>
                                             <th class="pb-2 w-8"></th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-50">
                                         <template x-for="(v, idx) in variantes" :key="idx">
-                                            <tr class="py-2">
+                                            <tr>
                                                 <td class="py-2">
                                                     <div class="flex items-center gap-2">
-                                                        <div class="w-4 h-4 rounded-full border border-gray-200 shrink-0"
+                                                        <div class="w-3.5 h-3.5 rounded-full border border-gray-200 shrink-0"
                                                              :style="v.color_hex ? `background-color:${v.color_hex}` : 'background:#e5e7eb'"></div>
                                                         <span class="font-medium text-gray-800"
                                                               x-text="v.nombre || v.color_nombre || 'Sin nombre'"></span>
                                                     </div>
+                                                    <span class="font-mono text-xs text-gray-400" x-text="v.sku_preview"></span>
                                                 </td>
-                                                <td class="py-2 text-gray-500" x-text="v.especificacion || '—'"></td>
+                                                <td class="py-2">
+                                                    <div class="flex flex-wrap gap-1">
+                                                        <template x-for="clave in atributosKeys" :key="clave">
+                                                            <template x-if="v.atributos[clave]">
+                                                                <span class="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded"
+                                                                      x-text="v.atributos[clave]"></span>
+                                                            </template>
+                                                        </template>
+                                                        <span x-show="Object.values(v.atributos).every(a => !a)"
+                                                              class="text-gray-300 text-xs">—</span>
+                                                    </div>
+                                                </td>
                                                 <td class="py-2 text-right text-gray-700"
                                                     x-text="v.sobreprecio > 0 ? '+S/ ' + parseFloat(v.sobreprecio).toFixed(2) : '—'"></td>
                                                 <td class="py-2 text-right">
                                                     <button type="button" @click="eliminar(idx)"
-                                                            class="text-red-400 hover:text-red-600 transition-colors">
+                                                            class="text-red-400 hover:text-red-600">
                                                         <i class="fas fa-trash text-xs"></i>
                                                     </button>
                                                 </td>
-                                                {{-- Hidden inputs para envío al servidor --}}
-                                                <input type="hidden" :name="`variantes_iniciales[${idx}][nombre]`" :value="v.nombre">
-                                                <input type="hidden" :name="`variantes_iniciales[${idx}][color_id]`" :value="v.color_id || ''">
-                                                <input type="hidden" :name="`variantes_iniciales[${idx}][capacidad]`" :value="v.especificacion">
-                                                <input type="hidden" :name="`variantes_iniciales[${idx}][sobreprecio]`" :value="v.sobreprecio || 0">
+                                                {{-- Hidden inputs para el servidor --}}
+                                                <input type="hidden" :name="`variantes_iniciales[${idx}][nombre]`"        :value="v.nombre">
+                                                <input type="hidden" :name="`variantes_iniciales[${idx}][color_id]`"      :value="v.color_id || ''">
+                                                <input type="hidden" :name="`variantes_iniciales[${idx}][sobreprecio]`"   :value="v.sobreprecio || 0">
+                                                {{-- Atributos como hidden inputs --}}
+                                                <template x-for="clave in atributosKeys" :key="clave">
+                                                    <input type="hidden"
+                                                           :name="`variantes_iniciales[${idx}][atributos][${clave}]`"
+                                                           :value="v.atributos[clave] || ''">
+                                                </template>
                                             </tr>
                                         </template>
                                     </tbody>
@@ -447,37 +468,57 @@
                         </template>
 
                         {{-- Formulario para agregar nueva variante --}}
-                        <div class="grid grid-cols-2 gap-3 mb-3 sm:grid-cols-4">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Nombre variante</label>
-                                <input type="text" x-model="nueva.nombre" placeholder="Ej: Versión Calida"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
+                        <div x-data="{ expandido: false }">
+                            {{-- Fila básica siempre visible --}}
+                            <div class="grid grid-cols-2 gap-3 mb-2 sm:grid-cols-4">
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Nombre descriptivo</label>
+                                    <input type="text" x-model="nueva.nombre" placeholder="Ej: LED 3000K Negro Mate"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Color</label>
+                                    <select x-model="nueva.color_id"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
+                                        <option value="">Sin color</option>
+                                        <template x-for="c in coloresCatalogo" :key="c.id">
+                                            <option :value="c.id" x-text="c.nombre"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Sobreprecio S/</label>
+                                    <input type="number" x-model="nueva.sobreprecio" min="0" step="0.01" placeholder="0.00"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Color</label>
-                                <select x-model="nueva.color_id"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
-                                    <option value="">Sin color</option>
-                                    <template x-for="c in coloresCatalogo" :key="c.id">
-                                        <option :value="c.id" x-text="c.nombre"></option>
-                                    </template>
-                                </select>
+
+                            {{-- Toggle atributos luminaria --}}
+                            <button type="button" @click="expandido = !expandido"
+                                    class="text-xs text-indigo-500 hover:text-indigo-700 mb-2 flex items-center gap-1">
+                                <i class="fas fa-lightbulb text-yellow-400"></i>
+                                <span x-text="expandido ? 'Ocultar atributos luminaria' : 'Agregar atributos luminaria (tonalidad, acabado, IP…)'"></span>
+                                <i class="fas text-xs" :class="expandido ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </button>
+
+                            {{-- Atributos luminaria expandibles --}}
+                            <div x-show="expandido" x-collapse class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                                @foreach($atributosLuminaria as $clave => $meta)
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-0.5">{{ $meta['label'] }}</label>
+                                        <input type="text"
+                                               x-model="nueva.atributos['{{ $clave }}']"
+                                               placeholder="{{ $meta['placeholder'] }}"
+                                               class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-[#F7D600]">
+                                    </div>
+                                @endforeach
                             </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Especificación</label>
-                                <input type="text" x-model="nueva.especificacion" placeholder="Ej: 3000K, 18W"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Sobreprecio S/</label>
-                                <input type="number" x-model="nueva.sobreprecio" min="0" step="0.01" placeholder="0.00"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F7D600]">
-                            </div>
+
+                            <button type="button" @click="agregar()"
+                                    class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] rounded-lg text-sm hover:bg-[#e8c900] transition-colors">
+                                <i class="fas fa-plus mr-1"></i>Agregar Variante
+                            </button>
                         </div>
-                        <button type="button" @click="agregar()"
-                                class="px-4 py-2 bg-[#F7D600] text-[#2B2E2C] rounded-lg text-sm hover:bg-[#e8c900] transition-colors">
-                            <i class="fas fa-plus mr-1"></i>Agregar Variante
-                        </button>
                     </div>
                 </div>
 
@@ -702,24 +743,39 @@
     }
 
     // ─── Alpine: variantes ────────────────────────────────────────────────────
-    function variantesManager(coloresCatalogo = []) {
+    function variantesManager(coloresCatalogo = [], atributosKeys = []) {
+        const atributosVacio = () => Object.fromEntries(atributosKeys.map(k => [k, '']));
         return {
             variantes: [],
             coloresCatalogo,
+            atributosKeys,
             colorMap: Object.fromEntries(coloresCatalogo.map(c => [String(c.id), c])),
-            nueva: { nombre: '', color_id: '', especificacion: '', sobreprecio: 0 },
+            nueva: { nombre: '', color_id: '', sobreprecio: 0, atributos: atributosVacio() },
 
             agregar() {
                 const color = this.colorMap[String(this.nueva.color_id)] || null;
+
+                // Construir preview del nombre
+                const partes = [];
+                if (this.nueva.nombre.trim()) partes.push(this.nueva.nombre.trim());
+                else {
+                    const ton = this.nueva.atributos['tonalidad_luz'];
+                    const acab = this.nueva.atributos['acabado'];
+                    if (ton) partes.push(ton);
+                    if (acab) partes.push(acab);
+                    if (color) partes.push(color.nombre);
+                }
+
                 this.variantes.push({
-                    nombre:         this.nueva.nombre.trim(),
-                    color_id:       this.nueva.color_id || null,
-                    color_nombre:   color ? color.nombre : 'Sin color',
-                    color_hex:      color ? color.hex : null,
-                    especificacion: this.nueva.especificacion.trim(),
-                    sobreprecio:    parseFloat(this.nueva.sobreprecio) || 0,
+                    nombre:      this.nueva.nombre.trim(),
+                    color_id:    this.nueva.color_id || null,
+                    color_nombre: color ? color.nombre : 'Sin color',
+                    color_hex:   color ? color.hex : null,
+                    sobreprecio: parseFloat(this.nueva.sobreprecio) || 0,
+                    atributos:   { ...this.nueva.atributos },
+                    sku_preview: partes.join(' / ') || 'Variante',
                 });
-                this.nueva = { nombre: '', color_id: '', especificacion: '', sobreprecio: 0 };
+                this.nueva = { nombre: '', color_id: '', sobreprecio: 0, atributos: atributosVacio() };
             },
 
             eliminar(idx) { this.variantes.splice(idx, 1); },

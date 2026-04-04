@@ -11,41 +11,50 @@ use Illuminate\Support\Facades\Log;
 class VarianteService
 {
     /**
-     * Obtener o crear variante dado el producto base, color y especificación.
+     * Obtener o crear variante dado el producto base, color, especificación y atributos luminaria.
      */
     public function obtenerOCrearVariante(
         Producto $producto,
         ?int $colorId,
         ?string $especificacion,
-        float $sobreprecio = 0
+        float $sobreprecio = 0,
+        array $atributos = []
     ): ProductoVariante {
-        // Normalizar especificacion
+        // Normalizar
         $especificacion = $especificacion ? trim($especificacion) : null;
+        $atributos      = array_filter($atributos, fn($v) => !is_null($v) && $v !== '');
 
-        // Buscar variante existente
+        // Buscar variante existente por color + especificacion (compatibilidad)
         $variante = ProductoVariante::where('producto_id', $producto->id)
             ->when($colorId, fn($q) => $q->where('color_id', $colorId), fn($q) => $q->whereNull('color_id'))
             ->when($especificacion, fn($q) => $q->where('especificacion', $especificacion), fn($q) => $q->whereNull('especificacion'))
             ->first();
 
         if ($variante) {
+            // Si hay nuevos atributos, fusionarlos
+            if (!empty($atributos)) {
+                $variante->update([
+                    'atributos' => array_merge($variante->atributos ?? [], $atributos),
+                ]);
+            }
             return $variante;
         }
 
         // Crear nueva variante
         $color = $colorId ? Color::find($colorId) : null;
-        $sku   = ProductoVariante::generarSku($producto, $color, $especificacion);
+        $sku   = ProductoVariante::generarSku($producto, $color, $especificacion, $atributos);
 
         $variante = ProductoVariante::create([
-            'producto_id'   => $producto->id,
-            'color_id'      => $colorId,
+            'producto_id'    => $producto->id,
+            'color_id'       => $colorId,
             'especificacion' => $especificacion,
-            'sku'           => $sku,
-            'sobreprecio'   => $sobreprecio,
-            'stock_actual'  => 0,
-            'stock_minimo'  => $producto->stock_minimo ?? 0,
-            'estado'        => 'activo',
-            'creado_por'    => auth()->id(),
+            'atributos'      => !empty($atributos) ? $atributos : null,
+            'sku'            => $sku,
+            'sobreprecio'    => $sobreprecio,
+            'stock_actual'   => 0,
+            'stock_minimo'   => $producto->stock_minimo ?? 0,
+            'estado'         => 'activo',
+            'creado_por'     => auth()->id(),
         ]);
 
         Log::info('Variante de producto creada', [
@@ -79,10 +88,12 @@ class VarianteService
         return [
             'id'             => $v->id,
             'sku'            => $v->sku,
+            'nombre'         => $v->nombre,
             'color_id'       => $v->color_id,
             'color_nombre'   => $v->color?->nombre,
             'color_hex'      => $v->color?->codigo_hex,
             'especificacion' => $v->especificacion,
+            'atributos'      => $v->atributos ?? [],
             'sobreprecio'    => (float) $v->sobreprecio,
             'stock_actual'   => (int) $v->stock_actual,
             'stock_minimo'   => (int) $v->stock_minimo,

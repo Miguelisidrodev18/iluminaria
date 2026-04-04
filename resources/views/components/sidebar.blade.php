@@ -23,7 +23,7 @@
             x-data="{
                 inventarioOpen: {{ request()->routeIs('inventario.*') ? 'true' : 'false' }},
                 comprasOpen: {{ request()->routeIs('compras.*') || request()->routeIs('pedidos.*') || request()->routeIs('proveedores.*') || request()->routeIs('cuentas-por-pagar.*') ? 'true' : 'false' }},
-                ventasOpen: {{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') || request()->routeIs('precios.*') ? 'true' : 'false' }},
+                ventasOpen: {{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') || request()->routeIs('precios.*') || request()->routeIs('proyectos.*') ? 'true' : 'false' }},
                 reportesOpen: {{ request()->routeIs('reportes.*') ? 'true' : 'false' }},
                 trasladosOpen: {{ request()->routeIs('traslados.*') ? 'true' : 'false' }},
                 cajaOpen: {{ request()->routeIs('caja.*') ? 'true' : 'false' }},
@@ -99,7 +99,7 @@
                     {{-- Ventas y Precios --}}
                     <li>
                         <button @click="ventasOpen = !ventasOpen"
-                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') || request()->routeIs('precios.*') ? 'bg-[#3A3E3B]' : '' }}">
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') || request()->routeIs('precios.*') || request()->routeIs('proyectos.*') ? 'bg-[#3A3E3B]' : '' }}">
                             <span class="flex items-center">
                                 <i class="fas fa-cash-register mr-3"></i>Ventas
                             </span>
@@ -110,6 +110,12 @@
                                 <a href="{{ route('clientes.index') }}"
                                     class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('clientes.*') ? 'bg-[#484E4A]' : '' }}">
                                     <i class="fas fa-users mr-3 text-sm"></i>Clientes
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('proyectos.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proyectos.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-project-diagram mr-3 text-sm"></i>Proyectos
                                 </a>
                             </li>
                             <li>

@@ -4,224 +4,470 @@
 <meta charset="UTF-8">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-@page { margin: 14mm 16mm; }
-body { font-family: DejaVu Sans, sans-serif; font-size: 8.5pt; color: #1a1a1a; background: #fff; }
 
-/* Header: 2 columns - logo+company left, contact info right */
-.header { display: table; width: 100%; margin-bottom: 10px; }
-.header-left { display: table-cell; width: 30%; vertical-align: middle; }
-.header-right { display: table-cell; width: 70%; vertical-align: middle; text-align: right; font-size: 8pt; color: #2B2E2C; }
-.logo { height: 50px; }
+@page {
+    margin-top: 28mm;
+    margin-bottom: 22mm;
+    margin-left: 14mm;
+    margin-right: 14mm;
+}
 
-/* Title section */
-.title-section { text-align: center; margin-bottom: 10px; border-top: 2px solid #2B2E2C; border-bottom: 2px solid #2B2E2C; padding: 6px 0; }
-.proforma-num { font-size: 12pt; font-weight: bold; color: #2B2E2C; }
-.proforma-date { font-size: 8.5pt; color: #555; margin-top: 2px; }
+body {
+    font-family: DejaVu Sans, Arial, sans-serif;
+    font-size: 8.5pt;
+    color: #1a1a1a;
+    background: #fff;
+}
 
-/* Client section */
-.cliente-section { margin-bottom: 10px; }
-.cliente-nombre { font-size: 9pt; font-weight: bold; }
-.cliente-contacto { font-size: 8.5pt; color: #333; margin-top: 2px; }
-.intro-text { font-size: 8.5pt; color: #333; margin-top: 6px; font-weight: bold; }
+/* ── HEADER ─────────────────────────────────────────────── */
+.header {
+    display: table;
+    width: 100%;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #e8c900;
+    padding-bottom: 8px;
+}
+.header-logo-cell {
+    display: table-cell;
+    width: 35%;
+    vertical-align: middle;
+}
+.header-logo-cell img {
+    max-height: 52px;
+    max-width: 160px;
+}
+.header-nombre-fallback {
+    font-size: 14pt;
+    font-weight: bold;
+    color: #2B2E2C;
+    letter-spacing: -0.5px;
+}
+.header-info-cell {
+    display: table-cell;
+    width: 65%;
+    vertical-align: middle;
+    text-align: right;
+}
+.header-info-cell .dir {
+    font-size: 8pt;
+    color: #D97706;
+    font-weight: bold;
+    line-height: 1.5;
+}
+.header-info-cell .contact {
+    font-size: 7.5pt;
+    color: #555;
+    line-height: 1.6;
+}
 
-/* Items table */
-table.items { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 8pt; }
-table.items thead tr { background: #2B2E2C; color: #F7D600; }
-table.items thead th { padding: 5px 6px; text-align: left; font-weight: bold; font-size: 7.5pt; }
+/* ── TITLE ───────────────────────────────────────────────── */
+.title-wrap {
+    margin-bottom: 10px;
+}
+.proforma-num {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 3px;
+}
+.proforma-date {
+    font-size: 8.5pt;
+    color: #D97706;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* ── CLIENT ──────────────────────────────────────────────── */
+.cliente-section {
+    margin-bottom: 10px;
+}
+.cliente-nombre {
+    font-size: 9pt;
+    font-weight: bold;
+    color: #1a1a1a;
+    text-transform: uppercase;
+}
+.cliente-contacto {
+    font-size: 8pt;
+    color: #333;
+    margin-top: 1px;
+}
+.intro-text {
+    font-size: 8.5pt;
+    font-weight: bold;
+    color: #333;
+    margin-top: 6px;
+}
+
+/* ── ITEMS TABLE ─────────────────────────────────────────── */
+table.items {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+    font-size: 8pt;
+}
+table.items thead tr {
+    background: #F7D600;
+    color: #1a1a1a;
+}
+table.items thead th {
+    padding: 5px 6px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 7.5pt;
+    border: 1px solid #D4B800;
+}
 table.items thead th.center { text-align: center; }
-table.items thead th.right { text-align: right; }
-table.items tbody tr:nth-child(even) { background: #f9f9f9; }
-table.items tbody td { padding: 4px 6px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+table.items thead th.right  { text-align: right; }
+
+table.items tbody tr:nth-child(even) { background: #fafafa; }
+table.items tbody td {
+    padding: 5px 6px;
+    border-bottom: 1px solid #e8e8e8;
+    border-left: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+    vertical-align: top;
+}
 table.items tbody td.center { text-align: center; }
-table.items tbody td.right { text-align: right; }
+table.items tbody td.right  { text-align: right; }
+.variante-tag {
+    font-size: 7pt;
+    color: #888;
+    display: block;
+    margin-top: 1px;
+}
 
-/* Subtotal area */
-.subtotal-row { display: table; width: 100%; margin-bottom: 2px; }
-.subtotal-label { display: table-cell; font-size: 8pt; color: #555; padding: 2px 0; }
-.subtotal-val { display: table-cell; font-size: 8pt; color: #1a1a1a; font-weight: bold; text-align: right; width: 100px; padding: 2px 0; }
-.subtotal-total-label { font-size: 10pt; font-weight: bold; color: #2B2E2C; }
-.subtotal-total-val { font-size: 10pt; font-weight: bold; color: #2B2E2C; }
-.subtotal-divider { border-top: 1.5px solid #2B2E2C; margin: 3px 0; }
-.subtotal-box { width: 200px; float: right; }
+/* ── TOTALS ──────────────────────────────────────────────── */
+.totals-wrapper {
+    width: 100%;
+    margin-bottom: 14px;
+}
+.totals-box {
+    float: right;
+    width: 210px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 8pt;
+}
+.totals-box .row {
+    display: table;
+    width: 100%;
+    border-bottom: 1px solid #f0f0f0;
+}
+.totals-box .row:last-child { border-bottom: none; }
+.totals-box .lbl {
+    display: table-cell;
+    padding: 4px 8px;
+    color: #555;
+}
+.totals-box .val {
+    display: table-cell;
+    padding: 4px 8px;
+    text-align: right;
+    font-weight: bold;
+    color: #1a1a1a;
+    width: 90px;
+}
+.totals-box .row.total-final {
+    background: #2B2E2C;
+}
+.totals-box .row.total-final .lbl,
+.totals-box .row.total-final .val {
+    color: #F7D600;
+    font-size: 10pt;
+    font-weight: bold;
+    padding: 6px 8px;
+}
 
-/* Condiciones comerciales */
-.condiciones { margin-top: 16px; border-top: 1px solid #ccc; padding-top: 8px; clear: both; }
-.condiciones-titulo { font-size: 8.5pt; font-weight: bold; color: #2B2E2C; margin-bottom: 4px; }
-.condiciones-text { font-size: 7pt; color: #444; line-height: 1.5; }
+/* ── CONDICIONES ─────────────────────────────────────────── */
+.condiciones {
+    clear: both;
+    border-top: 1.5px solid #F7D600;
+    padding-top: 8px;
+    margin-top: 4px;
+}
+.condiciones-titulo {
+    font-size: 8.5pt;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3pt;
+}
+.condicion-row {
+    font-size: 7.5pt;
+    color: #333;
+    line-height: 1.55;
+    margin-bottom: 2px;
+}
+.condicion-row strong { color: #1a1a1a; }
 
-/* Vendedor pie */
-.vendedor-section { margin-top: 12px; display: table; width: 100%; border-top: 1px solid #ccc; padding-top: 8px; }
-.vendedor-info { display: table-cell; vertical-align: bottom; font-size: 7.5pt; color: #333; }
-.vendedor-nombre { font-weight: bold; font-size: 9pt; color: #2B2E2C; }
-.vendedor-pagina { display: table-cell; vertical-align: bottom; text-align: right; font-size: 7.5pt; color: #777; }
+/* ── FOOTER VENDEDOR ─────────────────────────────────────── */
+.vendedor-section {
+    display: table;
+    width: 100%;
+    margin-top: 14px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 8px;
+}
+.vendedor-info {
+    display: table-cell;
+    vertical-align: bottom;
+    font-size: 7.5pt;
+    color: #333;
+}
+.vendedor-nombre {
+    font-weight: bold;
+    font-size: 9pt;
+    color: #2B2E2C;
+}
+.vendedor-pagina {
+    display: table-cell;
+    vertical-align: bottom;
+    text-align: right;
+    font-size: 7.5pt;
+    color: #999;
+}
+
+.clearfix::after { content: ""; display: table; clear: both; }
 </style>
 </head>
 <body>
 
-{{-- HEADER --}}
+{{-- ══ HEADER ══════════════════════════════════════════════════ --}}
+@php
+    /* Logo: usar logo_pdf_path si existe, si no logo_path */
+    $logoFile = ($empresa->logo_pdf_path && trim($empresa->logo_pdf_path) !== '')
+        ? $empresa->logo_pdf_path
+        : ($empresa->logo_path ?? null);
+
+    $logoSrc = null;
+    if ($logoFile) {
+        $logoPath = storage_path('app/public/' . $logoFile);
+        if (file_exists($logoPath)) {
+            $ext    = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+            $mime   = in_array($ext, ['jpg','jpeg']) ? 'image/jpeg' : "image/{$ext}";
+            $logoSrc = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+    }
+
+    $telPrincipal  = $empresa->telefono ?? '';
+    $telSecundario = $empresa->telefono2 ?? '';
+    $emailEmp      = $empresa->email ?? '';
+    $webEmp        = $empresa->web ?? 'kyrios.com.pe';
+@endphp
+
 <div class="header">
-    <div class="header-left">
-        @php
-            $logoFile = $empresa->logo_pdf_path ?? ($empresa->logo_path ?? null);
-            $logoPath = $logoFile ? storage_path('app/public/' . $logoFile) : null;
-            $logoSrc  = null;
-            if ($logoPath && file_exists($logoPath)) {
-                $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
-                $mime = in_array($ext, ['jpg','jpeg']) ? 'image/jpeg' : "image/$ext";
-                $logoSrc = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($logoPath));
-            }
-        @endphp
+    <div class="header-logo-cell">
         @if($logoSrc)
-            <img src="{{ $logoSrc }}" class="logo" alt="Logo">
+            <img src="{{ $logoSrc }}" alt="{{ $empresa->nombre_comercial ?? $empresa->razon_social }}">
         @else
-            <div style="font-size:11pt;font-weight:bold;color:#2B2E2C;">{{ $empresa->nombre_comercial ?? $empresa->razon_social }}</div>
+            <div class="header-nombre-fallback">{{ $empresa->nombre_comercial ?? $empresa->razon_social }}</div>
         @endif
     </div>
-    <div class="header-right">
-        {{ $empresa->direccion }}<br>
-        @if($empresa->telefono) {{ $empresa->telefono }}<br>@endif
-        @if($empresa->email) {{ $empresa->email }}<br>@endif
-        @if($empresa->web ?? null) {{ $empresa->web }}@endif
+    <div class="header-info-cell">
+        <div class="dir">{{ $empresa->direccion }}</div>
+        <div class="contact">
+            @if($telPrincipal){{ $telPrincipal }}@if($telSecundario) | {{ $telSecundario }}@endif<br>@endif
+            @if($emailEmp){{ $emailEmp }}<br>@endif
+            @if($webEmp){{ $webEmp }}@endif
+        </div>
     </div>
 </div>
 
-{{-- TITLE --}}
-<div class="title-section">
-    <div class="proforma-num">PROFORMA {{ $venta->codigo }}/{{ $venta->fecha->format('y') }}</div>
-    <div class="proforma-date">{{ ucfirst(\Carbon\Carbon::parse($venta->fecha)->locale('es')->isoFormat('D [de] MMMM [del] YYYY')) }}</div>
+{{-- ══ TITLE ═════════════════════════════════════════════════════ --}}
+<div class="title-wrap">
+    <div class="proforma-num">PROFORMA {{ $venta->codigo }}</div>
+    <div class="proforma-date">
+        {{ ucfirst(\Carbon\Carbon::parse($venta->fecha)->locale('es')->isoFormat('D [de] MMMM [del] YYYY')) }}
+    </div>
 </div>
 
-{{-- CLIENT --}}
+{{-- ══ CLIENT ═════════════════════════════════════════════════════ --}}
 <div class="cliente-section">
     <div class="cliente-nombre">SRES. {{ $venta->cliente?->nombre ?? 'CLIENTE GENERAL' }}</div>
     @if($venta->contacto)
         <div class="cliente-contacto">Contacto: <strong>{{ $venta->contacto }}</strong></div>
-    @endif
-    @if($venta->cliente?->email)
-        <div class="cliente-contacto">{{ $venta->cliente->email }}</div>
+    @elseif($venta->cliente?->email)
+        <div class="cliente-contacto">Contacto: <strong>{{ $venta->cliente->email }}</strong></div>
     @endif
     <div class="intro-text">De acuerdo a lo solicitado por Ud. le hacemos llegar el costo por los siguientes items</div>
 </div>
 
-{{-- ITEMS TABLE --}}
+{{-- ══ ITEMS TABLE ════════════════════════════════════════════════ --}}
 @php
-    $simbolo = $venta->moneda === 'USD' ? 'US$' : 'S/';
-    $subtotalArticulos = 0;
-    $totalConDescuento = 0;
+    $simbolo  = $venta->moneda === 'USD' ? 'US$' : 'S/';
+    $subArt   = 0;
+    $subDescuentado = 0;
+
     foreach ($venta->detalles as $d) {
-        $dcto = $d->descuento_pct ?? 0;
-        $precioLista = $dcto > 0 ? round($d->precio_unitario / (1 - $dcto / 100), 4) : $d->precio_unitario;
-        $subtotalArticulos += $precioLista * $d->cantidad;
-        $totalConDescuento += $d->precio_unitario * $d->cantidad;
+        $dcto        = floatval($d->descuento_pct ?? 0);
+        $precioLista = $dcto > 0
+            ? round($d->precio_unitario / (1 - $dcto / 100), 4)
+            : $d->precio_unitario;
+        $subArt          += $precioLista * $d->cantidad;
+        $subDescuentado  += $d->precio_unitario * $d->cantidad;
     }
-    $descuentoTotal = $subtotalArticulos - $totalConDescuento;
-    $subtotalFinal  = $totalConDescuento;
-    $igv            = round($subtotalFinal * 0.18, 2);
-    $total          = $subtotalFinal + $igv;
+
+    $descuentoTotal = round($subArt - $subDescuentado, 2);
+    $subtotalFinal  = round($subDescuentado, 2);
+
+    /* IGV: si el precio ya incluye IGV no se suma de nuevo */
+    $incluyeIgv = (bool)($venta->detalles->first()?->incluye_igv ?? false);
+    if ($incluyeIgv) {
+        $igv   = round($subtotalFinal * 18 / 118, 2);
+        $total = $subtotalFinal;
+    } else {
+        $igv   = round($subtotalFinal * 0.18, 2);
+        $total = $subtotalFinal + $igv;
+    }
 @endphp
 
 <table class="items">
     <thead>
         <tr>
-            <th style="width:28px" class="center">ITEM</th>
-            <th style="width:40px" class="center">CANT.</th>
+            <th class="center" style="width:26px;">ITEM</th>
+            <th class="center" style="width:38px;">CANT.</th>
             <th>DESCRIPCION</th>
-            <th class="right" style="width:75px">P.UNIT.</th>
-            <th class="center" style="width:50px">DCTO.</th>
-            <th class="right" style="width:80px">P.TOTAL</th>
+            <th class="right" style="width:78px;">P.UNIT.</th>
+            <th class="center" style="width:46px;">DCTO.</th>
+            <th class="right" style="width:82px;">P.TOTAL</th>
         </tr>
     </thead>
     <tbody>
         @foreach($venta->detalles as $i => $d)
         @php
-            $dcto = $d->descuento_pct ?? 0;
-            $precioLista = $dcto > 0 ? round($d->precio_unitario / (1 - $dcto / 100), 2) : $d->precio_unitario;
-            $pTotal = $d->precio_unitario * $d->cantidad;
+            $dcto        = floatval($d->descuento_pct ?? 0);
+            $precioLista = $dcto > 0
+                ? round($d->precio_unitario / (1 - $dcto / 100), 2)
+                : $d->precio_unitario;
+            $pTotal = round($d->precio_unitario * $d->cantidad, 2);
         @endphp
         <tr>
             <td class="center">{{ $i + 1 }}</td>
             <td class="center">{{ $d->cantidad }}</td>
             <td>
-                {{ $d->producto?->nombre ?? '&#8212;' }}
-                @if($d->variante)
-                    <br><span style="font-size:7pt;color:#666;">{{ $d->variante->nombre_completo }}</span>
+                <strong>{{ strtoupper($d->producto?->nombre ?? '—') }}</strong>
+                @if($d->variante && $d->variante->nombre_completo !== 'Variante base')
+                    <span class="variante-tag">{{ $d->variante->nombre_completo }}</span>
+                @endif
+                @if($d->observacion ?? null)
+                    <span class="variante-tag" style="color:#999;">{{ $d->observacion }}</span>
                 @endif
             </td>
             <td class="right">{{ $simbolo }} {{ number_format($precioLista, 2) }}</td>
-            <td class="center">{{ $dcto > 0 ? number_format($dcto, 0).'%' : '&#8212;' }}</td>
+            <td class="center">
+                {{ $dcto > 0 ? number_format($dcto, 0).'%' : '—' }}
+            </td>
             <td class="right">{{ $simbolo }} {{ number_format($pTotal, 2) }}</td>
         </tr>
         @endforeach
     </tbody>
 </table>
 
-{{-- TOTALS --}}
-<div style="clear:both;">
-    <div class="subtotal-box">
-        <div class="subtotal-row">
-            <div class="subtotal-label">Subtotal Articulos:</div>
-            <div class="subtotal-val">{{ $simbolo }} {{ number_format($subtotalArticulos, 2) }}</div>
+{{-- ══ TOTALS ══════════════════════════════════════════════════════ --}}
+<div class="totals-wrapper clearfix">
+    <div class="totals-box">
+        <div class="row">
+            <div class="lbl">Subtotal Artículos:</div>
+            <div class="val">{{ $simbolo }} {{ number_format($subArt, 2) }}</div>
         </div>
-        <div class="subtotal-row">
-            <div class="subtotal-label">Subtotal:</div>
-            <div class="subtotal-val">{{ $simbolo }} {{ number_format($subtotalArticulos, 2) }}</div>
+        <div class="row">
+            <div class="lbl">Subtotal:</div>
+            <div class="val">{{ $simbolo }} {{ number_format($subArt, 2) }}</div>
         </div>
         @if($descuentoTotal > 0)
-        <div class="subtotal-row">
-            <div class="subtotal-label">Descuento:</div>
-            <div class="subtotal-val">{{ $simbolo }} {{ number_format($descuentoTotal, 2) }}</div>
+        <div class="row">
+            <div class="lbl">Descuento:</div>
+            <div class="val">{{ $simbolo }} {{ number_format($descuentoTotal, 2) }}</div>
         </div>
-        <div class="subtotal-row">
-            <div class="subtotal-label">Subtotal Final:</div>
-            <div class="subtotal-val">{{ $simbolo }} {{ number_format($subtotalFinal, 2) }}</div>
+        <div class="row">
+            <div class="lbl">Subtotal Final:</div>
+            <div class="val">{{ $simbolo }} {{ number_format($subtotalFinal, 2) }}</div>
         </div>
         @endif
-        <div class="subtotal-row">
-            <div class="subtotal-label">IGV (18%):</div>
-            <div class="subtotal-val">{{ $simbolo }} {{ number_format($igv, 2) }}</div>
+        <div class="row">
+            <div class="lbl">IGV (18%):</div>
+            <div class="val">{{ $simbolo }} {{ number_format($igv, 2) }}</div>
         </div>
-        <div class="subtotal-divider"></div>
-        <div class="subtotal-row">
-            <div class="subtotal-label subtotal-total-label">TOTAL:</div>
-            <div class="subtotal-val subtotal-total-val">{{ $simbolo }} {{ number_format($total, 2) }}</div>
+        <div class="row total-final">
+            <div class="lbl">TOTAL:</div>
+            <div class="val">{{ $simbolo }} {{ number_format($total, 2) }}</div>
         </div>
-        @if($venta->moneda === 'USD' && $venta->tipo_cambio > 1)
-        <div class="subtotal-row" style="margin-top:4px;">
-            <div class="subtotal-label" style="font-size:7pt;color:#888;">T.C.: S/ {{ number_format($venta->tipo_cambio, 3) }}</div>
-            <div class="subtotal-val" style="font-size:7pt;color:#888;">S/ {{ number_format($total * $venta->tipo_cambio, 2) }}</div>
+        @if($venta->moneda === 'USD' && ($venta->tipo_cambio ?? 0) > 1)
+        <div class="row">
+            <div class="lbl" style="font-size:6.5pt;color:#aaa;">Equiv. S/ (T.C. {{ number_format($venta->tipo_cambio, 3) }}):</div>
+            <div class="val" style="font-size:6.5pt;color:#aaa;">S/ {{ number_format($total * $venta->tipo_cambio, 2) }}</div>
         </div>
         @endif
     </div>
 </div>
 
-{{-- CONDICIONES COMERCIALES --}}
+{{-- ══ CONDICIONES COMERCIALES ════════════════════════════════════ --}}
+@php
+    /* Resolver datos de pago desde la sucursal */
+    $cuentas = [];
+    if ($pagos && $pagos->count()) {
+        foreach ($pagos as $tipo => $p) {
+            if ($tipo === 'transferencia') {
+                $cuentas[] = trim(
+                    ($p->banco ? $p->banco . ' ' : '') .
+                    ($p->numero_cuenta ? 'Cta: ' . $p->numero_cuenta . ' ' : '') .
+                    ($p->cci ? '/ CCI: ' . $p->cci : '')
+                );
+            }
+        }
+    }
+    $cuentaTexto = !empty($cuentas)
+        ? implode('; ', $cuentas)
+        : 'Depósito o transferencia a Cta Cte del banco INTERBANK US$ 2003007861610 / CCI US$003-200-003007861610-36 a nombre de ' . ($empresa->nombre_comercial ?? $empresa->razon_social) . ' con RUC ' . $empresa->ruc;
+@endphp
+
 <div class="condiciones">
-    <div class="condiciones-titulo">CONDICIONES COMERCIALES:</div>
-    <div class="condiciones-text">
-        <strong>Forma de Pago:</strong> 100% Con la orden de compra. Deposito o transferencia a Cta Cte del banco INTERBANK
-        US$ 2003007861610 / CCI US$003-200-003007861610-36 a nombre de la empresa Kyrios luces S.A.C. con RUC 20606247746.<br>
-        <strong>Tiempo de Entrega:</strong> A coordinar / vigencia a partir del conocimiento de realizado el deposito y/o transferencia en cta.
-        @if($venta->vigencia_dias)
-        <br><strong>Vigencia de la oferta:</strong> {{ $venta->vigencia_dias }} dias calendarios desde la fecha de emision.
-        @endif
-        <br><strong>Garantia Luminarias:</strong> 01 Anio (en caso realicemos la instalacion). Lampara: 75% vida util de lampara.
-        <br><strong>Los precios estan expresados en {{ $venta->moneda === 'USD' ? 'Dolares Americanos' : 'Soles Peruanos' }} y NO INCLUYEN el 18% I.G.V.</strong>
+    <div class="condiciones-titulo">Condiciones Comerciales:</div>
+    <div class="condicion-row">
+        <strong>Forma de Pago:</strong>
+        100% Con la orden de compra. {{ $cuentaTexto }}.
+    </div>
+    <div class="condicion-row">
+        <strong>Tiempo de Entrega:</strong>
+        A coordinar / vigencia a partir del conocimiento de realizado el depósito y/o transferencia en cta.
+    </div>
+    @if(($venta->vigencia_dias ?? 0) > 0)
+    <div class="condicion-row">
+        <strong>Vigencia de la oferta:</strong>
+        {{ $venta->vigencia_dias }} días calendarios desde la fecha de emisión.
+    </div>
+    @endif
+    <div class="condicion-row">
+        <strong>Garantía Luminarias:</strong>
+        01 Año (en caso realicemos la instalación). Lámpara: 75% vida útil de lámpara.
+    </div>
+    @if($venta->observaciones)
+    <div class="condicion-row">
+        <strong>Notas:</strong> {{ $venta->observaciones }}
+    </div>
+    @endif
+    <div class="condicion-row">
+        <strong>Los precios están expresados en {{ $venta->moneda === 'USD' ? 'Dólares Americanos' : 'Soles Peruanos' }} y NO INCLUYEN el 18% I.G.V.</strong>
     </div>
 </div>
 
-{{-- VENDEDOR --}}
+{{-- ══ VENDEDOR ════════════════════════════════════════════════════ --}}
 <div class="vendedor-section">
     <div class="vendedor-info">
         @if($venta->vendedor)
             <div class="vendedor-nombre">{{ $venta->vendedor->name }}</div>
-            <div>{{ $venta->vendedor->role?->nombre ?? 'Ventas' }}</div>
-            <div>{{ $venta->vendedor->email }}</div>
+            <div style="color:#666;">{{ $venta->vendedor->role?->nombre ?? 'Ventas' }}</div>
+            @if($venta->vendedor->email)<div>{{ $venta->vendedor->email }}</div>@endif
             @if($venta->vendedor->telefono ?? null)<div>{{ $venta->vendedor->telefono }}</div>@endif
         @endif
     </div>
     <div class="vendedor-pagina">
         Pagina 1/1<br>
-        <span style="font-size:6.5pt;">kyrios.com.pe</span>
+        <span style="font-size:6.5pt;color:#bbb;">{{ $webEmp ?: 'kyrios.com.pe' }}</span>
     </div>
 </div>
 

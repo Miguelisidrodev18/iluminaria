@@ -1276,10 +1276,11 @@ function posApp() {
                 });
                 const data = await res.json();
                 if (!res.ok) {
-                    this.errorCliente = data.error || 'No se encontró información';
-                } else if (data.nombre || data.razon_social) {
-                    this.nuevoCliente.nombre    = data.nombre || data.razon_social || '';
-                    this.nuevoCliente.direccion = data.direccion || '';
+                    this.errorCliente = data.message || data.error || 'No se encontró información';
+                } else if (data.success && data.data) {
+                    const d = data.data;
+                    this.nuevoCliente.nombre    = d.nombre || d.razon_social || '';
+                    this.nuevoCliente.direccion = d.direccion || '';
                 } else {
                     this.errorCliente = 'No se encontró información para este documento';
                 }
