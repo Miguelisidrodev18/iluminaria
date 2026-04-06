@@ -301,7 +301,7 @@ function empresaForm() {
             this.sunatMsg = '';
 
             try {
-                const res = await fetch(`/admin/consultar-ruc/${this.ruc}`, {
+                const res = await fetch(`{{ url('/admin/consultar-ruc') }}/${this.ruc}`, {
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json',
