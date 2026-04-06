@@ -16,7 +16,7 @@ class EmpresaController extends Controller
     }
 
     /**
-     * Consultar datos de empresa por RUC en apis.net.pe (SUNAT).
+     * Consultar datos de empresa por RUC via apis.net.pe (acceso público v1).
      */
     public function consultarRuc(string $ruc)
     {
@@ -24,38 +24,30 @@ class EmpresaController extends Controller
             return response()->json(['error' => 'RUC inválido'], 422);
         }
 
-        $token = env('APIS_NET_PE_TOKEN', 'apis-token-demo');
-
         try {
-            $response = Http::withToken($token)
-                ->timeout(8)
+            $response = Http::timeout(10)
                 ->get('https://api.apis.net.pe/v1/ruc', ['numero' => $ruc]);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             return response()->json(['error' => 'No se pudo conectar con el servicio SUNAT. Verifique su conexión a internet.'], 502);
         }
 
         if ($response->failed()) {
-            return response()->json(['error' => 'No se pudo consultar el RUC. Verifica tu token de apis.net.pe.'], 502);
+            return response()->json(['error' => 'No se pudo consultar el RUC (código ' . $response->status() . ').'], 502);
         }
 
         $data = $response->json();
 
-        // v1 devuelve 'ubigeo' como string o array
-        $ubigeo = is_array($data['ubigeo'] ?? null)
-            ? ($data['ubigeo'][0] ?? '')
-            : ($data['ubigeo'] ?? '');
-
         return response()->json([
             'ruc'              => $data['numeroDocumento'] ?? $ruc,
-            'razon_social'     => $data['nombre'] ?? '',
+            'razon_social'     => $data['nombre']          ?? '',
             'nombre_comercial' => '',
-            'direccion'        => $data['direccion'] ?? '',
-            'departamento'     => $data['departamento'] ?? '',
-            'provincia'        => $data['provincia'] ?? '',
-            'distrito'         => $data['distrito'] ?? '',
-            'ubigeo'           => $ubigeo,
-            'estado'           => $data['estado'] ?? '',
-            'condicion'        => $data['condicion'] ?? '',
+            'direccion'        => $data['direccion']       ?? '',
+            'departamento'     => $data['departamento']    ?? '',
+            'provincia'        => $data['provincia']       ?? '',
+            'distrito'         => $data['distrito']        ?? '',
+            'ubigeo'           => $data['ubigeo']          ?? '',
+            'estado'           => $data['estado']          ?? '',
+            'condicion'        => $data['condicion']       ?? '',
         ]);
     }
 
