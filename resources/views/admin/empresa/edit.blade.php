@@ -301,38 +301,26 @@ function empresaForm() {
             this.sunatMsg = '';
 
             try {
-                const res = await fetch(`/admin/consultar-ruc/${this.ruc}`, {
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json',
-                    }
+                const res = await fetch(`https://api.apis.net.pe/v1/ruc?numero=${this.ruc}`, {
+                    headers: { 'Accept': 'application/json' }
                 });
-
-                let data;
-                try {
-                    data = await res.json();
-                } catch (jsonErr) {
-                    this.sunatOk = false;
-                    this.sunatMsg = 'Error de conexión al consultar SUNAT.';
-                    return;
-                }
 
                 if (!res.ok) {
                     this.sunatOk = false;
-                    this.sunatMsg = data.error ?? 'Error al consultar SUNAT.';
+                    this.sunatMsg = 'No se pudo consultar el RUC (código ' + res.status + ').';
                     return;
                 }
 
-                // Autocompletar campos
-                this.razon_social     = data.razon_social     || this.razon_social;
-                this.nombre_comercial = data.nombre_comercial || this.nombre_comercial;
-                this.direccion        = data.direccion        || this.direccion;
-                this.departamento     = data.departamento     || this.departamento;
-                this.provincia        = data.provincia        || this.provincia;
-                this.distrito         = data.distrito         || this.distrito;
-                this.ubigeo           = data.ubigeo           || this.ubigeo;
+                const data = await res.json();
 
-                const estado = data.estado ? ` · Estado: ${data.estado}` : '';
+                this.razon_social     = data.nombre       || this.razon_social;
+                this.direccion        = data.direccion    || this.direccion;
+                this.departamento     = data.departamento || this.departamento;
+                this.provincia        = data.provincia    || this.provincia;
+                this.distrito         = data.distrito     || this.distrito;
+                this.ubigeo           = data.ubigeo       || this.ubigeo;
+
+                const estado    = data.estado    ? ` · Estado: ${data.estado}`       : '';
                 const condicion = data.condicion ? ` · Condición: ${data.condicion}` : '';
                 this.sunatOk  = true;
                 this.sunatMsg = `Datos cargados correctamente${estado}${condicion}`;
