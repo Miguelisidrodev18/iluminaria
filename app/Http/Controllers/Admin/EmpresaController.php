@@ -24,18 +24,33 @@ class EmpresaController extends Controller
             return response()->json(['error' => 'RUC inválido'], 422);
         }
 
+        $url = 'https://api.apis.net.pe/v1/ruc?numero=' . $ruc;
+
         try {
-            $response = Http::timeout(10)
-                ->get('https://api.apis.net.pe/v1/ruc', ['numero' => $ruc]);
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            return response()->json(['error' => 'No se pudo conectar con el servicio SUNAT. Verifique su conexión a internet.'], 502);
+            $response = Http::withOptions(['verify' => false])
+                ->timeout(10)
+                ->get($url);
+            $data = $response->json();
+        } catch (\Throwable $e) {
+            // Fallback: file_get_contents para hostings con curl restringido
+            $ctx = stream_context_create([
+                'http' => [
+                    'method'  => 'GET',
+                    'header'  => "Accept: application/json\r\n",
+                    'timeout' => 10,
+                ],
+                'ssl' => ['verify_peer' => false, 'verify_peer_name' => false],
+            ]);
+            $raw = @file_get_contents($url, false, $ctx);
+            if ($raw === false) {
+                return response()->json(['error' => 'No se pudo conectar con el servicio SUNAT.'], 502);
+            }
+            $data = json_decode($raw, true);
         }
 
-        if ($response->failed()) {
-            return response()->json(['error' => 'No se pudo consultar el RUC (código ' . $response->status() . ').'], 502);
+        if (empty($data) || isset($data['error'])) {
+            return response()->json(['error' => 'RUC no encontrado o sin datos en SUNAT.'], 404);
         }
-
-        $data = $response->json();
 
         return response()->json([
             'ruc'              => $data['numeroDocumento'] ?? $ruc,

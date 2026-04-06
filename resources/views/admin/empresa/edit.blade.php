@@ -301,19 +301,27 @@ function empresaForm() {
             this.sunatMsg = '';
 
             try {
-                const res = await fetch(`https://api.apis.net.pe/v1/ruc?numero=${this.ruc}`, {
-                    headers: { 'Accept': 'application/json' }
+                const res = await fetch(`/admin/consultar-ruc/${this.ruc}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    }
                 });
 
-                if (!res.ok) {
+                let data;
+                try { data = await res.json(); } catch {
                     this.sunatOk = false;
-                    this.sunatMsg = 'No se pudo consultar el RUC (código ' + res.status + ').';
+                    this.sunatMsg = 'Error de conexión al consultar SUNAT.';
                     return;
                 }
 
-                const data = await res.json();
+                if (!res.ok) {
+                    this.sunatOk = false;
+                    this.sunatMsg = data.error ?? 'Error al consultar SUNAT.';
+                    return;
+                }
 
-                this.razon_social     = data.nombre       || this.razon_social;
+                this.razon_social     = data.razon_social || this.razon_social;
                 this.direccion        = data.direccion    || this.direccion;
                 this.departamento     = data.departamento || this.departamento;
                 this.provincia        = data.provincia    || this.provincia;
