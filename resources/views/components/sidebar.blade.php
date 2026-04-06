@@ -45,7 +45,7 @@
                     @if($empresa && $empresa->nombre_comercial && $empresa->nombre_comercial !== $empresa->razon_social)
                         <p class="text-[11px] text-[#F7D600] truncate">{{ $empresa->razon_social }}</p>
                     @elseif(!$empresa)
-                        <p class="text-[11px] text-[#F7D600] truncate">ADIVON SAC</p>
+                        <p class="text-[11px] text-[#F7D600] truncate">Luces & Entorno</p>
                     @endif
                 </div>
             </div>

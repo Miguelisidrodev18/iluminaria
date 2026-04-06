@@ -27,8 +27,8 @@ class AdminUserSeeder extends Seeder
             return;
         }
 
-        $email    = env('ADMIN_EMAIL', 'admin@importaciones.com');
-        $nombre   = env('ADMIN_NAME', 'Administrador');
+        $email    = env('ADMIN_EMAIL', 'admin@luminaria.com');
+        $nombre   = env('ADMIN_NAME', 'Arturo');
         $password = env('ADMIN_PASSWORD', 'Admin1234!');
 
         $user = User::updateOrCreate(
