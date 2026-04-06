@@ -26,9 +26,13 @@ class EmpresaController extends Controller
 
         $token = env('APIS_NET_PE_TOKEN', 'apis-token-demo');
 
-        $response = Http::withToken($token)
-            ->timeout(8)
-            ->get('https://api.apis.net.pe/v1/ruc', ['numero' => $ruc]);
+        try {
+            $response = Http::withToken($token)
+                ->timeout(8)
+                ->get('https://api.apis.net.pe/v1/ruc', ['numero' => $ruc]);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return response()->json(['error' => 'No se pudo conectar con el servicio SUNAT. Verifique su conexión a internet.'], 502);
+        }
 
         if ($response->failed()) {
             return response()->json(['error' => 'No se pudo consultar el RUC. Verifica tu token de apis.net.pe.'], 502);

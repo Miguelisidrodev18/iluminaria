@@ -307,7 +307,15 @@ function empresaForm() {
                         'Accept': 'application/json',
                     }
                 });
-                const data = await res.json();
+
+                let data;
+                try {
+                    data = await res.json();
+                } catch (jsonErr) {
+                    this.sunatOk = false;
+                    this.sunatMsg = 'Error de conexión al consultar SUNAT.';
+                    return;
+                }
 
                 if (!res.ok) {
                     this.sunatOk = false;
