@@ -253,15 +253,46 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">URL del API</label>
-                        <input type="url" name="api_url" value="{{ old('api_url', $empresa->api_url) }}" maxlength="300"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
-                            placeholder="https://api.mifacturador.pe">
+                        <input type="url" name="api_url" id="api_url_input"
+                               value="{{ old('api_url', $empresa->api_url) }}" maxlength="300"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
+                               placeholder="https://apigo.kodevo.es/api">
+                        <p class="text-xs text-gray-400 mt-1">URL base del servicio de facturación electrónica.</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">API Key / Token</label>
-                        <input type="password" name="api_key" maxlength="300"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
-                            placeholder="Dejar vacío para no cambiar">
+                        <input type="password" name="api_key" id="api_key_input" maxlength="300"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]"
+                               placeholder="Dejar vacío para no cambiar">
+                        <p class="text-xs text-gray-400 mt-1">Token Bearer que envía el proveedor de facturación.</p>
+                    </div>
+
+                    {{-- Test de conexión --}}
+                    <div class="md:col-span-2 mt-2">
+                        <div class="flex items-center gap-4">
+                            <button type="button" onclick="testApiConnection()"
+                                    class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
+                                <i class="fas fa-plug" id="test-icon"></i>
+                                <span id="test-label">Probar Conexión API</span>
+                            </button>
+                            <div id="test-result" class="hidden text-sm px-4 py-2 rounded-lg flex items-center gap-2"></div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">
+                            Guarda los cambios primero, luego prueba la conexión. El sistema enviará una petición de prueba al servidor de facturación.
+                        </p>
+                    </div>
+
+                    {{-- Info SUNAT modo --}}
+                    <div class="md:col-span-2 bg-blue-50 border border-blue-200 rounded-xl p-4 mt-2">
+                        <h4 class="text-sm font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                            <i class="fas fa-info-circle"></i> Flujo de Facturación Electrónica
+                        </h4>
+                        <ol class="text-xs text-blue-700 space-y-1 list-decimal list-inside">
+                            <li>Configura la <strong>URL del API</strong> y el <strong>API Key</strong> del proveedor (ej: apigo.kodevo.es).</li>
+                            <li>Ve a <strong>Admin → Sucursales</strong> y genera las series estándar (incluye tipo 09 = Guía de Remisión).</li>
+                            <li>Crea una guía en <strong>Ventas → Guías de Remisión</strong> y usa el botón <em>"Enviar a SUNAT"</em>.</li>
+                            <li>El sistema enviará el comprobante firmado y recibirás el PDF, XML y CDR de SUNAT.</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -278,6 +309,38 @@
 </div>
 
 <script>
+async function testApiConnection() {
+    const btn   = document.getElementById('test-label');
+    const icon  = document.getElementById('test-icon');
+    const result = document.getElementById('test-result');
+
+    btn.textContent = 'Probando...';
+    icon.className  = 'fas fa-spinner fa-spin';
+    result.className = 'hidden';
+
+    try {
+        const res = await fetch('{{ route('admin.empresa.test-api') }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+        const data = await res.json();
+
+        result.className = 'flex text-sm px-4 py-2 rounded-lg items-center gap-2 ' +
+            (data.success ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200');
+        result.innerHTML = `<i class="fas ${data.success ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${data.message}`;
+    } catch (e) {
+        result.className = 'flex text-sm px-4 py-2 rounded-lg items-center gap-2 bg-red-50 text-red-700 border border-red-200';
+        result.innerHTML = '<i class="fas fa-times-circle"></i> Error de conexión con el servidor.';
+    } finally {
+        btn.textContent = 'Probar Conexión API';
+        icon.className  = 'fas fa-plug';
+    }
+}
+
 function empresaForm() {
     return {
         tab: 'datos',

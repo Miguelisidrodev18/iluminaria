@@ -23,7 +23,8 @@
 
         {{-- Modal de confirmación de venta nueva --}}
         @if(request()->has('nuevo'))
-        <div x-data="{ show: true }" x-show="show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+        <div x-data="{ show: true }" x-show="show" x-cloak
+             class="fixed inset-0 z-50 flex items-center justify-center">
             <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="show = false"></div>
             <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden"
                  x-transition:enter="transition ease-out duration-300"
@@ -53,6 +54,30 @@
                         {{ ucfirst($venta->metodo_pago) }}
                     </div>
                     @endif
+                    {{-- Botón guía de remisión si se creó junto a la venta --}}
+                    @if(request()->has('guia_id'))
+                    <div class="mb-3 bg-blue-50 border border-blue-200 rounded-xl p-3 text-left">
+                        <p class="text-xs font-semibold text-blue-700 flex items-center gap-1.5 mb-2">
+                            <i class="fas fa-truck-moving"></i> Guía de Remisión Creada
+                        </p>
+                        <div class="flex gap-2">
+                            <a href="{{ route('guias-remision.show', request('guia_id')) }}"
+                               class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                <i class="fas fa-eye"></i> Ver Guía
+                            </a>
+                            <form action="{{ route('guias-remision.enviar-sunat', request('guia_id')) }}"
+                                  method="POST" class="flex-1"
+                                  onsubmit="return confirm('¿Enviar guía a SUNAT ahora?')">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                    <i class="fas fa-paper-plane"></i> Enviar SUNAT
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="flex gap-3">
                         @if($venta->tipo_comprobante !== 'cotizacion')
                         <a href="{{ route('ventas.pdf', [$venta, 'formato' => 'ticket']) }}" target="_blank"

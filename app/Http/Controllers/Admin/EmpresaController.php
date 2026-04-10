@@ -67,6 +67,54 @@ class EmpresaController extends Controller
     }
 
     /**
+     * Probar conexión con el API de facturación electrónica configurado.
+     */
+    public function testApi()
+    {
+        $empresa = Empresa::instancia();
+
+        if (!$empresa || empty($empresa->api_url)) {
+            return response()->json(['success' => false, 'message' => 'No hay URL de API configurada. Guarda los datos primero.']);
+        }
+
+        if (empty($empresa->api_key)) {
+            return response()->json(['success' => false, 'message' => 'No hay API Key configurada. Guarda los datos primero.']);
+        }
+
+        $url = rtrim($empresa->api_url, '/');
+
+        try {
+            $response = Http::timeout(10)
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $empresa->api_key,
+                    'Accept'        => 'application/json',
+                ])
+                ->get($url . '/status');
+
+            if ($response->successful()) {
+                return response()->json(['success' => true, 'message' => 'Conexión exitosa con el servidor de facturación (' . $response->status() . ').']);
+            }
+
+            // Algunos proveedores responden 200 solo en /ping o el root, probamos el root
+            $response2 = Http::timeout(10)
+                ->withHeaders([
+                    'Authorization' => 'Bearer ' . $empresa->api_key,
+                    'Accept'        => 'application/json',
+                ])
+                ->get($url);
+
+            if ($response2->status() < 500) {
+                return response()->json(['success' => true, 'message' => 'API alcanzable (HTTP ' . $response2->status() . '). Credenciales enviadas correctamente.']);
+            }
+
+            return response()->json(['success' => false, 'message' => 'El servidor respondió con error HTTP ' . $response->status() . '. Verifica la URL y el token.']);
+
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'No se pudo conectar: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
      * Mostrar formulario de configuración (singleton).
      */
     public function edit()

@@ -442,27 +442,104 @@
                     </div>
                 </div>
 
-                {{-- Envío a provincia (factura only) --}}
-                <div x-show="orden.tipoComprobante === 'factura'" x-cloak class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                {{-- Guía de Remisión Electrónica (factura/boleta) --}}
+                <div x-show="orden.tipoComprobante !== 'cotizacion'" x-cloak class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
                     <label class="flex items-center gap-3 cursor-pointer select-none">
                         <div class="relative shrink-0">
                             <input type="checkbox" x-model="orden.envioProvincia" class="sr-only">
-                            <div :class="orden.envioProvincia ? 'bg-[#F7D600] text-[#2B2E2C]' : 'bg-gray-200 dark:bg-gray-600'"
+                            <div :class="orden.envioProvincia ? 'bg-[#F7D600]' : 'bg-gray-200 dark:bg-gray-600'"
                                  class="w-9 h-5 rounded-full transition-colors"></div>
                             <div :class="orden.envioProvincia ? 'translate-x-4' : 'translate-x-0.5'"
                                  class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
                         </div>
-                        <span class="text-xs text-gray-600 dark:text-gray-300 font-medium">Incluir guía de remisión</span>
+                        <span class="text-xs text-gray-600 dark:text-gray-300 font-medium flex items-center gap-1.5">
+                            <i class="fas fa-truck-moving text-[#F7D600]"></i> Incluir guía de remisión
+                        </span>
                     </label>
-                    <div x-show="orden.envioProvincia" x-cloak class="mt-3 space-y-2">
-                        <input type="text" x-model="orden.guiaRemision" placeholder="N° Guía de remisión"
-                               class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
+
+                    <div x-show="orden.envioProvincia" x-cloak class="mt-3 space-y-2.5">
+
+                        {{-- Fecha traslado --}}
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" x-model="orden.transportista" placeholder="Transportista"
-                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
-                            <input type="text" x-model="orden.placaVehiculo" placeholder="Placa"
-                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400 uppercase">
+                            <div>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-1 uppercase tracking-wide">Fecha traslado</p>
+                                <input type="date" x-model="orden.guiaFechaTraslado"
+                                       class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-1 uppercase tracking-wide">Motivo</p>
+                                <select x-model="orden.guiaMotivo"
+                                        class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600]">
+                                    <option value="01">01 - Venta</option>
+                                    <option value="02">02 - Compra</option>
+                                    <option value="04">04 - Consignación</option>
+                                    <option value="13">13 - Otros</option>
+                                    <option value="14">14 - Venta a confirmar</option>
+                                </select>
+                            </div>
                         </div>
+
+                        {{-- Modalidad --}}
+                        <div class="flex gap-2">
+                            <button type="button" @click="orden.guiaModalidad = '01'"
+                                    :class="orden.guiaModalidad === '01' ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400'"
+                                    class="flex-1 py-1.5 border rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1">
+                                <i class="fas fa-truck text-xs"></i> Privado
+                            </button>
+                            <button type="button" @click="orden.guiaModalidad = '02'"
+                                    :class="orden.guiaModalidad === '02' ? 'bg-[#F7D600] text-[#2B2E2C] border-[#F7D600]' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400'"
+                                    class="flex-1 py-1.5 border rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1">
+                                <i class="fas fa-road text-xs"></i> Público
+                            </button>
+                        </div>
+
+                        {{-- Destino --}}
+                        <div>
+                            <p class="text-[10px] text-gray-400 dark:text-gray-500 mb-1 uppercase tracking-wide">
+                                <i class="fas fa-flag text-red-400 mr-1"></i>Punto de llegada
+                            </p>
+                            <div class="grid grid-cols-3 gap-2">
+                                <input type="text" x-model="orden.guiaLlegadaUbigeo" placeholder="Ubigeo" maxlength="6"
+                                       class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] font-mono placeholder-gray-400">
+                                <input type="text" x-model="orden.guiaLlegadaDireccion" placeholder="Dirección destino *"
+                                       class="col-span-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
+                            </div>
+                        </div>
+
+                        {{-- Transporte Privado --}}
+                        <div x-show="orden.guiaModalidad === '01'" class="space-y-2">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" x-model="orden.placaVehiculo" placeholder="Placa"
+                                       class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] uppercase placeholder-gray-400">
+                                <input type="text" x-model="orden.conductorNumDoc" placeholder="DNI conductor"
+                                       class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
+                            </div>
+                            <input type="text" x-model="orden.conductorNombre" placeholder="Nombre del conductor"
+                                   class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
+                            <input type="text" x-model="orden.conductorLicencia" placeholder="N° licencia (opcional)"
+                                   class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
+                        </div>
+
+                        {{-- Transporte Público --}}
+                        <div x-show="orden.guiaModalidad === '02'" class="space-y-2">
+                            <input type="text" x-model="orden.transportistaRuc" placeholder="RUC transportista"
+                                   class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] font-mono placeholder-gray-400">
+                            <input type="text" x-model="orden.transportistaNombre" placeholder="Razón social transportista"
+                                   class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
+                        </div>
+
+                        {{-- Peso / Bultos --}}
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" x-model="orden.guiaPeso" placeholder="Peso bruto (KG)" step="0.001" min="0"
+                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
+                            <input type="number" x-model="orden.guiaBultos" placeholder="N° bultos" min="1" step="1"
+                                   class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-[#F7D600] placeholder-gray-400">
+                        </div>
+
+                        <p class="text-[10px] text-emerald-500 flex items-center gap-1">
+                            <i class="fas fa-circle-check"></i>
+                            Se creará la guía electrónica automáticamente al cobrar.
+                        </p>
                     </div>
                 </div>
 
@@ -868,10 +945,23 @@ function crearOrden(id) {
         observaciones:   '',
         showNota:        false,
         tipoComprobante: 'boleta',
-        envioProvincia:  false,
-        guiaRemision:    '',
-        transportista:   '',
-        placaVehiculo:   '',
+        envioProvincia:      false,
+        guiaRemision:        '',
+        transportista:       '',
+        placaVehiculo:       '',
+        // Guía electrónica
+        guiaFechaTraslado:   new Date().toISOString().split('T')[0],
+        guiaMotivo:          '01',
+        guiaModalidad:       '01',
+        guiaLlegadaUbigeo:   '',
+        guiaLlegadaDireccion:'',
+        conductorNombre:     '',
+        conductorNumDoc:     '',
+        conductorLicencia:   '',
+        transportistaRuc:    '',
+        transportistaNombre: '',
+        guiaPeso:            '',
+        guiaBultos:          '',
         carrito:         [],
         pagos:           [{ metodo: 'efectivo', monto: 0 }],
         // Proforma fields
@@ -1185,9 +1275,24 @@ function posApp() {
                         cliente_id:       this.orden.clienteId || null,
                         observaciones:    this.orden.observaciones || null,
                         tipo_comprobante: this.orden.tipoComprobante,
-                        guia_remision:    this.orden.envioProvincia ? this.orden.guiaRemision : null,
-                        transportista:    this.orden.envioProvincia ? this.orden.transportista : null,
-                        placa_vehiculo:   this.orden.envioProvincia ? this.orden.placaVehiculo : null,
+                        guia_remision:            this.orden.envioProvincia ? this.orden.guiaRemision : null,
+                        transportista:            this.orden.envioProvincia ? this.orden.transportista : null,
+                        placa_vehiculo:           this.orden.envioProvincia ? this.orden.placaVehiculo : null,
+                        // Guía electrónica
+                        crear_guia_electronica:   this.orden.envioProvincia,
+                        guia_fecha_traslado:      this.orden.envioProvincia ? this.orden.guiaFechaTraslado : null,
+                        guia_motivo:              this.orden.envioProvincia ? this.orden.guiaMotivo : null,
+                        guia_modalidad:           this.orden.envioProvincia ? this.orden.guiaModalidad : null,
+                        guia_llegada_ubigeo:      this.orden.envioProvincia ? this.orden.guiaLlegadaUbigeo : null,
+                        guia_llegada_direccion:   this.orden.envioProvincia ? this.orden.guiaLlegadaDireccion : null,
+                        guia_conductor_nombre:    this.orden.envioProvincia ? this.orden.conductorNombre : null,
+                        guia_conductor_num_doc:   this.orden.envioProvincia ? this.orden.conductorNumDoc : null,
+                        guia_conductor_licencia:  this.orden.envioProvincia ? this.orden.conductorLicencia : null,
+                        guia_placa:               this.orden.envioProvincia ? this.orden.placaVehiculo : null,
+                        guia_transportista_ruc:   this.orden.envioProvincia ? this.orden.transportistaRuc : null,
+                        guia_transportista_nombre:this.orden.envioProvincia ? this.orden.transportistaNombre : null,
+                        guia_peso:                this.orden.envioProvincia ? (this.orden.guiaPeso || null) : null,
+                        guia_bultos:              this.orden.envioProvincia ? (this.orden.guiaBultos || null) : null,
                         metodo_pago:      metodoPago,
                         pagos_detalle:    pagosDetalle,
                         formato_impresion: this.formatoImpresion,
@@ -1206,7 +1311,9 @@ function posApp() {
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    window.location.href = '/ventas/' + data.venta_id + '?nuevo=1';
+                    let url = '/ventas/' + data.venta_id + '?nuevo=1';
+                    if (data.guia_id) url += '&guia_id=' + data.guia_id;
+                    window.location.href = url;
                 } else {
                     this.toast('error', data.error || data.message || 'Error al procesar la venta');
                     this.guardando = false;

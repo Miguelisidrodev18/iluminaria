@@ -23,7 +23,7 @@
             x-data="{
                 inventarioOpen: {{ request()->routeIs('inventario.*') ? 'true' : 'false' }},
                 comprasOpen: {{ request()->routeIs('compras.*') || request()->routeIs('pedidos.*') || request()->routeIs('proveedores.*') || request()->routeIs('cuentas-por-pagar.*') ? 'true' : 'false' }},
-                ventasOpen: {{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') || request()->routeIs('precios.*') || request()->routeIs('proyectos.*') ? 'true' : 'false' }},
+                ventasOpen: {{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') || request()->routeIs('precios.*') || request()->routeIs('proyectos.*') || request()->routeIs('guias-remision.*') ? 'true' : 'false' }},
                 reportesOpen: {{ request()->routeIs('reportes.*') ? 'true' : 'false' }},
                 trasladosOpen: {{ request()->routeIs('traslados.*') ? 'true' : 'false' }},
                 cajaOpen: {{ request()->routeIs('caja.*') ? 'true' : 'false' }},
@@ -128,6 +128,12 @@
                                 <a href="{{ route('ventas.cotizaciones') }}"
                                     class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.cotizaciones') ? 'bg-[#484E4A]' : '' }}">
                                     <i class="fas fa-file-contract mr-3 text-sm"></i>Cotizaciones
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('guias-remision.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('guias-remision.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-truck-moving mr-3 text-sm"></i>Guías de Remisión
                                 </a>
                             </li>
                             @can('editar_precios')

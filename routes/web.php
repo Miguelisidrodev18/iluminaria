@@ -47,6 +47,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CuentaPorPagarController;
 use App\Http\Controllers\ReporteVentasController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\GuiaRemisionController;
 
 // ===================== MIDDLEWARE =====================
 use App\Http\Middleware\VerifyMasterPassword;
@@ -388,6 +389,22 @@ Route::middleware('auth')->group(function () {
         Route::post('/{venta}/convertir', [VentaController::class, 'convertir'])->middleware('role:Administrador,Tienda')->name('convertir');
     });
     // ========================================
+    // MÓDULO DE GUÍAS DE REMISIÓN ELECTRÓNICAS
+    // ========================================
+    Route::prefix('guias-remision')->name('guias-remision.')->middleware('role:Administrador,Vendedor,Tienda')->group(function () {
+        Route::get('/',                                [GuiaRemisionController::class, 'index'])->name('index');
+        Route::get('/create',                          [GuiaRemisionController::class, 'create'])->name('create');
+        Route::post('/',                               [GuiaRemisionController::class, 'store'])->name('store');
+        Route::get('/{guiaRemision}',                  [GuiaRemisionController::class, 'show'])->name('show');
+        Route::get('/{guiaRemision}/edit',             [GuiaRemisionController::class, 'edit'])->name('edit');
+        Route::put('/{guiaRemision}',                  [GuiaRemisionController::class, 'update'])->name('update');
+        Route::delete('/{guiaRemision}',               [GuiaRemisionController::class, 'destroy'])->name('destroy');
+        Route::post('/{guiaRemision}/anular',          [GuiaRemisionController::class, 'anular'])->name('anular');
+        Route::post('/{guiaRemision}/enviar-sunat',    [GuiaRemisionController::class, 'enviarSunat'])->name('enviar-sunat');
+        Route::get('/{guiaRemision}/pdf',              [GuiaRemisionController::class, 'pdf'])->name('pdf');
+    });
+
+    // ========================================
     // MÓDULO DE REPORTES DE VENTAS
     // ========================================
     Route::middleware('role:Administrador')->prefix('reportes')->name('reportes.')->group(function () {
@@ -471,6 +488,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/empresa', [EmpresaController::class, 'edit'])->name('empresa.edit');
         Route::put('/empresa', [EmpresaController::class, 'update'])->name('empresa.update');
         Route::get('/consultar-ruc/{ruc}', [EmpresaController::class, 'consultarRuc'])->name('empresa.consultar-ruc');
+        Route::post('/empresa/test-api', [EmpresaController::class, 'testApi'])->name('empresa.test-api');
 
         // Sucursales
         Route::get('/sucursales', [SucursalController::class, 'index'])->name('sucursales.index');

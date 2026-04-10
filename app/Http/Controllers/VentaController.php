@@ -9,9 +9,12 @@ use App\Models\Producto;
 use App\Models\ProductoVariante;
 use App\Models\Almacen;
 use App\Models\Categoria;
+use App\Models\DetalleGuiaRemision;
+use App\Models\GuiaRemision;
 use App\Models\Imei;
 use App\Models\StockAlmacen;
 use App\Models\Sucursal;
+use App\Services\GuiaRemisionService;
 use App\Services\VentaService;
 use App\Services\VarianteService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -197,6 +200,21 @@ class VentaController extends Controller
             'detalles.*.variante_id'         => 'nullable|exists:producto_variantes,id',
             'detalles.*.cantidad'            => 'required|integer|min:1',
             'detalles.*.precio_unitario'     => 'required|numeric|min:0.01',
+            // Guía electrónica
+            'crear_guia_electronica'      => 'nullable|boolean',
+            'guia_fecha_traslado'         => 'nullable|date',
+            'guia_motivo'                 => 'nullable|string|max:2',
+            'guia_modalidad'              => 'nullable|in:01,02',
+            'guia_llegada_ubigeo'         => 'nullable|string|max:6',
+            'guia_llegada_direccion'      => 'nullable|string|max:300',
+            'guia_conductor_nombre'       => 'nullable|string|max:200',
+            'guia_conductor_num_doc'      => 'nullable|string|max:20',
+            'guia_conductor_licencia'     => 'nullable|string|max:50',
+            'guia_placa'                  => 'nullable|string|max:20',
+            'guia_transportista_ruc'      => 'nullable|string|max:11',
+            'guia_transportista_nombre'   => 'nullable|string|max:200',
+            'guia_peso'                   => 'nullable|numeric|min:0',
+            'guia_bultos'                 => 'nullable|integer|min:1',
             'detalles.*.imeis'               => 'nullable|array',
             'detalles.*.imeis.*.codigo_imei' => 'nullable|string',
             'moneda'                    => 'nullable|in:PEN,USD',
@@ -244,8 +262,20 @@ class VentaController extends Controller
                 $msg   = 'Venta registrada exitosamente.';
             }
 
+            // ── Crear guía de remisión electrónica automáticamente ──────────────
+            $guiaId = null;
+            if (!empty($validated['crear_guia_electronica']) && $tipoComprobante !== 'cotizacion') {
+                $guiaId = $this->crearGuiaDesdeVenta($venta, $validated);
+                if ($guiaId) {
+                    $msg .= ' Guía de remisión creada.';
+                }
+            }
+
             if ($request->wantsJson()) {
-                return response()->json(['venta_id' => $venta->id]);
+                return response()->json([
+                    'venta_id' => $venta->id,
+                    'guia_id'  => $guiaId,
+                ]);
             }
 
             return redirect()->route('ventas.show', $venta)->with('success', $msg);
@@ -421,10 +451,99 @@ class VentaController extends Controller
         ->get();
     
     return view('dashboards.tienda', compact(
-        'ventas_dia', 
-        'ventas_pendientes', 
-        'ventas_mes', 
+        'ventas_dia',
+        'ventas_pendientes',
+        'ventas_mes',
         'ultimas_ventas'
     ));
 }
+
+    // ── Helper: crear guía de remisión desde el POS ──────────────────────────
+
+    private function crearGuiaDesdeVenta(Venta $venta, array $data): ?int
+    {
+        try {
+            $user       = auth()->user();
+            $sucursalId = $user->sucursal_id ?? Sucursal::first()?->id;
+
+            if (!$sucursalId) return null;
+
+            $guiaService = app(GuiaRemisionService::class);
+            $serie = $guiaService->serieGuia($sucursalId);
+
+            if (!$serie) return null;
+
+            $empresa = Empresa::instancia();
+
+            $guia = GuiaRemision::create([
+                'serie_comprobante_id'  => $serie->id,
+                'correlativo'           => 0, // temporal, se asigna en siguienteCorrelativo
+                'cliente_id'            => $venta->cliente_id,
+                'venta_id'              => $venta->id,
+                'sucursal_id'           => $sucursalId,
+                'user_id'               => $user->id,
+                'fecha_emision'         => now()->toDateString(),
+                'fecha_traslado'        => $data['guia_fecha_traslado'] ?? now()->toDateString(),
+                'motivo_traslado'       => $data['guia_motivo']     ?? '01',
+                'modalidad_transporte'  => $data['guia_modalidad']  ?? '01',
+                'peso_bruto'            => $data['guia_peso']       ?? null,
+                'numero_bultos'         => $data['guia_bultos']     ?? null,
+                // Destinatario: se obtiene del cliente vinculado
+                'destinatario_tipo_doc' => $this->tipoDocSunat($venta->cliente?->tipo_documento),
+                'destinatario_num_doc'  => $venta->cliente?->numero_documento,
+                'destinatario_nombre'   => $venta->cliente?->nombre,
+                'destinatario_direccion'=> $venta->cliente?->direccion,
+                // Puntos
+                'partida_ubigeo'        => $empresa?->ubigeo,
+                'partida_direccion'     => $empresa?->direccion ?? '',
+                'llegada_ubigeo'        => $data['guia_llegada_ubigeo']    ?? null,
+                'llegada_direccion'     => $data['guia_llegada_direccion'] ?? '',
+                // Transporte privado
+                'placa_vehiculo'        => $data['guia_placa']              ?? null,
+                'conductor_nombre'      => $data['guia_conductor_nombre']   ?? null,
+                'conductor_tipo_doc'    => '1',
+                'conductor_num_doc'     => $data['guia_conductor_num_doc']  ?? null,
+                'conductor_licencia'    => $data['guia_conductor_licencia'] ?? null,
+                // Transporte público
+                'transportista_ruc'     => $data['guia_transportista_ruc']    ?? null,
+                'transportista_nombre'  => $data['guia_transportista_nombre'] ?? null,
+                'estado'                => 'borrador',
+            ]);
+
+            // Asignar correlativo real
+            $guiaService->asignarCorrelativo($guia);
+
+            // Crear ítems desde los detalles de la venta
+            $venta->load('detalles.producto');
+            foreach ($venta->detalles as $detalle) {
+                DetalleGuiaRemision::create([
+                    'guia_remision_id' => $guia->id,
+                    'producto_id'      => $detalle->producto_id,
+                    'codigo'           => $detalle->producto?->sku ?? $detalle->producto?->codigo ?? null,
+                    'descripcion'      => $detalle->producto?->nombre ?? 'Producto',
+                    'unidad_medida'    => $detalle->producto?->unidad_medida ?? 'NIU',
+                    'cantidad'         => $detalle->cantidad,
+                ]);
+            }
+
+            // Actualizar el campo de referencia en la venta
+            $venta->update(['guia_remision' => $guia->numero_guia]);
+
+            return $guia->id;
+
+        } catch (\Throwable $e) {
+            \Log::error('crearGuiaDesdeVenta error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function tipoDocSunat(?string $tipoDoc): string
+    {
+        return match($tipoDoc) {
+            'RUC' => '6',
+            'CE'  => '4',
+            'PAS' => '7',
+            default => '1', // DNI
+        };
+    }
 }
