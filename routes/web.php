@@ -302,6 +302,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('clientes')->name('clientes.')->middleware('role:Administrador,Vendedor,Tienda')->group(function () {
         Route::get('/', [ClienteController::class, 'index'])->name('index');
         Route::get('/exportar', [ClienteController::class, 'exportar'])->name('exportar');
+        Route::get('/difusion', [ClienteController::class, 'difusion'])->name('difusion');
+        Route::get('/difusion/exportar', [ClienteController::class, 'exportarWhatsapp'])->name('difusion.exportar');
         Route::get('/create', [ClienteController::class, 'create'])->name('create');
         Route::post('/', [ClienteController::class, 'store'])->name('store');
         Route::post('/consultar-documento', [ClienteController::class, 'consultarDocumento'])->name('consultar-documento');
@@ -569,6 +571,10 @@ Route::prefix('api')->name('api.')->middleware('auth')->group(function () {
     // Buscar cliente por documento
     Route::get('/clientes/buscar', [App\Http\Controllers\Api\ClienteController::class, 'buscarPorDocumento'])
         ->name('clientes.buscar');
+
+    // Búsqueda dinámica de clientes (autocomplete)
+    Route::get('/clientes/buscar-texto', [App\Http\Controllers\Api\ClienteController::class, 'buscarTexto'])
+        ->name('clientes.buscar-texto');
 
     // Obtener tipo de cambio del día
     Route::get('/tipo-cambio', [App\Http\Controllers\Api\TipoCambioController::class, 'obtener'])

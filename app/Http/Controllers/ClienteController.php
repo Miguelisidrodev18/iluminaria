@@ -16,8 +16,19 @@ class ClienteController extends Controller
         $query = Cliente::withCount(['visitas', 'proyectos'])
             ->with(['visitas' => fn ($q) => $q->latest('fecha_visita')->limit(1)]);
 
+        // El select unificado usa prefijo "etq:" para etiquetas, o el código directo para tipo_cliente
         if ($request->filled('tipo_cliente')) {
-            $query->where('tipo_cliente', $request->tipo_cliente);
+            $segmento = $request->tipo_cliente;
+            if (str_starts_with($segmento, 'etq:')) {
+                $query->conEtiqueta(substr($segmento, 4));
+            } else {
+                $query->where('tipo_cliente', $segmento);
+            }
+        }
+
+        // Compatibilidad con chips de etiqueta directa (URL: ?etiqueta=Mamá)
+        if ($request->filled('etiqueta') && !$request->filled('tipo_cliente')) {
+            $query->conEtiqueta($request->etiqueta);
         }
 
         if ($request->filled('buscar')) {
@@ -35,8 +46,9 @@ class ClienteController extends Controller
         $canCreate  = in_array(auth()->user()->role->nombre, ['Administrador', 'Vendedor', 'Tienda']);
         $canEdit    = in_array(auth()->user()->role->nombre, ['Administrador', 'Vendedor', 'Tienda']);
         $canDelete  = auth()->user()->role->nombre === 'Administrador';
+        $etiquetas  = array_keys(Cliente::ETIQUETAS_DISPONIBLES);
 
-        return view('clientes.index', compact('clientes', 'canCreate', 'canEdit', 'canDelete'));
+        return view('clientes.index', compact('clientes', 'canCreate', 'canEdit', 'canDelete', 'etiquetas'));
     }
 
     public function show(Cliente $cliente)
@@ -51,7 +63,8 @@ class ClienteController extends Controller
 
     public function create()
     {
-        return view('clientes.create');
+        $etiquetasDisponibles = Cliente::ETIQUETAS_DISPONIBLES;
+        return view('clientes.create', compact('etiquetasDisponibles'));
     }
 
     public function store(Request $request)
@@ -89,6 +102,9 @@ class ClienteController extends Controller
             'redes_empresa'    => 'nullable|string',
             'comision'         => 'nullable|numeric|min:0|max:100',
             'preferencias'     => 'nullable|string',
+            'etiquetas'        => 'nullable|array',
+            'etiquetas.*'      => 'string|in:' . implode(',', array_keys(Cliente::ETIQUETAS_DISPONIBLES)),
+            'acepta_whatsapp'  => 'boolean',
         ], [
             'apellidos.required' => 'Los apellidos son obligatorios',
             'nombres.required'   => 'Los nombres son obligatorios',
@@ -96,6 +112,8 @@ class ClienteController extends Controller
             'dni.unique'         => 'Este DNI ya está registrado',
             'numero_documento.unique' => 'Este documento ya está registrado',
         ]);
+
+        $validated['acepta_whatsapp'] = $request->boolean('acepta_whatsapp', true);
 
         // Sincronizar nombre legacy
         if (empty($validated['nombre'])) {
@@ -113,7 +131,8 @@ class ClienteController extends Controller
 
     public function edit(Cliente $cliente)
     {
-        return view('clientes.edit', compact('cliente'));
+        $etiquetasDisponibles = Cliente::ETIQUETAS_DISPONIBLES;
+        return view('clientes.edit', compact('cliente', 'etiquetasDisponibles'));
     }
 
     public function update(Request $request, Cliente $cliente)
@@ -148,11 +167,16 @@ class ClienteController extends Controller
             'redes_empresa'    => 'nullable|string',
             'comision'         => 'nullable|numeric|min:0|max:100',
             'preferencias'     => 'nullable|string',
+            'etiquetas'        => 'nullable|array',
+            'etiquetas.*'      => 'string|in:' . implode(',', array_keys(Cliente::ETIQUETAS_DISPONIBLES)),
+            'acepta_whatsapp'  => 'boolean',
         ], [
             'apellidos.required' => 'Los apellidos son obligatorios',
             'nombres.required'   => 'Los nombres son obligatorios',
             'celular.required'   => 'El celular es obligatorio',
         ]);
+
+        $validated['acepta_whatsapp'] = $request->boolean('acepta_whatsapp', true);
 
         // Sincronizar nombre legacy
         $validated['nombre'] = trim(($validated['apellidos'] ?? '') . ' ' . ($validated['nombres'] ?? ''));
@@ -194,7 +218,12 @@ class ClienteController extends Controller
         $query = Cliente::query();
 
         if ($request->filled('tipo_cliente')) {
-            $query->where('tipo_cliente', $request->tipo_cliente);
+            $segmento = $request->tipo_cliente;
+            if (str_starts_with($segmento, 'etq:')) {
+                $query->conEtiqueta(substr($segmento, 4));
+            } else {
+                $query->where('tipo_cliente', $segmento);
+            }
         }
         if ($request->filled('buscar')) {
             $b = $request->buscar;
@@ -212,35 +241,102 @@ class ClienteController extends Controller
         $ws->setTitle('Clientes');
 
         $cabeceras = [
-            'ID', 'Tipo', 'Apellidos', 'Nombres', 'DNI', 'Celular',
-            'Empresa', 'RUC', 'Correo Personal', 'Correo Empresa',
-            'Ocupación', 'Especialidad', 'Comisión', 'Fecha Registro',
+            'A' => 'ID',             'B' => 'Tipo',        'C' => 'Apellidos',
+            'D' => 'Nombres',        'E' => 'DNI',         'F' => 'Celular',
+            'G' => 'Empresa',        'H' => 'RUC',         'I' => 'Correo Personal',
+            'J' => 'Correo Empresa', 'K' => 'Ocupación',   'L' => 'Especialidad',
+            'M' => 'Etiquetas',      'N' => 'Acepta WhatsApp', 'O' => 'Comisión', 'P' => 'Fecha Registro',
         ];
 
         foreach ($cabeceras as $col => $cab) {
-            $ws->setCellValueByColumnAndRow($col + 1, 1, $cab);
+            $ws->setCellValue($col . '1', $cab);
         }
 
         foreach ($clientes as $i => $c) {
-            $fila = $i + 2;
-            $ws->setCellValueByColumnAndRow(1,  $fila, $c->id);
-            $ws->setCellValueByColumnAndRow(2,  $fila, $c->tipo_cliente);
-            $ws->setCellValueByColumnAndRow(3,  $fila, $c->apellidos);
-            $ws->setCellValueByColumnAndRow(4,  $fila, $c->nombres);
-            $ws->setCellValueByColumnAndRow(5,  $fila, $c->dni);
-            $ws->setCellValueByColumnAndRow(6,  $fila, $c->celular);
-            $ws->setCellValueByColumnAndRow(7,  $fila, $c->empresa);
-            $ws->setCellValueByColumnAndRow(8,  $fila, $c->ruc);
-            $ws->setCellValueByColumnAndRow(9,  $fila, $c->correo_personal);
-            $ws->setCellValueByColumnAndRow(10, $fila, $c->correo_empresa);
-            $ws->setCellValueByColumnAndRow(11, $fila, $c->ocupacion);
-            $ws->setCellValueByColumnAndRow(12, $fila, $c->especialidad);
-            $ws->setCellValueByColumnAndRow(13, $fila, $c->comision);
-            $ws->setCellValueByColumnAndRow(14, $fila, $c->fecha_registro?->format('d/m/Y'));
+            $row = $i + 2;
+            $ws->setCellValue("A{$row}", $c->id);
+            $ws->setCellValue("B{$row}", $c->tipo_cliente);
+            $ws->setCellValue("C{$row}", $c->apellidos);
+            $ws->setCellValue("D{$row}", $c->nombres);
+            $ws->setCellValue("E{$row}", $c->dni);
+            $ws->setCellValue("F{$row}", $c->celular);
+            $ws->setCellValue("G{$row}", $c->empresa);
+            $ws->setCellValue("H{$row}", $c->ruc);
+            $ws->setCellValue("I{$row}", $c->correo_personal);
+            $ws->setCellValue("J{$row}", $c->correo_empresa);
+            $ws->setCellValue("K{$row}", $c->ocupacion);
+            $ws->setCellValue("L{$row}", $c->especialidad);
+            $ws->setCellValue("M{$row}", implode(', ', $c->etiquetas ?? []));
+            $ws->setCellValue("N{$row}", $c->acepta_whatsapp ? 'Sí' : 'No');
+            $ws->setCellValue("O{$row}", $c->comision);
+            $ws->setCellValue("P{$row}", $c->fecha_registro?->format('d/m/Y'));
         }
 
         $writer   = new Xlsx($spreadsheet);
         $filename = 'clientes-' . now()->format('Y-m-d') . '.xlsx';
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    /**
+     * Vista de listas de difusión por etiqueta para WhatsApp.
+     */
+    public function difusion(Request $request)
+    {
+        $etiquetasDisponibles = Cliente::ETIQUETAS_DISPONIBLES;
+        $etiquetaSeleccionada = $request->input('etiqueta');
+
+        $clientes = collect();
+        $total    = 0;
+
+        if ($etiquetaSeleccionada) {
+            $clientes = Cliente::conEtiqueta($etiquetaSeleccionada)
+                ->paraWhatsapp()
+                ->orderBy('apellidos')
+                ->get(['id', 'apellidos', 'nombres', 'celular', 'correo_personal', 'empresa', 'etiquetas']);
+
+            $total = $clientes->count();
+        }
+
+        return view('clientes.difusion', compact('etiquetasDisponibles', 'etiquetaSeleccionada', 'clientes', 'total'));
+    }
+
+    /**
+     * Exporta lista de difusión WhatsApp (número + nombre) filtrada por etiqueta.
+     */
+    public function exportarWhatsapp(Request $request)
+    {
+        $request->validate([
+            'etiqueta' => 'required|string|in:' . implode(',', array_keys(Cliente::ETIQUETAS_DISPONIBLES)),
+        ]);
+
+        $clientes = Cliente::conEtiqueta($request->etiqueta)
+            ->paraWhatsapp()
+            ->orderBy('apellidos')
+            ->get(['apellidos', 'nombres', 'celular', 'empresa']);
+
+        $spreadsheet = new Spreadsheet();
+        $ws = $spreadsheet->getActiveSheet();
+        $ws->setTitle('Difusión WhatsApp');
+
+        $ws->setCellValue('A1', 'Nombre Completo');
+        $ws->setCellValue('B1', 'Celular');
+        $ws->setCellValue('C1', 'Empresa');
+
+        foreach ($clientes as $i => $c) {
+            $row = $i + 2;
+            $ws->setCellValue("A{$row}", strtoupper($c->apellidos) . ' ' . $c->nombres);
+            $ws->setCellValue("B{$row}", $c->celular);
+            $ws->setCellValue("C{$row}", $c->empresa);
+        }
+
+        $writer   = new Xlsx($spreadsheet);
+        $etiqueta = str_replace(['/', ' '], '-', $request->etiqueta);
+        $filename = 'difusion-' . $etiqueta . '-' . now()->format('Y-m-d') . '.xlsx';
 
         return response()->streamDownload(function () use ($writer) {
             $writer->save('php://output');

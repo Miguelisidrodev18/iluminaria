@@ -201,6 +201,57 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Preferencias de productos</label>
                                 <textarea name="preferencias" rows="2" class="{{ $inp }}">{{ $v('preferencias') }}</textarea>
                             </div>
+
+                            {{-- Etiquetas de segmentación --}}
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-tags mr-1 text-[#F7D600]"></i>
+                                    Etiquetas / Segmentos
+                                    <span class="text-xs text-gray-400 ml-1">(para listas de difusión WhatsApp)</span>
+                                </label>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($etiquetasDisponibles as $etiq => $meta)
+                                        @php
+                                            $colorClasses = [
+                                                'blue'   => 'border-blue-300 text-blue-700 peer-checked:bg-blue-100 peer-checked:border-blue-500',
+                                                'indigo' => 'border-indigo-300 text-indigo-700 peer-checked:bg-indigo-100 peer-checked:border-indigo-500',
+                                                'purple' => 'border-purple-300 text-purple-700 peer-checked:bg-purple-100 peer-checked:border-purple-500',
+                                                'pink'   => 'border-pink-300 text-pink-700 peer-checked:bg-pink-100 peer-checked:border-pink-500',
+                                                'green'  => 'border-green-300 text-green-700 peer-checked:bg-green-100 peer-checked:border-green-500',
+                                                'gray'   => 'border-gray-300 text-gray-600 peer-checked:bg-gray-100 peer-checked:border-gray-500',
+                                                'rose'   => 'border-rose-300 text-rose-700 peer-checked:bg-rose-100 peer-checked:border-rose-500',
+                                                'sky'    => 'border-sky-300 text-sky-700 peer-checked:bg-sky-100 peer-checked:border-sky-500',
+                                            ];
+                                            $cls = $colorClasses[$meta['color']] ?? $colorClasses['gray'];
+                                            $etiquetasActivas = old('etiquetas', $cliente->etiquetas ?? []);
+                                            $checked = in_array($etiq, $etiquetasActivas);
+                                            $inputId = 'etiq_' . Str::slug($etiq);
+                                        @endphp
+                                        <label for="{{ $inputId }}" class="cursor-pointer">
+                                            <input type="checkbox" id="{{ $inputId }}" name="etiquetas[]"
+                                                   value="{{ $etiq }}" class="sr-only peer" {{ $checked ? 'checked' : '' }}>
+                                            <span class="inline-flex items-center px-3 py-1.5 rounded-full border text-sm font-medium select-none
+                                                         transition-all {{ $cls }}">
+                                                {{ $etiq }}
+                                            </span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Acepta WhatsApp --}}
+                            <div class="md:col-span-2">
+                                <label class="inline-flex items-center gap-2 cursor-pointer">
+                                    <input type="hidden" name="acepta_whatsapp" value="0">
+                                    <input type="checkbox" name="acepta_whatsapp" value="1"
+                                           class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                                           {{ old('acepta_whatsapp', $cliente->acepta_whatsapp ? '1' : '0') === '1' ? 'checked' : '' }}>
+                                    <span class="text-sm text-gray-700">
+                                        <i class="fab fa-whatsapp text-green-500 mr-1"></i>
+                                        Acepta recibir difusiones por WhatsApp
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 

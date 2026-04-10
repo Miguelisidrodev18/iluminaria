@@ -375,15 +375,15 @@ class ImportadorMasivoService
 
                         // ── Dimensiones ───────────────────────────────────────
                         $dimData = array_filter([
-                            'alto'              => $this->normNum($fila['alto_mm'] ?? ''),
-                            'ancho'             => $this->normNum($fila['ancho_mm'] ?? ''),
-                            'diametro'          => $this->normNum($fila['diametro_mm'] ?? ''),
-                            'lado'              => $this->normNum($fila['lado_mm'] ?? ''),
-                            'profundidad'       => $this->normNum($fila['profundidad_mm'] ?? '')
-                                                ?? $this->normNum($fila['salida_mm'] ?? ''), // alias
-                            'alto_suspendido'   => $this->normNum($fila['alto_suspendido_mm'] ?? ''),
-                            'diametro_agujero'  => $this->normNum($fila['diametro_agujero_mm'] ?? ''),
-                            'ancho_agujero'     => $this->normNum($fila['ancho_suspendido_mm'] ?? ''), // alias
+                            'alto'               => $this->normNum($fila['alto_mm'] ?? ''),
+                            'ancho'              => $this->normNum($fila['ancho_mm'] ?? ''),
+                            'diametro'           => $this->normNum($fila['diametro_mm'] ?? ''),
+                            'lado'               => $this->normNum($fila['lado_mm'] ?? ''),
+                            'profundidad'        => $this->normNum($fila['profundidad_mm'] ?? ''),
+                            'alto_suspendido'    => $this->normNum($fila['alto_suspendido_mm'] ?? ''),
+                            'diametro_agujero'   => $this->normNum($fila['diametro_agujero_mm'] ?? ''),
+                            'ancho_agujero'      => $this->normNum($fila['ancho_agujero_mm'] ?? ''),
+                            'profundidad_agujero'=> $this->normNum($fila['profundidad_agujero_mm'] ?? ''),
                         ], fn($v) => $v !== null);
 
                         if ($dimData) {

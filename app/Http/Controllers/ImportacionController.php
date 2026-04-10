@@ -142,12 +142,14 @@ class ImportacionController extends Controller
                 'nombre'   => 'DIMENSIONES',
                 'color'    => '4472C4',
                 'cabeceras' => [
-                    'codigo_fabrica','salida_mm','alto_mm','ancho_mm','diametro_mm',
-                    'lado_mm','profundidad_mm','alto_suspendido_mm','ancho_suspendido_mm',
-                    'diametro_agujero_mm','material_1','material_2','material_3',
+                    'codigo_fabrica',
+                    'alto_mm','ancho_mm','diametro_mm','lado_mm',
+                    'profundidad_mm','alto_suspendido_mm',
+                    'diametro_agujero_mm','ancho_agujero_mm','profundidad_agujero_mm',
+                    'material_1','material_2','material_3',
                 ],
                 'ejemplo' => [
-                    '25-0573-N3-B9','','180','','300','','','','','','aluminio','','',
+                    '25-0573-N3-B9','180','','300','','','','135','','','aluminio','','',
                 ],
             ],
             [
