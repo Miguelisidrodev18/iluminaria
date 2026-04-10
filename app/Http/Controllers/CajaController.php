@@ -66,10 +66,15 @@ class CajaController extends Controller
                 ->with('info', 'Ya tienes una caja abierta.');
         }
 
-        $user = auth()->user();
+        $user    = auth()->user();
+        $isAdmin = $user->role->nombre === 'Administrador';
         $almacen = $user->almacen ?? null;
 
-        return view('caja.abrir', compact('almacen'));
+        $almacenes = $isAdmin && !$almacen
+            ? \App\Models\Almacen::with('sucursal')->where('estado', 'activo')->orderBy('nombre')->get()
+            : collect();
+
+        return view('caja.abrir', compact('almacen', 'almacenes', 'isAdmin'));
     }
 
     /**
@@ -77,15 +82,28 @@ class CajaController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'monto_inicial'    => 'required|numeric|min:0',
-            'observaciones'    => 'nullable|string|max:500',
-        ]);
+        $user    = auth()->user();
+        $isAdmin = $user->role->nombre === 'Administrador';
+
+        $rules = [
+            'monto_inicial'  => 'required|numeric|min:0',
+            'observaciones'  => 'nullable|string|max:500',
+        ];
+
+        if ($isAdmin && !$user->almacen_id) {
+            $rules['almacen_id'] = 'required|exists:almacenes,id';
+        }
+
+        $validated = $request->validate($rules);
+
+        $almacenId = $isAdmin && isset($validated['almacen_id'])
+            ? (int) $validated['almacen_id']
+            : null;
 
         try {
             $this->cajaService->abrirCaja(
                 auth()->id(),
-                null, // almacen_id auto desde usuario
+                $almacenId,
                 (float) $validated['monto_inicial'],
                 $validated['observaciones'] ?? null
             );

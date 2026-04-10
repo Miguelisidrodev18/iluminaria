@@ -35,6 +35,7 @@ use App\Http\Controllers\AlmacenController;
 
 // ===================== NUEVOS MÓDULOS =====================
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\ProveedorImportadorController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\CompraController;
@@ -290,6 +291,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [ProveedorController::class, 'index'])->name('index');
         Route::get('/create', [ProveedorController::class, 'create'])->name('create');
         Route::post('/', [ProveedorController::class, 'store'])->name('store');
+        // Importación masiva (before /{proveedor} to avoid param capture)
+        Route::prefix('importar')->name('importar.')->group(function () {
+            Route::get('/', [ProveedorImportadorController::class, 'index'])->name('index');
+            Route::get('/plantilla', [ProveedorImportadorController::class, 'descargarPlantilla'])->name('plantilla');
+            Route::post('/', [ProveedorImportadorController::class, 'store'])->name('store');
+            Route::get('/errores', [ProveedorImportadorController::class, 'descargarErrores'])->name('errores');
+        });
         Route::get('/{proveedor}', [ProveedorController::class, 'show'])->name('show');
         Route::get('/{proveedor}/edit', [ProveedorController::class, 'edit'])->name('edit');
         Route::put('/{proveedor}', [ProveedorController::class, 'update'])->name('update');

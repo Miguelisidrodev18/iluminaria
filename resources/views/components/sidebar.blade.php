@@ -158,8 +158,14 @@
                         <ul x-show="comprasOpen" x-transition class="ml-4 mt-2 space-y-1">
                             <li>
                                 <a href="{{ route('proveedores.index') }}"
-                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.*') ? 'bg-[#484E4A]' : '' }}">
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.index') || request()->routeIs('proveedores.show') || request()->routeIs('proveedores.create') || request()->routeIs('proveedores.edit') ? 'bg-[#484E4A]' : '' }}">
                                     <i class="fas fa-truck mr-3 text-sm"></i>Proveedores
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('proveedores.importar.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.importar.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-file-upload mr-3 text-sm"></i>Importar Proveedores
                                 </a>
                             </li>
                             <li>
@@ -483,8 +489,14 @@
                         <ul x-show="comprasOpen" x-transition class="ml-4 mt-2 space-y-1">
                             <li>
                                 <a href="{{ route('proveedores.index') }}"
-                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.*') ? 'bg-[#484E4A]' : '' }}">
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.index') || request()->routeIs('proveedores.show') || request()->routeIs('proveedores.create') || request()->routeIs('proveedores.edit') ? 'bg-[#484E4A]' : '' }}">
                                     <i class="fas fa-truck mr-3 text-sm"></i>Proveedores
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('proveedores.importar.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.importar.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-file-upload mr-3 text-sm"></i>Importar Proveedores
                                 </a>
                             </li>
                             <li>
