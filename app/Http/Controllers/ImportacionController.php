@@ -288,6 +288,8 @@ class ImportacionController extends Controller
             ],
         ];
 
+        $tiposProyecto = \App\Models\Luminaria\TipoProyecto::orderBy('nombre')->get();
+
         $spreadsheet->removeSheetByIndex(0); // quitar hoja vacía inicial
 
         foreach ($hojas as $i => $def) {
@@ -351,6 +353,96 @@ class ImportacionController extends Controller
             // Congelar primera fila
             $ws->freezePane('A2');
         }
+
+        // ── CLASIFICACIONES_PROYECTO (matriz con X) ──────────────────────────
+        $coordFn = fn(int $col) => \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col);
+
+        $ambientesPorGrupo = [
+            'AMBIENTE RESIDENCIAL'           => ['FACHADA','INGRESO/HALL','BAÑO DE VISITA','ESCRITORIO','SALA','COMEDOR','TERRAZA','JARDIN','COCINA','DORMITORIO','SSHH','SALA DE TV','WALKING CLOSET','AREA DE SERVICIO'],
+            'AMBIENTE COMERCIAL'             => ['VITRINA','COUNTER','SHOWROOM','MUEBLE VITRINA','EXHIBIDOR','MESA ATENCIÓN','PROBADORES','ESTACIONAMIENTO'],
+            'AMBIENTE OFICINA'               => ['RECEPCIÓN','OFICINAS ABIERTAS','OFICINAS CERRADAS','SALA DE REUNIONES','DIRECTORIO','KITCHENETTE','ARCHIVADOR'],
+            'AMBIENTE HOTELERO'              => ['LOBBY','BUSINESS CENTER','SUM','CORREDORES','RESTAURANTE','BAR','HABITACIÓN','GIMNASIO','SPA'],
+            'AMBIENTE RESTAURANTE'           => ['SALÓN','BUFFET','DEPOSITO','DIRECTORIOS'],
+            'AMBIENTE LABORATORIO'           => ['LABORATORIOS'],
+            'AMBIENTE CENTRO MÉDICO'         => ['CONSULTORIO','QUIROFANO','SALA DE ESPERA'],
+            'AMBIENTE ESTACIÓN DE SERVICIOS' => ['TIENDA','ZONA DE MESAS','ISLAS DE ATENCIÓN'],
+            'AMBIENTE PAISAJISMO'            => ['PERÍMETROS','JARDINERA','MACIZOS','ARBOLES Y PLANTAS ALTAS','CERCOS VIVOS/JARDIN VERTICAL','ESPEJO DE AGUA/PILETAS','PÉRGOLA','CAMINOS','JARDINES'],
+            'AMBIENTE CLUBES'                => ['ZONA DE JUEGOS','CANCHAS DEPORTIVAS','SALONES SOCIALES','INGRESOS PRIVADOS','PISTA INTERNA','CLUB HOUSE'],
+            'AMBIENTE CONDOMINIOS'           => ['CINES','PISCINA'],
+            'AMBIENTE URBANO'                => ['ORNAMENTAL','ALAMEDAS','PARQUES','VEREDAS','PÉRGOLAS','SALONES'],
+        ];
+
+        $wsCp = new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet($spreadsheet, 'CLASIFICACIONES_PROYECTO');
+        $spreadsheet->addSheet($wsCp);
+        $wsCp->getTabColor()->setRGB('C000C0');
+
+        $row1cp   = [];
+        $row2cp   = [];
+        $gruposCp = [];
+        $ambColorsCp = ['006064','00695C','00838F','0277BD','283593','4527A0','5D4037','37474F','1B5E20','4A148C','BF360C','4E342E'];
+
+        $row1cp[] = 'codigo_fabrica';
+        $row2cp[] = 'codigo_fabrica';
+
+        $tpNombresCp = $tiposProyecto->pluck('nombre')->toArray();
+        if (!empty($tpNombresCp)) {
+            $gStart = count($row1cp);
+            foreach ($tpNombresCp as $nombre) { $row1cp[] = ''; $row2cp[] = mb_strtoupper($nombre, 'UTF-8'); }
+            $gruposCp[] = ['name' => 'TIPO DE PROYECTO', 'start' => $gStart, 'end' => count($row1cp) - 1, 'color' => '1565C0'];
+        }
+
+        $ambIdx = 0;
+        foreach ($ambientesPorGrupo as $groupName => $ambList) {
+            if (empty($ambList)) continue;
+            $gStart = count($row1cp);
+            foreach ($ambList as $lbl) { $row1cp[] = ''; $row2cp[] = mb_strtoupper($lbl, 'UTF-8'); }
+            $gruposCp[] = ['name' => $groupName, 'start' => $gStart, 'end' => count($row1cp) - 1, 'color' => $ambColorsCp[$ambIdx % count($ambColorsCp)]];
+            $ambIdx++;
+        }
+
+        $gStart = count($row1cp);
+        foreach (array_values(\App\Models\Luminaria\ProductoClasificacion::USOS_PRODUCTO) as $lbl) { $row1cp[] = ''; $row2cp[] = mb_strtoupper($lbl, 'UTF-8'); }
+        $gruposCp[] = ['name' => 'USO', 'start' => $gStart, 'end' => count($row1cp) - 1, 'color' => '6A1B9A'];
+
+        $gStart = count($row1cp);
+        foreach (array_values(\App\Models\Luminaria\ProductoClasificacion::TIPOS_INSTALACION) as $lbl) { $row1cp[] = ''; $row2cp[] = mb_strtoupper($lbl, 'UTF-8'); }
+        $gruposCp[] = ['name' => 'TIPO DE INSTALACIÓN', 'start' => $gStart, 'end' => count($row1cp) - 1, 'color' => '2E7D32'];
+
+        $gStart = count($row1cp);
+        foreach (\App\Models\Luminaria\ProductoClasificacion::ESTILOS_SUGERIDOS as $est) { $row1cp[] = ''; $row2cp[] = mb_strtoupper($est, 'UTF-8'); }
+        $gruposCp[] = ['name' => 'ESTILO', 'start' => $gStart, 'end' => count($row1cp) - 1, 'color' => 'E65100'];
+
+        $nTotalCp = count($row1cp);
+        foreach ($gruposCp as $g) { $row1cp[$g['start']] = $g['name']; }
+
+        $wsCp->fromArray([$row1cp], null, 'A1');
+        $wsCp->fromArray([$row2cp], null, 'A2');
+
+        foreach ($gruposCp as $g) {
+            if ($g['start'] < $g['end']) {
+                $wsCp->mergeCells($coordFn($g['start'] + 1) . '1:' . $coordFn($g['end'] + 1) . '1');
+            }
+        }
+
+        $baseStyleCp = [
+            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
+            'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'AAAAAA']]],
+        ];
+        $darkFillCp = ['fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '2B2E2C']]];
+        $wsCp->getStyle('A1')->applyFromArray(array_merge($baseStyleCp, $darkFillCp));
+        $wsCp->getStyle('A2')->applyFromArray(array_merge($baseStyleCp, $darkFillCp));
+        foreach ($gruposCp as $g) {
+            $gs = array_merge($baseStyleCp, ['fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $g['color']]]]);
+            $wsCp->getStyle($coordFn($g['start'] + 1) . '1:' . $coordFn($g['end'] + 1) . '1')->applyFromArray($gs);
+            $wsCp->getStyle($coordFn($g['start'] + 1) . '2:' . $coordFn($g['end'] + 1) . '2')->applyFromArray($gs);
+        }
+
+        $wsCp->getRowDimension(1)->setRowHeight(22);
+        $wsCp->getRowDimension(2)->setRowHeight(65);
+        $wsCp->getColumnDimension('A')->setWidth(22);
+        for ($c = 2; $c <= $nTotalCp; $c++) { $wsCp->getColumnDimensionByColumn($c)->setWidth(14); }
+        $wsCp->freezePane('B3');
 
         $writer   = new Xlsx($spreadsheet);
         $filename = 'plantilla_importacion_kyrios.xlsx';

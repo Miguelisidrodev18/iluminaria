@@ -220,77 +220,30 @@ class ImportadorProductosController extends Controller
         $applyStyle($ws, 'A3:P4', $styleExample);
         foreach (range('A', 'P') as $c) $ws->getColumnDimension($c)->setAutoSize(true);
 
-        // ── 6. CLASIFICACIONES (formato matriz con X) ────────────────────────
+        // ── 6. CLASIFICACIONES (texto plano — 6 columnas para rellenar con comas) ──
         $ws = new Worksheet($spreadsheet, 'CLASIFICACIONES');
         $spreadsheet->addSheet($ws);
-
-        $usoKeys    = array_keys(ProductoClasificacion::USOS_PRODUCTO);
-        $usoLabels  = array_values(ProductoClasificacion::USOS_PRODUCTO);
-        $instKeys   = array_keys(ProductoClasificacion::TIPOS_INSTALACION);
-        $instLabels = array_values(ProductoClasificacion::TIPOS_INSTALACION);
-        $estilosList= ProductoClasificacion::ESTILOS_SUGERIDOS;
-
-        // Columnas: [codigo_fabrica, ambiente, tipo_proyecto] + usos + instalaciones + estilos
-        $fixedCols = ['codigo_fabrica', 'ambiente', 'tipo_proyecto'];
-        $nFijo     = count($fixedCols);
-        $nUso      = count($usoKeys);
-        $nInst     = count($instKeys);
-        $nEst      = count($estilosList);
-        $allColKeys = array_merge($fixedCols, $usoKeys, $instKeys, $estilosList);
-        $nTotal     = count($allColKeys);
-
-        $coord = fn(int $col) => \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col);
-
-        // ── Fila 1: cabeceras de grupo (visual) ───
-        $row1 = array_fill(0, $nTotal, '');
-        $row1[0] = 'codigo_fabrica';
-        $row1[1] = 'ambiente';
-        $row1[2] = 'tipo_proyecto';
-        $row1[$nFijo]            = 'USO';
-        $row1[$nFijo + $nUso]    = 'TIPO DE INSTALACIÓN';
-        $row1[$nFijo + $nUso + $nInst] = 'ESTILOS';
-        $ws->fromArray([$row1], null, 'A1');
-
-        // ── Fila 2: claves reales (usa el parser) ─
-        $ws->fromArray([$allColKeys], null, 'A2');
-
-        // ── Fila 3: etiquetas amigables (se omite al parsear) ─
-        $row3 = array_merge(
-            ['↑ igual que completo_kyrios', 'Ej: Sala, Cocina', 'Ver hoja TIPOS_PROYECTO'],
-            $usoLabels, $instLabels, $estilosList
-        );
-        $ws->fromArray([$row3], null, 'A3');
-
-        // ── Fila 4: ejemplo ──
-        $exRow = array_fill(0, $nTotal, '');
-        $exRow[0] = 'DL-8W-001';
-        $exRow[1] = 'Sala, Cocina';
-        $exRow[2] = $tiposProyecto->first()?->nombre ?? '';
-        $exRow[$nFijo + array_search('interior', $usoKeys)]          = 'x';
-        $exRow[$nFijo + $nUso + array_search('colgante', $instKeys)]  = 'x';
-        $ws->fromArray([$exRow], null, 'A4');
-
-        // ── Estilos ──
-        $lastCol = $coord($nTotal);
-        // Fila 1: fondo negro en fijos, azul en USO, verde en INST, naranja en ESTILOS
-        $applyStyle($ws, 'A1:C1', $styleHeader);
-        $usoC1  = $coord($nFijo + 1);         $usoC2  = $coord($nFijo + $nUso);
-        $instC1 = $coord($nFijo + $nUso + 1); $instC2 = $coord($nFijo + $nUso + $nInst);
-        $estC1  = $coord($nFijo + $nUso + $nInst + 1); $estC2 = $coord($nTotal);
-        $ws->getStyle("{$usoC1}1:{$usoC2}1")->applyFromArray(['font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']], 'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '1565C0']]]);
-        $ws->getStyle("{$instC1}1:{$instC2}1")->applyFromArray(['font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']], 'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '2E7D32']]]);
-        $ws->getStyle("{$estC1}1:{$estC2}1")->applyFromArray(['font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']], 'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E65100']]]);
-        // Fila 2: claves (ref oscuro)
-        $applyStyle($ws, "A2:{$lastCol}2", $styleRef);
-        // Fila 3: nota
-        $applyStyle($ws, "A3:{$lastCol}3", $styleNote);
-        // Fila 4: ejemplo
-        $applyStyle($ws, "A4:{$lastCol}4", $styleExample);
-        // Congelar columna A y filas 1-2
-        $ws->freezePane('D4');
-        for ($c = 1; $c <= $nTotal; $c++) {
-            $ws->getColumnDimensionByColumn($c)->setAutoSize(true);
-        }
+        $ws->fromArray([['codigo_fabrica','uso','tipo_proyecto','ambiente','instalacion','estilo']], null, 'A1');
+        $applyStyle($ws, 'A1:F1', $styleHeader);
+        $ws->fromArray([[
+            null,
+            'Valores: interiores | exteriores | alumbrado_publico | piscina  (separar con coma)',
+            'Nombre exacto del tipo de proyecto — múltiples separados por coma',
+            'Nombre del ambiente — múltiples separados por coma (ej: Sala, Cocina, Dormitorio)',
+            'Ver hoja INSTALACION_VALORES — múltiples separados por coma',
+            'Ver hoja ESTILOS_VALORES — múltiples separados por coma',
+        ]], null, 'A2');
+        $applyStyle($ws, 'A2:F2', $styleNote);
+        $ws->fromArray([[
+            '',
+            'interiores, exteriores',
+            $tiposProyecto->first()?->nombre ?? 'Residencial',
+            'Sala, Cocina, Dormitorio',
+            'plafon, colgante',
+            'Moderno, Minimalista',
+        ]], null, 'A3');
+        $applyStyle($ws, 'A3:F3', $styleExample);
+        foreach (['A','B','C','D','E','F'] as $c) $ws->getColumnDimension($c)->setAutoSize(true);
 
         // ── 7. COMPONENTES ───────────────────────────────────────────────────
         $ws = new Worksheet($spreadsheet, 'COMPONENTES');
@@ -411,6 +364,101 @@ class ImportadorProductosController extends Controller
         }
         $ws->getColumnDimension('A')->setAutoSize(true);
 
+        // ── 16. CLASIFICACIONES_PROYECTO (matriz con X — una columna por opción) ──
+        $ws = new Worksheet($spreadsheet, 'CLASIFICACIONES_PROYECTO');
+        $spreadsheet->addSheet($ws);
+
+        $coord = fn(int $col) => \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col);
+
+        $ambientesPorGrupo = [
+            'AMBIENTE RESIDENCIAL'           => ['FACHADA','INGRESO/HALL','BAÑO DE VISITA','ESCRITORIO','SALA','COMEDOR','TERRAZA','JARDIN','COCINA','DORMITORIO','SSHH','SALA DE TV','WALKING CLOSET','AREA DE SERVICIO'],
+            'AMBIENTE COMERCIAL'             => ['VITRINA','COUNTER','SHOWROOM','MUEBLE VITRINA','EXHIBIDOR','MESA ATENCIÓN','PROBADORES','ESTACIONAMIENTO'],
+            'AMBIENTE OFICINA'               => ['RECEPCIÓN','OFICINAS ABIERTAS','OFICINAS CERRADAS','SALA DE REUNIONES','DIRECTORIO','KITCHENETTE','ARCHIVADOR'],
+            'AMBIENTE HOTELERO'              => ['LOBBY','BUSINESS CENTER','SUM','CORREDORES','RESTAURANTE','BAR','HABITACIÓN','GIMNASIO','SPA'],
+            'AMBIENTE RESTAURANTE'           => ['SALÓN','BUFFET','DEPOSITO','DIRECTORIOS'],
+            'AMBIENTE LABORATORIO'           => ['LABORATORIOS'],
+            'AMBIENTE CENTRO MÉDICO'         => ['CONSULTORIO','QUIROFANO','SALA DE ESPERA'],
+            'AMBIENTE ESTACIÓN DE SERVICIOS' => ['TIENDA','ZONA DE MESAS','ISLAS DE ATENCIÓN'],
+            'AMBIENTE PAISAJISMO'            => ['PERÍMETROS','JARDINERA','MACIZOS','ARBOLES Y PLANTAS ALTAS','CERCOS VIVOS/JARDIN VERTICAL','ESPEJO DE AGUA/PILETAS','PÉRGOLA','CAMINOS','JARDINES'],
+            'AMBIENTE CLUBES'                => ['ZONA DE JUEGOS','CANCHAS DEPORTIVAS','SALONES SOCIALES','INGRESOS PRIVADOS','PISTA INTERNA','CLUB HOUSE'],
+            'AMBIENTE CONDOMINIOS'           => ['CINES','PISCINA'],
+            'AMBIENTE URBANO'                => ['ORNAMENTAL','ALAMEDAS','PARQUES','VEREDAS','PÉRGOLAS','SALONES'],
+        ];
+
+        $usoLabelsM   = array_values(ProductoClasificacion::USOS_PRODUCTO);
+        $instLabelsM  = array_values(ProductoClasificacion::TIPOS_INSTALACION);
+        $estilosListM = ProductoClasificacion::ESTILOS_SUGERIDOS;
+        $tpNombresM   = $tiposProyecto->pluck('nombre')->toArray();
+
+        $row1M   = [];
+        $row2M   = [];
+        $gruposM = [];
+        $ambColorsM = ['006064','00695C','00838F','0277BD','283593','4527A0','5D4037','37474F','1B5E20','4A148C','BF360C','4E342E'];
+
+        $row1M[] = 'codigo_fabrica';
+        $row2M[] = 'codigo_fabrica';
+
+        if (!empty($tpNombresM)) {
+            $gStart = count($row1M);
+            foreach ($tpNombresM as $nombre) { $row1M[] = ''; $row2M[] = mb_strtoupper($nombre, 'UTF-8'); }
+            $gruposM[] = ['name' => 'TIPO DE PROYECTO', 'start' => $gStart, 'end' => count($row1M) - 1, 'color' => '1565C0'];
+        }
+
+        $ambColorIdx = 0;
+        foreach ($ambientesPorGrupo as $groupName => $ambList) {
+            if (empty($ambList)) continue;
+            $gStart = count($row1M);
+            foreach ($ambList as $label) { $row1M[] = ''; $row2M[] = mb_strtoupper($label, 'UTF-8'); }
+            $gruposM[] = ['name' => $groupName, 'start' => $gStart, 'end' => count($row1M) - 1, 'color' => $ambColorsM[$ambColorIdx % count($ambColorsM)]];
+            $ambColorIdx++;
+        }
+
+        $gStart = count($row1M);
+        foreach ($usoLabelsM as $label) { $row1M[] = ''; $row2M[] = mb_strtoupper($label, 'UTF-8'); }
+        $gruposM[] = ['name' => 'USO', 'start' => $gStart, 'end' => count($row1M) - 1, 'color' => '6A1B9A'];
+
+        $gStart = count($row1M);
+        foreach ($instLabelsM as $label) { $row1M[] = ''; $row2M[] = mb_strtoupper($label, 'UTF-8'); }
+        $gruposM[] = ['name' => 'TIPO DE INSTALACIÓN', 'start' => $gStart, 'end' => count($row1M) - 1, 'color' => '2E7D32'];
+
+        $gStart = count($row1M);
+        foreach ($estilosListM as $estilo) { $row1M[] = ''; $row2M[] = mb_strtoupper($estilo, 'UTF-8'); }
+        $gruposM[] = ['name' => 'ESTILO', 'start' => $gStart, 'end' => count($row1M) - 1, 'color' => 'E65100'];
+
+        $nTotalM = count($row1M);
+        foreach ($gruposM as $g) { $row1M[$g['start']] = $g['name']; }
+
+        $ws->fromArray([$row1M], null, 'A1');
+        $ws->fromArray([$row2M], null, 'A2');
+
+        foreach ($gruposM as $g) {
+            if ($g['start'] < $g['end']) {
+                $ws->mergeCells($coord($g['start'] + 1) . '1:' . $coord($g['end'] + 1) . '1');
+            }
+        }
+
+        $baseStyleM = [
+            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                            'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                            'wrapText'   => true],
+            'borders'   => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => 'AAAAAA']]],
+        ];
+        $darkFill = ['fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '2B2E2C']]];
+        $applyStyle($ws, 'A1', array_merge($baseStyleM, $darkFill));
+        $applyStyle($ws, 'A2', array_merge($baseStyleM, $darkFill));
+        foreach ($gruposM as $g) {
+            $gs = array_merge($baseStyleM, ['fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => $g['color']]]]);
+            $ws->getStyle($coord($g['start'] + 1) . '1:' . $coord($g['end'] + 1) . '1')->applyFromArray($gs);
+            $ws->getStyle($coord($g['start'] + 1) . '2:' . $coord($g['end'] + 1) . '2')->applyFromArray($gs);
+        }
+
+        $ws->getRowDimension(1)->setRowHeight(22);
+        $ws->getRowDimension(2)->setRowHeight(65);
+        $ws->getColumnDimension('A')->setWidth(22);
+        for ($c = 2; $c <= $nTotalM; $c++) { $ws->getColumnDimensionByColumn($c)->setWidth(14); }
+        $ws->freezePane('B3');
+
         // ── Proteger todas las hojas de referencia ────────────────────────────
         $hojasRef = ['TIPOS_PRODUCTO','TIPOS_LUMINARIA','MARCAS','UNIDADES','TIPOS_PROYECTO',
                      'INSTALACION_VALORES','USOS_VALORES','ESTILOS_VALORES'];
@@ -454,7 +502,7 @@ class ImportadorProductosController extends Controller
         }
     }
 
-    // ─── Leer hoja CLASIFICACIONES en formato matriz (fila 1=grupo, fila 2=claves, fila 3=etiquetas, fila 4+=datos) ─
+    // ─── Leer hoja CLASIFICACIONES (fila 1=grupos, fila 2=etiquetas amigables, fila 3+=datos con X) ─
 
     private function leerHojaMatrix(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, string $nombre): array
     {
@@ -462,10 +510,12 @@ class ImportadorProductosController extends Controller
             return [];
         }
 
-        $ws       = $spreadsheet->getSheetByName($nombre);
-        $cabecera = null;
-        $numFila  = 0;
-        $filas    = [];
+        $ws      = $spreadsheet->getSheetByName($nombre);
+        $numFila = 0;
+        $fila1   = null;   // cabeceras de grupo (fila 1)
+        $cabecera = null;  // claves internas traducidas (fila 2)
+        $filas   = [];
+        $isTrue  = fn($v) => in_array(strtolower(trim((string) $v)), ['x', '1', 'si', 'sí', 'yes', 'true'], true);
 
         foreach ($ws->getRowIterator() as $row) {
             $numFila++;
@@ -476,29 +526,248 @@ class ImportadorProductosController extends Controller
             foreach ($iter as $cell) {
                 $valores[] = $cell->getValue();
             }
-            // Quitar trailing nulls
             while (!empty($valores) && ($valores[array_key_last($valores)] === null || $valores[array_key_last($valores)] === '')) {
                 array_pop($valores);
             }
             if (empty($valores)) continue;
-
             $valores = array_map(fn($v) => $v !== null ? trim((string) $v) : '', $valores);
 
-            if ($numFila === 1) continue; // Fila de grupos (visual)
-            if ($numFila === 2) { $cabecera = $valores; continue; } // Claves reales
-            if ($numFila === 3) continue; // Fila de etiquetas amigables (descripción)
+            if ($numFila === 1) {
+                $fila1 = $valores; // guardar grupos para contexto
+                continue;
+            }
 
-            if ($cabecera === null) continue;
-            if (empty(array_filter($valores))) continue;
+            if ($numFila === 2) {
+                // Traducir etiquetas amigables → claves internas usando contexto de grupos
+                $cabecera = $this->traducirCabeceras($valores, $fila1 ?? []);
+                continue;
+            }
 
-            $fila = array_combine($cabecera, array_pad($valores, count($cabecera), ''));
+            // Fila 3+: datos
+            if ($cabecera === null || empty(array_filter($valores))) continue;
 
-            if (empty($fila['codigo_fabrica'])) continue;
+            $codigoFabrica = trim((string) ($valores[0] ?? ''));
+            if ($codigoFabrica === '') continue;
+
+            $fila      = ['codigo_fabrica' => $codigoFabrica];
+            $tpNombres = [];
+            $ambSlugs  = [];
+
+            foreach ($cabecera as $i => $clave) {
+                if ($i === 0) continue; // codigo_fabrica ya procesado
+                $valor = $valores[$i] ?? '';
+
+                if (str_starts_with($clave, '__tp:')) {
+                    // Tipo de proyecto: acumular nombres para join
+                    if ($isTrue($valor)) $tpNombres[] = substr($clave, 5);
+                } elseif (str_starts_with($clave, '__amb:')) {
+                    // Ambiente: acumular slugs para join
+                    if ($isTrue($valor)) $ambSlugs[] = substr($clave, 6);
+                } else {
+                    // USO / INSTALACION / ESTILO: clave directa con valor X
+                    $fila[$clave] = $valor;
+                }
+            }
+
+            // Agregar como texto separado por coma (guardarClasificaciones los split)
+            if (!empty($tpNombres)) $fila['tipo_proyecto'] = implode(',', $tpNombres);
+            if (!empty($ambSlugs))  $fila['ambiente']      = implode(',', $ambSlugs);
 
             $filas[] = $fila;
         }
 
         return $filas;
+    }
+
+    /**
+     * Traduce las etiquetas amigables de la fila 2 a claves internas.
+     * Usa el contexto de grupo de la fila 1 para resolver ambigüedades
+     * (ej: ESCRITORIO aparece tanto en AMBIENTE RESIDENCIAL como en TIPO DE INSTALACIÓN).
+     * Las celdas fusionadas solo tienen valor en la celda master; el resto llega vacío,
+     * por eso propagamos el nombre de grupo hacia la derecha.
+     */
+    private function traducirCabeceras(array $fila2, array $fila1): array
+    {
+        // Propagar nombre de grupo de izquierda a derecha
+        $groupPerCol  = [];
+        $currentGroup = '';
+        foreach ($fila1 as $i => $val) {
+            if ($val !== '') $currentGroup = strtolower(trim($val));
+            $groupPerCol[$i] = $currentGroup;
+        }
+
+        // Mapa dinámico: nombres de tipos de proyecto desde BD (lowercase → __tp:nombre)
+        $tpMap = TipoProyecto::pluck('nombre')
+            ->mapWithKeys(fn($n) => [strtolower(trim($n)) => '__tp:' . strtolower(trim($n))])
+            ->toArray();
+
+        // Mapa estático para USO, TIPO DE INSTALACIÓN y ESTILO
+        $staticMap = [
+            // USO
+            'interiores'              => 'interior',
+            'exteriores'              => 'exterior',
+            'alumbrado público'       => 'alumbrado_publico',
+            'alumbrado publico'       => 'alumbrado_publico',
+            'piscina'                 => 'piscina',
+            // TIPO DE INSTALACIÓN
+            'colgante'                => 'colgante',
+            'colgante doble altura'   => 'colgante_doble_altura',
+            'plafón'                  => 'plafon',
+            'plafon'                  => 'plafon',
+            'aplique'                 => 'aplique',
+            'sobre mesa'              => 'sobre_mesa',
+            'pie'                     => 'pie',
+            'escritorio'              => 'escritorio',
+            'lectura'                 => 'lectura',
+            'empotrado de techo'      => 'empotrado_techo',
+            'empotrado de piso'       => 'empotrado_piso',
+            'empotrado sobre muro'    => 'empotrado_muro',
+            'ventilador'              => 'ventilador',
+            'estacas'                 => 'estacas',
+            'balizas'                 => 'balizas',
+            'empotrado sumergible'    => 'empotrado_sumergible',
+            'empotrados sumergibles'  => 'empotrado_sumergible',
+            'luminarias portátiles'   => 'portatil',
+            'luminarias portatiles'   => 'portatil',
+            'proyectores'             => 'proyector',
+            'sistema de riel'         => 'riel',
+            'tiras led'               => 'tira_led',
+            'postes'                  => 'poste',
+            'luz guía'                => 'luz_guia',
+            'luz guia'                => 'luz_guia',
+            // ESTILO (preservar case original de ESTILOS_SUGERIDOS)
+            'clásico'                 => 'Clásico',
+            'clasico'                 => 'Clásico',
+            'clásico-moderno'         => 'Clásico-Moderno',
+            'clasico-moderno'         => 'Clásico-Moderno',
+            'moderno'                 => 'Moderno',
+            'contemporáneo'           => 'Contemporáneo',
+            'contemporaneo'           => 'Contemporáneo',
+            'minimalista'             => 'Minimalista',
+            'rústico'                 => 'Rústico',
+            'rustico'                 => 'Rústico',
+            'náutico'                 => 'Náutico',
+            'nautico'                 => 'Náutico',
+            'vintage'                 => 'Vintage',
+            'industrial'              => 'Industrial',
+            'tech'                    => 'Tech',
+            'nórdico'                 => 'Nórdico',
+            'nordico'                 => 'Nórdico',
+            'inglés'                  => 'Inglés',
+            'ingles'                  => 'Inglés',
+        ];
+
+        // Mapa de ambientes: etiqueta (lowercase) → slug con prefijo __amb:
+        $ambMap = [
+            'fachada'                        => '__amb:fachada',
+            'ingreso/hall'                   => '__amb:ingreso_hall',
+            'baño de visita'                 => '__amb:banio_visita',
+            'bano de visita'                 => '__amb:banio_visita',
+            'escritorio'                     => '__amb:escritorio',
+            'sala'                           => '__amb:sala',
+            'comedor'                        => '__amb:comedor',
+            'terraza'                        => '__amb:terraza',
+            'jardin'                         => '__amb:jardin',
+            'jardín'                         => '__amb:jardin',
+            'cocina'                         => '__amb:cocina',
+            'dormitorio'                     => '__amb:dormitorio',
+            'sshh'                           => '__amb:sshh',
+            'sala de tv'                     => '__amb:sala_tv',
+            'walking closet'                 => '__amb:walking_closet',
+            'area de servicio'               => '__amb:area_servicio',
+            'área de servicio'               => '__amb:area_servicio',
+            'vitrina'                        => '__amb:vitrina',
+            'counter'                        => '__amb:counter',
+            'showroom'                       => '__amb:showroom',
+            'mueble vitrina'                 => '__amb:mueble_vitrina',
+            'exhibidor'                      => '__amb:exhibidor',
+            'mesa atención'                  => '__amb:mesa_atencion',
+            'mesa atencion'                  => '__amb:mesa_atencion',
+            'probadores'                     => '__amb:probadores',
+            'estacionamiento'                => '__amb:estacionamiento',
+            'recepción'                      => '__amb:recepcion',
+            'recepcion'                      => '__amb:recepcion',
+            'oficinas abiertas'              => '__amb:oficinas_abiertas',
+            'oficinas cerradas'              => '__amb:oficinas_cerradas',
+            'sala de reuniones'              => '__amb:sala_reuniones',
+            'directorio'                     => '__amb:directorio',
+            'kitchenette'                    => '__amb:kitchenette',
+            'archivador'                     => '__amb:archivador',
+            'lobby'                          => '__amb:lobby',
+            'business center'                => '__amb:business_center',
+            'sum'                            => '__amb:sum',
+            'corredores'                     => '__amb:corredores',
+            'restaurante'                    => '__amb:restaurante',
+            'bar'                            => '__amb:bar',
+            'habitación'                     => '__amb:habitacion',
+            'habitacion'                     => '__amb:habitacion',
+            'gimnasio'                       => '__amb:gimnasio',
+            'spa'                            => '__amb:spa',
+            'salón'                          => '__amb:salon',
+            'salon'                          => '__amb:salon',
+            'buffet'                         => '__amb:buffet',
+            'deposito'                       => '__amb:deposito',
+            'depósito'                       => '__amb:deposito',
+            'directorios'                    => '__amb:directorios',
+            'laboratorios'                   => '__amb:laboratorios',
+            'consultorio'                    => '__amb:consultorio',
+            'quirofano'                      => '__amb:quirofano',
+            'quirófano'                      => '__amb:quirofano',
+            'sala de espera'                 => '__amb:sala_espera',
+            'tienda'                         => '__amb:tienda',
+            'zona de mesas'                  => '__amb:zona_mesas',
+            'islas de atención'              => '__amb:islas_atencion',
+            'islas de atencion'              => '__amb:islas_atencion',
+            'perímetros'                     => '__amb:perimetros',
+            'perimetros'                     => '__amb:perimetros',
+            'jardinera'                      => '__amb:jardinera',
+            'macizos'                        => '__amb:macizos',
+            'arboles y plantas altas'        => '__amb:arboles_plantas_altas',
+            'cercos vivos/jardin vertical'   => '__amb:cercos_vivos',
+            'espejo de agua/piletas'         => '__amb:espejo_agua',
+            'pérgola'                        => '__amb:pergola',
+            'pergola'                        => '__amb:pergola',
+            'caminos'                        => '__amb:caminos',
+            'jardines'                       => '__amb:jardines',
+            'zona de juegos'                 => '__amb:zona_juegos',
+            'canchas deportivas'             => '__amb:canchas_deportivas',
+            'salones sociales'               => '__amb:salones_sociales',
+            'ingresos privados'              => '__amb:ingresos_privados',
+            'pista interna'                  => '__amb:pista_interna',
+            'club house'                     => '__amb:club_house',
+            'cines'                          => '__amb:cines',
+            'ornamental'                     => '__amb:ornamental',
+            'alamedas'                       => '__amb:alamedas',
+            'parques'                        => '__amb:parques',
+            'veredas'                        => '__amb:veredas',
+            'pérgolas'                       => '__amb:pergolas',
+            'pergolas'                       => '__amb:pergolas',
+            'salones'                        => '__amb:salones',
+        ];
+
+        $result = [];
+        foreach ($fila2 as $i => $label) {
+            if ($i === 0) {
+                $result[] = 'codigo_fabrica';
+                continue;
+            }
+
+            $labelNorm = strtolower(trim($label));
+            $group     = $groupPerCol[$i] ?? '';
+
+            if (str_contains($group, 'ambiente')) {
+                // Contexto ambiente: usar ambMap; fallback a slug genérico
+                $result[] = $ambMap[$labelNorm] ?? '__amb:' . Str::slug($label, '_');
+            } elseif (str_contains($group, 'tipo de proyecto') || isset($tpMap[$labelNorm])) {
+                // Contexto tipo de proyecto: mapear desde BD
+                $result[] = $tpMap[$labelNorm] ?? '__tp:' . $labelNorm;
+            } else {
+                // Contexto USO / INSTALACIÓN / ESTILO: usar staticMap
+                $result[] = $staticMap[$labelNorm] ?? $labelNorm;
+            }
+        }
+
+        return $result;
     }
 
     // ─── Leer una hoja como array de filas asociativas ────────────────────────
@@ -559,7 +828,14 @@ class ImportadorProductosController extends Controller
         $dimensiones    = collect($this->leerHoja($spreadsheet, 'DIMENSIONES'))->keyBy('codigo_fabrica');
         $embalajes      = collect($this->leerHoja($spreadsheet, 'EMBALAJE'))->keyBy('codigo_fabrica');
         $atributos      = collect($this->leerHoja($spreadsheet, 'ATRIBUTOS_PRODUCTO'))->keyBy('codigo_fabrica');
-        $clasificaciones= collect($this->leerHojaMatrix($spreadsheet, 'CLASIFICACIONES'))->keyBy('codigo_fabrica');
+        // Preferir CLASIFICACIONES_PROYECTO (matriz con X) si existe; si no, usar CLASIFICACIONES (texto)
+        if ($spreadsheet->sheetNameExists('CLASIFICACIONES_PROYECTO')) {
+            $clasificaciones = collect($this->leerHojaMatrix($spreadsheet, 'CLASIFICACIONES_PROYECTO'))->keyBy('codigo_fabrica');
+        } else {
+            $clasificaciones = collect($this->leerHoja($spreadsheet, 'CLASIFICACIONES'))
+                ->filter(fn($r) => !empty($r['codigo_fabrica']))
+                ->keyBy('codigo_fabrica');
+        }
         $variantes      = collect($this->leerHoja($spreadsheet, 'VARIANTES'))->groupBy('codigo_fabrica');
         $componentes    = $this->leerHoja($spreadsheet, 'COMPONENTES');
 

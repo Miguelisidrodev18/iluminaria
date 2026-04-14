@@ -34,6 +34,7 @@
                     <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-800">EMBALAJE</span>
                     <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">VARIANTES</span>
                     <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">CLASIFICACIONES</span>
+                    <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-pink-100 text-pink-800">CLASIFICACIONES_PROYECTO</span>
                     <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">COMPONENTES</span>
                 </div>
 

@@ -41,7 +41,7 @@
                     <i class="fas fa-home text-2xl text-[#F7D600] shrink-0"></i>
                 @endif
                 <div class="min-w-0">
-                    <h1 class="text-sm font-bold leading-tight truncate">{{ $empresa?->nombre_display ?? 'CORPORACIÓN' }}</h1>
+                    <h1 class="text-sm font-bold leading-tight truncate">{{ $empresa?->nombre_display ?? 'Luminaria' }}</h1>
                     @if($empresa && $empresa->nombre_comercial && $empresa->nombre_comercial !== $empresa->razon_social)
                         <p class="text-[11px] text-[#F7D600] truncate">{{ $empresa->razon_social }}</p>
                     @elseif(!$empresa)
