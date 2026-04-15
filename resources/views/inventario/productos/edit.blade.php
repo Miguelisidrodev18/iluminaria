@@ -169,11 +169,15 @@
 
                         {{-- Código Fábrica --}}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Código Fábrica</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Código Fábrica
+                                <span class="text-xs text-gray-400 font-normal ml-1">(no editable)</span>
+                            </label>
                             <input type="text" name="codigo_fabrica"
                                    value="{{ old('codigo_fabrica', $producto->codigo_fabrica) }}"
                                    placeholder="Código del fabricante"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-400">
+                                   readonly
+                                   class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed">
                         </div>
 
                         {{-- Código de Barras --}}
@@ -526,9 +530,9 @@
                                                 <th class="pb-2 w-20"></th>
                                             </tr>
                                         </thead>
-                                        <tbody class="divide-y divide-gray-50">
-                                            @foreach($producto->variantes as $variante)
-                                            <tr x-data="{ editando: false }">
+                                        @foreach($producto->variantes as $variante)
+                                        <tbody x-data="{ editando: false }" class="divide-y divide-gray-50">
+                                            <tr>
                                                 <td class="py-2">
                                                     <div class="flex items-center gap-2">
                                                         @if($variante->color && $variante->color->codigo_hex)
@@ -655,8 +659,8 @@
                                                     </form>
                                                 </td>
                                             </tr>
-                                            @endforeach
                                         </tbody>
+                                        @endforeach
                                     </table>
                                 </div>
                                 @else
@@ -735,6 +739,7 @@
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </a>
                         <button type="submit"
+                                form="formProducto"
                                 class="px-8 py-2.5 text-gray-900 rounded-lg font-semibold text-sm shadow-sm"
                                 style="background-color:#F7D600;"
                                 onmouseover="this.style.backgroundColor='#e8c900'"

@@ -1021,12 +1021,12 @@ function posApp() {
         get orden() { return this.ordenes[this.ordenActiva]; },
 
         // ── Computed: financials ──
-        get subtotal()    { return this.orden.carrito.reduce((s, i) => s + i.cantidad * i.precio_unitario, 0); },
-        get igv()         { return this.subtotal * 0.18; },
-        get total()       { return this.subtotal + this.igv; },
-        get totalPagado() { return this.orden.pagos.reduce((s, p) => s + (parseFloat(p.monto) || 0), 0); },
-        get vuelto()      { return Math.max(0, this.totalPagado - this.total); },
-        get falta()       { return Math.max(0, this.total - this.totalPagado); },
+        get subtotal()    { return Math.round(this.orden.carrito.reduce((s, i) => s + i.cantidad * i.precio_unitario, 0) * 100) / 100; },
+        get igv()         { return Math.round(this.subtotal * 0.18 * 100) / 100; },
+        get total()       { return Math.round((this.subtotal + this.igv) * 100) / 100; },
+        get totalPagado() { return Math.round(this.orden.pagos.reduce((s, p) => s + (parseFloat(p.monto) || 0), 0) * 100) / 100; },
+        get vuelto()      { return Math.max(0, Math.round((this.totalPagado - this.total) * 100) / 100); },
+        get falta()       { return Math.max(0, Math.round((this.total - this.totalPagado) * 100) / 100); },
         get puedePagar()  {
             if (this.orden.tipoComprobante === 'cotizacion') return true;
             if (this.orden.pagos.length === 1 && this.orden.pagos[0].monto === 0) return true;

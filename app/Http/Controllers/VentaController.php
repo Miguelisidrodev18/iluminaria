@@ -337,7 +337,8 @@ class VentaController extends Controller
     public function show(Venta $venta)
     {
         $venta->load('vendedor', 'confirmador', 'cliente', 'almacen', 'sucursal', 'serieComprobante',
-            'detalles.producto.categoria', 'detalles.variante.color', 'detalles.imei');
+            'detalles.producto.categoria', 'detalles.variante.color', 'detalles.imei',
+            'guiaRemision.serieComprobante');
 
         return view('ventas.show', compact('venta'));
     }

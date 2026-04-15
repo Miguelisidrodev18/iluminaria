@@ -305,7 +305,35 @@ class MovimientoInventario extends Model
                 'numero_guia'         => $datos['numero_guia'] ?? null,
             ]);
 
+            // Actualizar stock global del producto
             $producto->update(['stock_actual' => $stockNuevo]);
+
+            // Actualizar stock por almacén
+            $almacenId = $datos['almacen_id'];
+            $stockAlmacen = StockAlmacen::obtenerOCrear($datos['producto_id'], $almacenId);
+
+            switch ($datos['tipo_movimiento']) {
+                case 'ingreso':
+                case 'devolucion':
+                    $stockAlmacen->incrementar($cantidad);
+                    break;
+                case 'salida':
+                case 'merma':
+                    $stockAlmacen->decrementar($cantidad);
+                    break;
+                case 'ajuste':
+                    $stockAlmacen->update(['cantidad' => max(0, $stockNuevo)]);
+                    break;
+                case 'transferencia':
+                    // Quitar del almacén origen
+                    $stockAlmacen->decrementar($cantidad);
+                    // Sumar al almacén destino
+                    if (!empty($datos['almacen_destino_id'])) {
+                        $stockDestino = StockAlmacen::obtenerOCrear($datos['producto_id'], $datos['almacen_destino_id']);
+                        $stockDestino->incrementar($cantidad);
+                    }
+                    break;
+            }
 
             return $movimiento;
         });

@@ -79,7 +79,7 @@
                                                 data-doc-tipo="{{ $c->tipo_documento === 'RUC' ? '6' : ($c->tipo_documento === 'DNI' ? '1' : '4') }}"
                                                 data-doc-num="{{ $c->numero_documento }}"
                                                 data-dir="{{ $c->direccion }}"
-                                            {{ old('cliente_id', $guiaRemision->cliente_id ?? '') == $c->id ? 'selected' : '' }}>
+                                            {{ old('cliente_id', $guiaRemision?->cliente_id ?? '') == $c->id ? 'selected' : '' }}>
                                             {{ $c->nombre }} — {{ $c->numero_documento }}
                                         </option>
                                     @endforeach
@@ -100,21 +100,21 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">N° documento</label>
                                 <input type="text" name="destinatario_num_doc" x-model="destNumDoc"
-                                       value="{{ old('destinatario_num_doc', $guiaRemision->destinatario_num_doc ?? '') }}"
+                                       value="{{ old('destinatario_num_doc', $guiaRemision?->destinatario_num_doc ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="20100070970">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nombre / Razón social</label>
                                 <input type="text" name="destinatario_nombre" x-model="destNombre"
-                                       value="{{ old('destinatario_nombre', $guiaRemision->destinatario_nombre ?? '') }}"
+                                       value="{{ old('destinatario_nombre', $guiaRemision?->destinatario_nombre ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="Empresa o persona destinataria">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Dirección del destinatario</label>
                                 <input type="text" name="destinatario_direccion"
-                                       value="{{ old('destinatario_direccion', $guiaRemision->destinatario_direccion ?? '') }}"
+                                       value="{{ old('destinatario_direccion', $guiaRemision?->destinatario_direccion ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="Dirección completa del destinatario">
                             </div>
@@ -134,7 +134,7 @@
                                 <select name="motivo_traslado" required
                                         class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20">
                                     @foreach(\App\Models\GuiaRemision::MOTIVOS as $key => $label)
-                                        <option value="{{ $key }}" {{ old('motivo_traslado', $guiaRemision->motivo_traslado ?? '01') == $key ? 'selected' : '' }}>
+                                        <option value="{{ $key }}" {{ old('motivo_traslado', $guiaRemision?->motivo_traslado ?? '01') == $key ? 'selected' : '' }}>
                                             {{ $key }} - {{ $label }}
                                         </option>
                                     @endforeach
@@ -166,26 +166,26 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de emisión <span class="text-red-500">*</span></label>
                                 <input type="date" name="fecha_emision" required
-                                       value="{{ old('fecha_emision', $guiaRemision->fecha_emision?->format('Y-m-d') ?? date('Y-m-d')) }}"
+                                       value="{{ old('fecha_emision', $guiaRemision?->fecha_emision?->format('Y-m-d') ?? date('Y-m-d')) }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de traslado <span class="text-red-500">*</span></label>
                                 <input type="date" name="fecha_traslado" required
-                                       value="{{ old('fecha_traslado', $guiaRemision->fecha_traslado?->format('Y-m-d') ?? date('Y-m-d')) }}"
+                                       value="{{ old('fecha_traslado', $guiaRemision?->fecha_traslado?->format('Y-m-d') ?? date('Y-m-d')) }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Peso bruto total (KG)</label>
                                 <input type="number" name="peso_bruto" step="0.001" min="0"
-                                       value="{{ old('peso_bruto', $guiaRemision->peso_bruto ?? '') }}"
+                                       value="{{ old('peso_bruto', $guiaRemision?->peso_bruto ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="0.000">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">N° de bultos</label>
                                 <input type="number" name="numero_bultos" min="1" step="1"
-                                       value="{{ old('numero_bultos', $guiaRemision->numero_bultos ?? '') }}"
+                                       value="{{ old('numero_bultos', $guiaRemision?->numero_bultos ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="—">
                             </div>
@@ -202,7 +202,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Ubigeo</label>
                                 <input type="text" name="partida_ubigeo" maxlength="6"
-                                       value="{{ old('partida_ubigeo', $guiaRemision->partida_ubigeo ?? $partidaDefecto['ubigeo']) }}"
+                                       value="{{ old('partida_ubigeo', $guiaRemision?->partida_ubigeo ?? $partidaDefecto['ubigeo']) }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 font-mono"
                                        placeholder="150101">
                                 <p class="text-xs text-gray-400 mt-1">6 dígitos (SUNAT)</p>
@@ -210,7 +210,7 @@
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Dirección <span class="text-red-500">*</span></label>
                                 <input type="text" name="partida_direccion" required
-                                       value="{{ old('partida_direccion', $guiaRemision->partida_direccion ?? $partidaDefecto['direccion']) }}"
+                                       value="{{ old('partida_direccion', $guiaRemision?->partida_direccion ?? $partidaDefecto['direccion']) }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
                                        placeholder="Dirección completa de partida">
                             </div>
@@ -227,14 +227,14 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Ubigeo</label>
                                 <input type="text" name="llegada_ubigeo" maxlength="6"
-                                       value="{{ old('llegada_ubigeo', $guiaRemision->llegada_ubigeo ?? '') }}"
+                                       value="{{ old('llegada_ubigeo', $guiaRemision?->llegada_ubigeo ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 font-mono"
                                        placeholder="Ej: 150101">
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Dirección <span class="text-red-500">*</span></label>
                                 <input type="text" name="llegada_direccion" required
-                                       value="{{ old('llegada_direccion', $guiaRemision->llegada_direccion ?? '') }}"
+                                       value="{{ old('llegada_direccion', $guiaRemision?->llegada_direccion ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-300"
                                        placeholder="Dirección completa de destino">
                             </div>
@@ -274,8 +274,8 @@
                                                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20 mb-1">
                                                     <option value="">— Producto del catálogo —</option>
                                                     @foreach($productos as $p)
-                                                        <option value="{{ $p->id }}" data-nombre="{{ $p->nombre }}" data-sku="{{ $p->sku ?? '' }}" data-unidad="{{ $p->unidad_medida ?? 'NIU' }}">
-                                                            {{ $p->nombre }} @if($p->sku)({{ $p->sku }})@endif
+                                                        <option value="{{ $p->id }}" data-nombre="{{ $p->nombre }}" data-sku="{{ $p->codigo ?? '' }}" data-unidad="{{ $p->unidadMedida->abreviatura ?? 'NIU' }}">
+                                                            {{ $p->nombre }} @if($p->codigo)({{ $p->codigo }})@endif
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -337,7 +337,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Placa del vehículo</label>
                                 <input type="text" name="placa_vehiculo"
-                                       value="{{ old('placa_vehiculo', $guiaRemision->placa_vehiculo ?? '') }}"
+                                       value="{{ old('placa_vehiculo', $guiaRemision?->placa_vehiculo ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20 uppercase"
                                        placeholder="ABC-123">
                             </div>
@@ -345,28 +345,28 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Tipo doc. conductor</label>
                                 <select name="conductor_tipo_doc"
                                         class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20">
-                                    <option value="1" {{ old('conductor_tipo_doc', $guiaRemision->conductor_tipo_doc ?? '1') == '1' ? 'selected' : '' }}>DNI</option>
-                                    <option value="4" {{ old('conductor_tipo_doc', $guiaRemision->conductor_tipo_doc ?? '') == '4' ? 'selected' : '' }}>Carné Extranjería</option>
+                                    <option value="1" {{ old('conductor_tipo_doc', $guiaRemision?->conductor_tipo_doc ?? '1') == '1' ? 'selected' : '' }}>DNI</option>
+                                    <option value="4" {{ old('conductor_tipo_doc', $guiaRemision?->conductor_tipo_doc ?? '') == '4' ? 'selected' : '' }}>Carné Extranjería</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">N° documento conductor</label>
                                 <input type="text" name="conductor_num_doc"
-                                       value="{{ old('conductor_num_doc', $guiaRemision->conductor_num_doc ?? '') }}"
+                                       value="{{ old('conductor_num_doc', $guiaRemision?->conductor_num_doc ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="12345678">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del conductor</label>
                                 <input type="text" name="conductor_nombre"
-                                       value="{{ old('conductor_nombre', $guiaRemision->conductor_nombre ?? '') }}"
+                                       value="{{ old('conductor_nombre', $guiaRemision?->conductor_nombre ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="Nombre completo">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">N° licencia conducir</label>
                                 <input type="text" name="conductor_licencia"
-                                       value="{{ old('conductor_licencia', $guiaRemision->conductor_licencia ?? '') }}"
+                                       value="{{ old('conductor_licencia', $guiaRemision?->conductor_licencia ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="Q12345678">
                             </div>
@@ -380,14 +380,14 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">RUC transportista</label>
                                 <input type="text" name="transportista_ruc"
-                                       value="{{ old('transportista_ruc', $guiaRemision->transportista_ruc ?? '') }}"
+                                       value="{{ old('transportista_ruc', $guiaRemision?->transportista_ruc ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20 font-mono"
                                        placeholder="20100070970" maxlength="11">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Razón social transportista</label>
                                 <input type="text" name="transportista_nombre"
-                                       value="{{ old('transportista_nombre', $guiaRemision->transportista_nombre ?? '') }}"
+                                       value="{{ old('transportista_nombre', $guiaRemision?->transportista_nombre ?? '') }}"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20"
                                        placeholder="TRANSPORTES SAC">
                             </div>
@@ -409,7 +409,7 @@
                             @endphp
                             @foreach($ventas as $v)
                                 <option value="{{ $v->id }}"
-                                    {{ old('venta_id', $guiaRemision->venta_id ?? $ventaPreload?->id) == $v->id ? 'selected' : '' }}>
+                                    {{ old('venta_id', $guiaRemision?->venta_id ?? $ventaPreload?->id) == $v->id ? 'selected' : '' }}>
                                     {{ $v->codigo }} — {{ $v->cliente?->nombre ?? 'Sin cliente' }} ({{ $v->fecha->format('d/m/Y') }})
                                 </option>
                             @endforeach
@@ -423,12 +423,12 @@
                         </h2>
                         <textarea name="observaciones" rows="3"
                                   class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2B2E2C]/20 resize-none"
-                                  placeholder="Información adicional...">{{ old('observaciones', $guiaRemision->observaciones ?? '') }}</textarea>
+                                  placeholder="Información adicional...">{{ old('observaciones', $guiaRemision?->observaciones ?? '') }}</textarea>
                     </div>
 
                     {{-- Botones --}}
                     <div class="flex flex-col gap-3">
-                        <button type="submit" @disabled="!serie"
+                        <button type="submit" :disabled="!serie"
                                 class="w-full bg-[#2B2E2C] text-white py-3 rounded-xl font-semibold text-sm hover:bg-[#3d4140] transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
                             <i class="fas fa-save"></i>
                             {{ isset($guiaRemision) ? 'Actualizar Guía' : 'Guardar Guía' }}
@@ -445,32 +445,39 @@
         </form>
     </div>
 
+    @php
+        $detallesIniciales = old('detalles');
+        if (!$detallesIniciales && isset($guiaRemision) && $guiaRemision?->detalles) {
+            $detallesIniciales = $guiaRemision?->detalles->map(fn($d) => [
+                'producto_id'   => $d->producto_id,
+                'codigo'        => $d->codigo ?? '',
+                'descripcion'   => $d->descripcion ?? '',
+                'unidad_medida' => $d->unidad_medida ?? 'NIU',
+                'cantidad'      => $d->cantidad,
+            ])->toArray();
+        }
+        if (!$detallesIniciales && isset($ventaPreload) && $ventaPreload) {
+            $detallesIniciales = $ventaPreload->detalles->map(fn($d) => [
+                'producto_id'   => $d->producto_id,
+                'codigo'        => $d->producto?->codigo ?? '',
+                'descripcion'   => $d->producto?->nombre ?? '',
+                'unidad_medida' => 'NIU',
+                'cantidad'      => $d->cantidad,
+            ])->toArray();
+        }
+        if (empty($detallesIniciales)) {
+            $detallesIniciales = [['producto_id' => '', 'codigo' => '', 'descripcion' => '', 'unidad_medida' => 'NIU', 'cantidad' => 1]];
+        }
+    @endphp
     <script>
         function guiaForm() {
             return {
-                modalidad: '{{ old('modalidad_transporte', $guiaRemision->modalidad_transporte ?? '01') }}',
-                clienteId: '{{ old('cliente_id', $guiaRemision->cliente_id ?? '') }}',
-                destTipoDoc: '{{ old('destinatario_tipo_doc', $guiaRemision->destinatario_tipo_doc ?? '1') }}',
-                destNumDoc: '{{ old('destinatario_num_doc', $guiaRemision->destinatario_num_doc ?? '') }}',
-                destNombre: '{{ old('destinatario_nombre', $guiaRemision->destinatario_nombre ?? '') }}',
-                detalles: @json(
-                    old('detalles')
-                    ?? ($guiaRemision?->detalles->map(fn($d) => [
-                        'producto_id'  => $d->producto_id,
-                        'codigo'       => $d->codigo,
-                        'descripcion'  => $d->descripcion,
-                        'unidad_medida'=> $d->unidad_medida,
-                        'cantidad'     => $d->cantidad,
-                    ])->toArray()
-                    ?? (isset($ventaPreload) && $ventaPreload ? $ventaPreload->detalles->map(fn($d) => [
-                        'producto_id'  => $d->producto_id,
-                        'codigo'       => $d->producto?->sku ?? '',
-                        'descripcion'  => $d->producto?->nombre ?? '',
-                        'unidad_medida'=> 'NIU',
-                        'cantidad'     => $d->cantidad,
-                    ])->toArray() : []))
-                    ?: [{ producto_id: '', codigo: '', descripcion: '', unidad_medida: 'NIU', cantidad: 1 }]
-                ),
+                modalidad: '{{ old('modalidad_transporte', $guiaRemision?->modalidad_transporte ?? '01') }}',
+                clienteId: '{{ old('cliente_id', $guiaRemision?->cliente_id ?? '') }}',
+                destTipoDoc: '{{ old('destinatario_tipo_doc', $guiaRemision?->destinatario_tipo_doc ?? '1') }}',
+                destNumDoc: '{{ old('destinatario_num_doc', $guiaRemision?->destinatario_num_doc ?? '') }}',
+                destNombre: '{{ old('destinatario_nombre', $guiaRemision?->destinatario_nombre ?? '') }}',
+                detalles: @json($detallesIniciales),
 
                 cargarCliente(id) {
                     if (!id) return;

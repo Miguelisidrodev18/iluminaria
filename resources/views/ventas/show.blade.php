@@ -54,26 +54,37 @@
                         {{ ucfirst($venta->metodo_pago) }}
                     </div>
                     @endif
-                    {{-- Botón guía de remisión si se creó junto a la venta --}}
-                    @if(request()->has('guia_id'))
+                    {{-- Botón guía de remisión vinculada a esta venta --}}
+                    @php $guia = $venta->guiaRemision; @endphp
+                    @if($guia)
                     <div class="mb-3 bg-blue-50 border border-blue-200 rounded-xl p-3 text-left">
                         <p class="text-xs font-semibold text-blue-700 flex items-center gap-1.5 mb-2">
-                            <i class="fas fa-truck-moving"></i> Guía de Remisión Creada
+                            <i class="fas fa-truck-moving"></i> Guía de Remisión &mdash; {{ $guia->numero_guia }}
                         </p>
                         <div class="flex gap-2">
-                            <a href="{{ route('guias-remision.show', request('guia_id')) }}"
+                            <a href="{{ route('guias-remision.show', $guia) }}"
                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 text-xs font-semibold transition flex items-center justify-center gap-1.5">
                                 <i class="fas fa-eye"></i> Ver Guía
                             </a>
-                            <form action="{{ route('guias-remision.enviar-sunat', request('guia_id')) }}"
+                            <a href="{{ route('guias-remision.pdf', $guia) }}" target="_blank"
+                               class="flex-1 bg-gray-600 hover:bg-gray-700 text-white rounded-lg py-2 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            @if($guia->puede_enviarse)
+                            <form action="{{ route('guias-remision.enviar-sunat', $guia) }}"
                                   method="POST" class="flex-1"
                                   onsubmit="return confirm('¿Enviar guía a SUNAT ahora?')">
                                 @csrf
                                 <button type="submit"
                                         class="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2 text-xs font-semibold transition flex items-center justify-center gap-1.5">
-                                    <i class="fas fa-paper-plane"></i> Enviar SUNAT
+                                    <i class="fas fa-paper-plane"></i> SUNAT
                                 </button>
                             </form>
+                            @else
+                            <span class="flex-1 bg-emerald-100 text-emerald-700 rounded-lg py-2 text-xs font-semibold flex items-center justify-center gap-1.5">
+                                <i class="fas fa-check-circle"></i> {{ ucfirst($guia->estado) }}
+                            </span>
+                            @endif
                         </div>
                     </div>
                     @endif

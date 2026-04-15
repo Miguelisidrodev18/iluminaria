@@ -592,100 +592,84 @@ class ImportadorProductosController extends Controller
         $groupPerCol  = [];
         $currentGroup = '';
         foreach ($fila1 as $i => $val) {
-            if ($val !== '') $currentGroup = strtolower(trim($val));
+            if ($val !== '') $currentGroup = strtolower(trim(Str::ascii($val)));
             $groupPerCol[$i] = $currentGroup;
         }
 
-        // Mapa dinámico: nombres de tipos de proyecto desde BD (lowercase → __tp:nombre)
+        // Mapa dinámico: nombres de tipos de proyecto desde BD (ascii+lowercase → __tp:nombre)
         $tpMap = TipoProyecto::pluck('nombre')
-            ->mapWithKeys(fn($n) => [strtolower(trim($n)) => '__tp:' . strtolower(trim($n))])
+            ->mapWithKeys(fn($n) => [strtolower(trim(Str::ascii($n))) => '__tp:' . strtolower(trim($n))])
             ->toArray();
 
-        // Mapa estático para USO, TIPO DE INSTALACIÓN y ESTILO
+        // Claves en ASCII puro (sin tildes) — el label ya viene normalizado con Str::ascii()
         $staticMap = [
             // USO
-            'interiores'              => 'interior',
-            'exteriores'              => 'exterior',
-            'alumbrado público'       => 'alumbrado_publico',
-            'alumbrado publico'       => 'alumbrado_publico',
-            'piscina'                 => 'piscina',
+            'interiores'             => 'interior',
+            'exteriores'             => 'exterior',
+            'alumbrado publico'      => 'alumbrado_publico',
+            'piscina'                => 'piscina',
             // TIPO DE INSTALACIÓN
-            'colgante'                => 'colgante',
-            'colgante doble altura'   => 'colgante_doble_altura',
-            'plafón'                  => 'plafon',
-            'plafon'                  => 'plafon',
-            'aplique'                 => 'aplique',
-            'sobre mesa'              => 'sobre_mesa',
-            'pie'                     => 'pie',
-            'escritorio'              => 'escritorio',
-            'lectura'                 => 'lectura',
-            'empotrado de techo'      => 'empotrado_techo',
-            'empotrado de piso'       => 'empotrado_piso',
-            'empotrado sobre muro'    => 'empotrado_muro',
-            'ventilador'              => 'ventilador',
-            'estacas'                 => 'estacas',
-            'balizas'                 => 'balizas',
-            'empotrado sumergible'    => 'empotrado_sumergible',
-            'empotrados sumergibles'  => 'empotrado_sumergible',
-            'luminarias portátiles'   => 'portatil',
-            'luminarias portatiles'   => 'portatil',
-            'proyectores'             => 'proyector',
-            'sistema de riel'         => 'riel',
-            'tiras led'               => 'tira_led',
-            'postes'                  => 'poste',
-            'luz guía'                => 'luz_guia',
-            'luz guia'                => 'luz_guia',
+            'colgante'               => 'colgante',
+            'colgante doble altura'  => 'colgante_doble_altura',
+            'plafon'                 => 'plafon',
+            'aplique'                => 'aplique',
+            'sobre mesa'             => 'sobre_mesa',
+            'pie'                    => 'pie',
+            'escritorio'             => 'escritorio',
+            'lectura'                => 'lectura',
+            'empotrado de techo'     => 'empotrado_techo',
+            'empotrado de piso'      => 'empotrado_piso',
+            'empotrado sobre muro'   => 'empotrado_muro',
+            'ventilador'             => 'ventilador',
+            'estacas'                => 'estacas',
+            'balizas'                => 'balizas',
+            'empotrado sumergible'   => 'empotrado_sumergible',
+            'empotrados sumergibles' => 'empotrado_sumergible',
+            'luminarias portatiles'  => 'portatil',
+            'proyectores'            => 'proyector',
+            'sistema de riel'        => 'riel',
+            'tiras led'              => 'tira_led',
+            'postes'                 => 'poste',
+            'luz guia'               => 'luz_guia',
             // ESTILO (preservar case original de ESTILOS_SUGERIDOS)
-            'clásico'                 => 'Clásico',
-            'clasico'                 => 'Clásico',
-            'clásico-moderno'         => 'Clásico-Moderno',
-            'clasico-moderno'         => 'Clásico-Moderno',
-            'moderno'                 => 'Moderno',
-            'contemporáneo'           => 'Contemporáneo',
-            'contemporaneo'           => 'Contemporáneo',
-            'minimalista'             => 'Minimalista',
-            'rústico'                 => 'Rústico',
-            'rustico'                 => 'Rústico',
-            'náutico'                 => 'Náutico',
-            'nautico'                 => 'Náutico',
-            'vintage'                 => 'Vintage',
-            'industrial'              => 'Industrial',
-            'tech'                    => 'Tech',
-            'nórdico'                 => 'Nórdico',
-            'nordico'                 => 'Nórdico',
-            'inglés'                  => 'Inglés',
-            'ingles'                  => 'Inglés',
+            'clasico'                => 'Clásico',
+            'clasico-moderno'        => 'Clásico-Moderno',
+            'moderno'                => 'Moderno',
+            'contemporaneo'          => 'Contemporáneo',
+            'minimalista'            => 'Minimalista',
+            'rustico'                => 'Rústico',
+            'nautico'                => 'Náutico',
+            'vintage'                => 'Vintage',
+            'industrial'             => 'Industrial',
+            'tech'                   => 'Tech',
+            'nordico'                => 'Nórdico',
+            'ingles'                 => 'Inglés',
         ];
 
-        // Mapa de ambientes: etiqueta (lowercase) → slug con prefijo __amb:
+        // Claves en ASCII puro — etiqueta (ascii+lowercase) → slug con prefijo __amb:
         $ambMap = [
             'fachada'                        => '__amb:fachada',
             'ingreso/hall'                   => '__amb:ingreso_hall',
-            'baño de visita'                 => '__amb:banio_visita',
             'bano de visita'                 => '__amb:banio_visita',
             'escritorio'                     => '__amb:escritorio',
             'sala'                           => '__amb:sala',
             'comedor'                        => '__amb:comedor',
             'terraza'                        => '__amb:terraza',
             'jardin'                         => '__amb:jardin',
-            'jardín'                         => '__amb:jardin',
             'cocina'                         => '__amb:cocina',
             'dormitorio'                     => '__amb:dormitorio',
             'sshh'                           => '__amb:sshh',
             'sala de tv'                     => '__amb:sala_tv',
             'walking closet'                 => '__amb:walking_closet',
             'area de servicio'               => '__amb:area_servicio',
-            'área de servicio'               => '__amb:area_servicio',
             'vitrina'                        => '__amb:vitrina',
             'counter'                        => '__amb:counter',
             'showroom'                       => '__amb:showroom',
             'mueble vitrina'                 => '__amb:mueble_vitrina',
             'exhibidor'                      => '__amb:exhibidor',
-            'mesa atención'                  => '__amb:mesa_atencion',
             'mesa atencion'                  => '__amb:mesa_atencion',
             'probadores'                     => '__amb:probadores',
             'estacionamiento'                => '__amb:estacionamiento',
-            'recepción'                      => '__amb:recepcion',
             'recepcion'                      => '__amb:recepcion',
             'oficinas abiertas'              => '__amb:oficinas_abiertas',
             'oficinas cerradas'              => '__amb:oficinas_cerradas',
@@ -699,33 +683,26 @@ class ImportadorProductosController extends Controller
             'corredores'                     => '__amb:corredores',
             'restaurante'                    => '__amb:restaurante',
             'bar'                            => '__amb:bar',
-            'habitación'                     => '__amb:habitacion',
             'habitacion'                     => '__amb:habitacion',
             'gimnasio'                       => '__amb:gimnasio',
             'spa'                            => '__amb:spa',
-            'salón'                          => '__amb:salon',
             'salon'                          => '__amb:salon',
             'buffet'                         => '__amb:buffet',
             'deposito'                       => '__amb:deposito',
-            'depósito'                       => '__amb:deposito',
             'directorios'                    => '__amb:directorios',
             'laboratorios'                   => '__amb:laboratorios',
             'consultorio'                    => '__amb:consultorio',
             'quirofano'                      => '__amb:quirofano',
-            'quirófano'                      => '__amb:quirofano',
             'sala de espera'                 => '__amb:sala_espera',
             'tienda'                         => '__amb:tienda',
             'zona de mesas'                  => '__amb:zona_mesas',
-            'islas de atención'              => '__amb:islas_atencion',
             'islas de atencion'              => '__amb:islas_atencion',
-            'perímetros'                     => '__amb:perimetros',
             'perimetros'                     => '__amb:perimetros',
             'jardinera'                      => '__amb:jardinera',
             'macizos'                        => '__amb:macizos',
             'arboles y plantas altas'        => '__amb:arboles_plantas_altas',
             'cercos vivos/jardin vertical'   => '__amb:cercos_vivos',
             'espejo de agua/piletas'         => '__amb:espejo_agua',
-            'pérgola'                        => '__amb:pergola',
             'pergola'                        => '__amb:pergola',
             'caminos'                        => '__amb:caminos',
             'jardines'                       => '__amb:jardines',
@@ -740,7 +717,6 @@ class ImportadorProductosController extends Controller
             'alamedas'                       => '__amb:alamedas',
             'parques'                        => '__amb:parques',
             'veredas'                        => '__amb:veredas',
-            'pérgolas'                       => '__amb:pergolas',
             'pergolas'                       => '__amb:pergolas',
             'salones'                        => '__amb:salones',
         ];
@@ -752,8 +728,8 @@ class ImportadorProductosController extends Controller
                 continue;
             }
 
-            $labelNorm = strtolower(trim($label));
-            $group     = $groupPerCol[$i] ?? '';
+            $labelNorm = strtolower(trim(Str::ascii($label)));
+            $group     = strtolower(Str::ascii($groupPerCol[$i] ?? ''));
 
             if (str_contains($group, 'ambiente')) {
                 // Contexto ambiente: usar ambMap; fallback a slug genérico

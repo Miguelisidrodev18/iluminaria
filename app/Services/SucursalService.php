@@ -18,7 +18,8 @@ class SucursalService
     public function crear(array $datos): Sucursal
     {
         return DB::transaction(function () use ($datos) {
-            // 1. Auto-código
+            // 1. Auto-código — lock para evitar condición de carrera
+            DB::table('sucursales')->lockForUpdate()->latest('id')->value('id'); // adquiere lock
             $datos['codigo'] = Sucursal::generarCodigo();
 
             // 2. Crear sucursal (sin almacen_id aún)

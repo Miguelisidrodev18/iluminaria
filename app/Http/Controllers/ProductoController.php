@@ -399,6 +399,23 @@ public function create()
         ));
     }
 
+    public function actualizarStockUbicacion(Request $request, Producto $producto)
+    {
+        $request->validate([
+            'stock_minimo' => 'nullable|integer|min:0',
+            'stock_maximo' => 'nullable|integer|min:1',
+            'ubicacion'    => 'nullable|string|max:100',
+        ]);
+
+        $producto->update(array_filter([
+            'stock_minimo' => $request->stock_minimo,
+            'stock_maximo' => $request->stock_maximo,
+            'ubicacion'    => $request->ubicacion,
+        ], fn($v) => $v !== null));
+
+        return response()->json(['ok' => true]);
+    }
+
     /**
      * Actualizar producto
      */

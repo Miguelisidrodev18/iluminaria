@@ -49,11 +49,12 @@
                     <button id="btn-seleccionar-todo" class="text-sm text-gray-500 hover:text-gray-700 underline">
                         Seleccionar todos
                     </button>
-                    <a href="{{ route('inventario.productos.edit', '__ID__') }}"
-                       id="btn-editar-uno"
-                       class="hidden inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-pen"></i> Editar producto
-                    </a>
+                    <button id="btn-eliminar-lote"
+                            disabled
+                            class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fas fa-trash"></i>
+                        Eliminar seleccionados
+                    </button>
                     <button id="btn-aprobar-lote"
                             disabled
                             class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
@@ -64,9 +65,109 @@
             </div>
 
             {{-- ── Feedback ─────────────────────────────────────────────────── --}}
-            <div id="alerta-aprobacion" class="hidden bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+            <div id="alerta-aprobacion" style="display:none" class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
                 <i class="fas fa-check-circle text-green-600 text-lg"></i>
                 <p class="text-sm text-green-700 font-medium" id="msg-aprobacion"></p>
+            </div>
+            <div id="alerta-eliminacion" style="display:none" class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                <i class="fas fa-trash text-red-600 text-lg"></i>
+                <p class="text-sm text-red-700 font-medium" id="msg-eliminacion"></p>
+            </div>
+
+            {{-- ── Modal confirmación eliminación ──────────────────────────── --}}
+            <div id="modal-eliminar" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+                            <i class="fas fa-trash text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-base">Eliminar productos</h3>
+                            <p class="text-xs text-gray-500" id="modal-eliminar-subtitulo">Se eliminarán los productos seleccionados</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-5">Esta acción no se puede deshacer. Los productos en borrador serán eliminados permanentemente.</p>
+                    <div class="flex gap-3">
+                        <button type="button" id="modal-eliminar-cancelar"
+                                class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="button" id="modal-eliminar-confirmar"
+                                class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors">
+                            <i class="fas fa-trash mr-1"></i>Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── Modal Stock mín/máx ──────────────────────────────────────── --}}
+            <div id="modal-stock" style="display:none" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                            <i class="fas fa-boxes text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-base">Stock mínimo / máximo</h3>
+                            <p class="text-xs text-gray-500" id="modal-stock-subtitulo">Define los niveles de reposición</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-5">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Stock mínimo</label>
+                            <input type="number" id="input-stock-minimo" min="0"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Stock máximo</label>
+                            <input type="number" id="input-stock-maximo" min="1"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 outline-none">
+                        </div>
+                    </div>
+                    <p id="error-stock" class="text-xs text-red-600 mb-3 hidden"></p>
+                    <div class="flex gap-3">
+                        <button type="button" id="modal-stock-cancelar"
+                                class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="button" id="modal-stock-guardar"
+                                class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors">
+                            <i class="fas fa-save mr-1"></i>Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── Modal Ubicación ───────────────────────────────────────────── --}}
+            <div id="modal-ubicacion" style="display:none" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+                            <i class="fas fa-map-marker-alt text-purple-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-base">Ubicación física</h3>
+                            <p class="text-xs text-gray-500" id="modal-ubicacion-subtitulo">Dónde se almacena este producto</p>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Referencia de ubicación</label>
+                        <input type="text" id="input-ubicacion" maxlength="100"
+                               placeholder="Ej: Estante A-3, Bodega 2, Vitrina principal"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 outline-none">
+                        <p class="text-xs text-gray-400 mt-1">Texto libre — no vinculado a almacén de sucursal.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" id="modal-ubicacion-cancelar"
+                                class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="button" id="modal-ubicacion-guardar"
+                                class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-xl transition-colors">
+                            <i class="fas fa-save mr-1"></i>Guardar
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {{-- ── Modal contraseña maestra ─────────────────────────────────── --}}
@@ -360,12 +461,22 @@
                                 @endif
 
                                 {{-- Acciones rápidas --}}
-                                <div class="mt-3 flex gap-2 border-t border-blue-100 pt-3">
+                                <div class="mt-3 flex flex-wrap gap-2 border-t border-blue-100 pt-3">
                                     <a href="{{ route('inventario.productos.edit', $producto) }}"
                                        target="_blank"
                                        class="inline-flex items-center gap-1.5 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1.5 rounded-lg transition-colors">
                                         <i class="fas fa-pen"></i> Editar en detalle
                                     </a>
+                                    <button type="button"
+                                            onclick="abrirModalStock({{ $producto->id }}, {{ $producto->stock_minimo }}, {{ $producto->stock_maximo }})"
+                                            class="inline-flex items-center gap-1.5 text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1.5 rounded-lg transition-colors">
+                                        <i class="fas fa-boxes"></i> Stock mín/máx
+                                    </button>
+                                    <button type="button"
+                                            onclick="abrirModalUbicacion({{ $producto->id }}, '{{ addslashes($producto->ubicacion ?? '') }}')"
+                                            class="inline-flex items-center gap-1.5 text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1.5 rounded-lg transition-colors">
+                                        <i class="fas fa-map-marker-alt"></i> Ubicación
+                                    </button>
                                     <button type="button"
                                             onclick="aprobarUno({{ $producto->id }}, this)"
                                             class="inline-flex items-center gap-1.5 text-xs bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1.5 rounded-lg transition-colors">
@@ -404,14 +515,17 @@
 
     <script>
     (() => {
-        const chkTodos   = document.getElementById('chk-todos');
-        const btnAprobar = document.getElementById('btn-aprobar-lote');
-        const btnSelTodo = document.getElementById('btn-seleccionar-todo');
-        const labelSel   = document.getElementById('label-seleccionados');
-        const cntSel     = document.getElementById('cnt-seleccionados');
-        const alerta     = document.getElementById('alerta-aprobacion');
-        const msgAlerta  = document.getElementById('msg-aprobacion');
-        const csrf       = document.querySelector('meta[name="csrf-token"]').content;
+        const chkTodos          = document.getElementById('chk-todos');
+        const btnAprobar        = document.getElementById('btn-aprobar-lote');
+        const btnEliminar       = document.getElementById('btn-eliminar-lote');
+        const btnSelTodo        = document.getElementById('btn-seleccionar-todo');
+        const labelSel          = document.getElementById('label-seleccionados');
+        const cntSel            = document.getElementById('cnt-seleccionados');
+        const alerta            = document.getElementById('alerta-aprobacion');
+        const msgAlerta         = document.getElementById('msg-aprobacion');
+        const alertaEliminacion = document.getElementById('alerta-eliminacion');
+        const msgEliminacion    = document.getElementById('msg-eliminacion');
+        const csrf              = document.querySelector('meta[name="csrf-token"]').content;
 
         // ── Expandir / colapsar fila detalle ────────────────────────────────
         document.querySelectorAll('.fila-producto').forEach(fila => {
@@ -429,23 +543,13 @@
             return [...document.querySelectorAll('.chk-producto:checked')].map(c => c.value);
         }
 
-        const btnEditarUno = document.getElementById('btn-editar-uno');
-        const baseEditUrl  = '{{ route("inventario.productos.edit", "__ID__") }}';
-
         function actualizarBotones() {
             const ids = getSeleccionados();
             const n   = ids.length;
-            btnAprobar.disabled = n === 0;
+            btnAprobar.disabled  = n === 0;
+            btnEliminar.disabled = n === 0;
             labelSel.classList.toggle('hidden', n === 0);
             cntSel.textContent = n;
-
-            // Botón editar: solo visible cuando exactamente 1 producto seleccionado
-            if (n === 1) {
-                btnEditarUno.href = baseEditUrl.replace('__ID__', ids[0]);
-                btnEditarUno.classList.remove('hidden');
-            } else {
-                btnEditarUno.classList.add('hidden');
-            }
         }
 
         chkTodos.addEventListener('change', () => {
@@ -537,9 +641,9 @@
                 document.querySelector(`tr[data-id="${id}"]`)?.remove();
                 document.getElementById(`detalle-${id}`)?.remove();
             });
-            alerta.classList.remove('hidden');
+            alerta.style.display = 'flex';
             msgAlerta.textContent = `${data.aprobados} producto(s) aprobados correctamente.`;
-            setTimeout(() => alerta.classList.add('hidden'), 5000);
+            setTimeout(() => { alerta.style.display = 'none'; }, 5000);
             chkTodos.checked = false;
             actualizarBotones();
 
@@ -559,7 +663,125 @@
             if (!ids.length) return;
             abrirModal(ids, `Se aprobarán ${ids.length} producto(s) seleccionados`);
         });
+
+        // ── Eliminar en lote ─────────────────────────────────────────────────
+        const modalEliminar         = document.getElementById('modal-eliminar');
+        const modalEliminarSubtitulo = document.getElementById('modal-eliminar-subtitulo');
+        const modalEliminarCancelar  = document.getElementById('modal-eliminar-cancelar');
+        const modalEliminarConfirmar = document.getElementById('modal-eliminar-confirmar');
+        let pendingDeleteIds = [];
+
+        btnEliminar.addEventListener('click', () => {
+            pendingDeleteIds = getSeleccionados();
+            if (!pendingDeleteIds.length) return;
+            modalEliminarSubtitulo.textContent = `Se eliminarán ${pendingDeleteIds.length} producto(s) en borrador`;
+            modalEliminar.style.display = 'flex';
+        });
+
+        modalEliminarCancelar.addEventListener('click', () => { modalEliminar.style.display = 'none'; });
+        modalEliminar.addEventListener('click', e => { if (e.target === modalEliminar) modalEliminar.style.display = 'none'; });
+
+        modalEliminarConfirmar.addEventListener('click', async () => {
+            modalEliminarConfirmar.disabled = true;
+            modalEliminarConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Eliminando...';
+
+            const resp = await fetch('{{ route("inventario.importacion.eliminar-lote") }}', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                body: JSON.stringify({ ids: pendingDeleteIds }),
+            });
+            const data = await resp.json();
+
+            modalEliminarConfirmar.disabled = false;
+            modalEliminarConfirmar.innerHTML = '<i class="fas fa-trash mr-1"></i>Eliminar';
+            modalEliminar.style.display = 'none';
+
+            if (!data.ok) return;
+
+            pendingDeleteIds.forEach(id => {
+                document.querySelector(`tr[data-id="${id}"]`)?.remove();
+                document.getElementById(`detalle-${id}`)?.remove();
+            });
+            chkTodos.checked = false;
+            actualizarBotones();
+
+            alertaEliminacion.style.display = 'flex';
+            msgEliminacion.textContent = `${data.eliminados} producto(s) eliminado(s) correctamente.`;
+            setTimeout(() => { alertaEliminacion.style.display = 'none'; }, 5000);
+        });
     })();
+
+    // ── Modal Stock mín/máx ──────────────────────────────────────────────────
+    const modalStock        = document.getElementById('modal-stock');
+    const inputStockMin     = document.getElementById('input-stock-minimo');
+    const inputStockMax     = document.getElementById('input-stock-maximo');
+    const errorStock        = document.getElementById('error-stock');
+    const csrf              = document.querySelector('meta[name="csrf-token"]').content;
+    let stockProductoId     = null;
+
+    window.abrirModalStock = function(id, min, max) {
+        stockProductoId     = id;
+        inputStockMin.value = min ?? 0;
+        inputStockMax.value = max ?? 9999;
+        errorStock.classList.add('hidden');
+        modalStock.style.display = 'flex';
+        setTimeout(() => inputStockMin.focus(), 50);
+    };
+
+    document.getElementById('modal-stock-cancelar').addEventListener('click', () => { modalStock.style.display = 'none'; });
+    modalStock.addEventListener('click', e => { if (e.target === modalStock) modalStock.style.display = 'none'; });
+
+    document.getElementById('modal-stock-guardar').addEventListener('click', async () => {
+        const min = parseInt(inputStockMin.value);
+        const max = parseInt(inputStockMax.value);
+        if (isNaN(min) || isNaN(max) || min < 0 || max < 1) {
+            errorStock.textContent = 'Valores inválidos.'; errorStock.classList.remove('hidden'); return;
+        }
+        if (max <= min) {
+            errorStock.textContent = 'El máximo debe ser mayor que el mínimo.'; errorStock.classList.remove('hidden'); return;
+        }
+        const btn = document.getElementById('modal-stock-guardar');
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Guardando...';
+
+        const resp = await fetch(`/inventario/productos/${stockProductoId}/stock-ubicacion`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+            body: JSON.stringify({ stock_minimo: min, stock_maximo: max }),
+        });
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-save mr-1"></i>Guardar';
+        if ((await resp.json()).ok) {
+            modalStock.style.display = 'none';
+            errorStock.classList.add('hidden');
+        }
+    });
+
+    // ── Modal Ubicación ───────────────────────────────────────────────────────
+    const modalUbicacion    = document.getElementById('modal-ubicacion');
+    const inputUbicacion    = document.getElementById('input-ubicacion');
+    let ubicacionProductoId = null;
+
+    window.abrirModalUbicacion = function(id, ubicacion) {
+        ubicacionProductoId  = id;
+        inputUbicacion.value = ubicacion ?? '';
+        modalUbicacion.style.display = 'flex';
+        setTimeout(() => inputUbicacion.focus(), 50);
+    };
+
+    document.getElementById('modal-ubicacion-cancelar').addEventListener('click', () => { modalUbicacion.style.display = 'none'; });
+    modalUbicacion.addEventListener('click', e => { if (e.target === modalUbicacion) modalUbicacion.style.display = 'none'; });
+
+    document.getElementById('modal-ubicacion-guardar').addEventListener('click', async () => {
+        const btn = document.getElementById('modal-ubicacion-guardar');
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Guardando...';
+
+        const resp = await fetch(`/inventario/productos/${ubicacionProductoId}/stock-ubicacion`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+            body: JSON.stringify({ ubicacion: inputUbicacion.value.trim() }),
+        });
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-save mr-1"></i>Guardar';
+        if ((await resp.json()).ok) modalUbicacion.style.display = 'none';
+    });
 
     // ── Aprobar producto individual ──────────────────────────────────────────
     function aprobarUno(id, btn) {
@@ -619,9 +841,9 @@
 
             const alerta   = document.getElementById('alerta-aprobacion');
             const msgAlerta = document.getElementById('msg-aprobacion');
-            alerta.classList.remove('hidden');
+            alerta.style.display = 'flex';
             msgAlerta.textContent = 'Producto aprobado correctamente.';
-            setTimeout(() => alerta.classList.add('hidden'), 5000);
+            setTimeout(() => { alerta.style.display = 'none'; }, 5000);
         }, { once: true });
     }
     </script>

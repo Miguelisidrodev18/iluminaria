@@ -61,7 +61,8 @@ class GuiaRemisionController extends Controller
         $clientes  = Cliente::orderBy('nombre')->get(['id', 'nombre', 'tipo_documento', 'numero_documento', 'direccion']);
         $productos = Producto::where('estado', 'activo')
             ->orderBy('nombre')
-            ->get(['id', 'nombre', 'sku', 'unidad_medida']);
+            ->with('unidadMedida:id,abreviatura')
+            ->get(['id', 'nombre', 'codigo', 'unidad_medida_id']);
 
         // Serie de guías para la sucursal del usuario
         $sucursalId = $user->sucursal_id ?? Sucursal::first()?->id;
@@ -79,9 +80,11 @@ class GuiaRemisionController extends Controller
             $ventaPreload = Venta::with(['cliente', 'detalles.producto'])->find($request->venta_id);
         }
 
+        $guiaRemision = null;
+
         return view('guias-remision.create', compact(
             'clientes', 'productos', 'serie', 'empresa',
-            'partidaDefecto', 'ventaPreload'
+            'partidaDefecto', 'ventaPreload', 'guiaRemision'
         ));
     }
 

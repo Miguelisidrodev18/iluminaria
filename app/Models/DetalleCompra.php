@@ -42,5 +42,12 @@ class DetalleCompra extends Model
         return $this->belongsTo(ProductoVariante::class, 'variante_id');
     }
 
-
+    /**
+     * Stub — el sistema IMEI fue eliminado.
+     * Devuelve colección vacía para compatibilidad con vistas heredadas.
+     */
+    public function getImeisAttribute()
+    {
+        return collect();
+    }
 }

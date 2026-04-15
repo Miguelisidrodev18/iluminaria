@@ -499,4 +499,21 @@ class ImportacionController extends Controller
             'aprobados' => $cantidad,
         ]);
     }
+
+    public function eliminarLote(Request $request)
+    {
+        $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'integer|exists:productos,id',
+        ]);
+
+        $eliminados = Producto::whereIn('id', $request->ids)
+            ->where('estado_aprobacion', 'borrador')
+            ->delete();
+
+        return response()->json([
+            'ok'         => true,
+            'eliminados' => $eliminados,
+        ]);
+    }
 }

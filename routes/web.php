@@ -189,6 +189,7 @@ Route::middleware('auth')->group(function () {
                 Route::post('/productos', [ProductoController::class, 'store'])->name('productos.store');
                 Route::get('/productos/{producto}/edit', [ProductoController::class, 'edit'])->name('productos.edit');
                 Route::put('/productos/{producto}', [ProductoController::class, 'update'])->name('productos.update');
+                Route::patch('/productos/{producto}/stock-ubicacion', [ProductoController::class, 'actualizarStockUbicacion'])->name('productos.stock-ubicacion');
                 Route::delete('/productos/{producto}', [ProductoController::class, 'destroy'])->middleware('role:Administrador')->name('productos.destroy');
                 
                 // Gestión de códigos de barras múltiples
@@ -217,6 +218,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/movimientos', [MovimientoInventarioController::class, 'store'])->name('movimientos.store');
             Route::get('/movimientos/{movimiento}', [MovimientoInventarioController::class, 'show'])->name('movimientos.show');
             Route::get('/api/stock-actual', [MovimientoInventarioController::class, 'getStockActual'])->name('movimientos.stock-actual');
+            // Stub: sistema IMEI eliminado — devuelve array vacío para compatibilidad con la vista
+            Route::get('/api/imeis-disponibles', fn() => response()->json([]))->name('movimientos.imeis-disponibles');
         });
 
         // ALMACENES
@@ -273,6 +276,7 @@ Route::middleware('auth')->group(function () {
             Route::patch('/{importacion}/cancelar', [\App\Http\Controllers\ImportacionController::class, 'cancelar'])->name('cancelar');
             Route::get('/aprobacion',               [\App\Http\Controllers\ImportacionController::class, 'aprobacion'])->name('aprobacion');
             Route::post('/aprobar-lote',            [\App\Http\Controllers\ImportacionController::class, 'aprobarLote'])->name('aprobar-lote');
+            Route::delete('/eliminar-lote',         [\App\Http\Controllers\ImportacionController::class, 'eliminarLote'])->name('eliminar-lote');
         });
 
         // REPORTES DE INVENTARIO (HU-INVENTARIO-06/07/08)

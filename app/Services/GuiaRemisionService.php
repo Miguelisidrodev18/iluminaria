@@ -15,7 +15,7 @@ class GuiaRemisionService
 
     public function __construct()
     {
-        $this->empresa = Empresa::instancia();
+        $this->empresa = Empresa::instancia() ?? new Empresa();
     }
 
     // ── Correlativo ──────────────────────────────────────────────────

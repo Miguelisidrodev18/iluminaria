@@ -91,12 +91,19 @@
                         class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-5 rounded-lg transition-colors">
                         Cancelar
                     </a>
-                    <button type="submit"
+                    <button type="submit" id="btn-crear"
                         class="bg-[#F7D600] text-[#2B2E2C] hover:bg-[#e8c900] font-semibold py-2 px-6 rounded-lg transition-colors flex items-center gap-2">
                         <i class="fas fa-plus"></i> Crear Sucursal
                     </button>
                 </div>
             </form>
+            <script>
+                document.querySelector('form').addEventListener('submit', function () {
+                    const btn = document.getElementById('btn-crear');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando…';
+                });
+            </script>
         </div>
     </div>
 </div>

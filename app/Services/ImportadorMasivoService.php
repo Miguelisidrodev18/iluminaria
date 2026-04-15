@@ -579,6 +579,12 @@ class ImportadorMasivoService
      */
     private function procesarHojaClasificaciones(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
     {
+        // Preferir CLASIFICACIONES_PROYECTO (matriz con X) si existe
+        if ($spreadsheet->sheetNameExists('CLASIFICACIONES_PROYECTO')) {
+            $this->procesarHojaClasificacionesMatriz($spreadsheet, $mapa);
+            return;
+        }
+
         $sheet = $this->hoja($spreadsheet, 'CLASIFICACIONES');
         if (!$sheet) return;
 
@@ -750,6 +756,222 @@ class ImportadorMasivoService
             });
             $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
         }
+    }
+
+    // ── Hoja CLASIFICACIONES_PROYECTO (formato matriz con X) ─────────────────
+
+    private function procesarHojaClasificacionesMatriz(\PhpOffice\PhpSpreadsheet\Spreadsheet $spreadsheet, array $mapa): void
+    {
+        $ws     = $spreadsheet->getSheetByName('CLASIFICACIONES_PROYECTO');
+        $isTrue = fn($v) => in_array(strtolower(trim((string) $v)), ['x', '1', 'si', 'sí', 'yes', 'true'], true);
+
+        $numFila  = 0;
+        $fila1    = null;   // cabeceras de grupo (fila 1)
+        $cabecera = null;   // claves internas (fila 2 traducida)
+        $acumulado = [];    // codigo → ['usos', 'clasificacion_ids', 'tipo_proyecto_ids', 'ambientes', 'instalacion', 'estilo']
+
+        foreach ($ws->getRowIterator() as $row) {
+            $numFila++;
+            $iter = $row->getCellIterator();
+            $iter->setIterateOnlyExistingCells(false);
+
+            $valores = [];
+            foreach ($iter as $cell) {
+                $valores[] = $cell->getValue();
+            }
+            while (!empty($valores) && ($valores[array_key_last($valores)] === null || $valores[array_key_last($valores)] === '')) {
+                array_pop($valores);
+            }
+            if (empty($valores)) continue;
+            $valores = array_map(fn($v) => $v !== null ? trim((string) $v) : '', $valores);
+
+            if ($numFila === 1) { $fila1 = $valores; continue; }
+            if ($numFila === 2) {
+                $cabecera = $this->traducirCabecerasClasifMatriz($valores, $fila1 ?? []);
+                continue;
+            }
+            if ($cabecera === null || empty(array_filter($valores))) continue;
+
+            $codigo = strtoupper(trim($valores[0] ?? ''));
+            if ($codigo === '' || !isset($mapa[$codigo])) continue;
+
+            if (!isset($acumulado[$codigo])) {
+                $acumulado[$codigo] = ['usos' => [], 'clasificacion_ids' => [], 'tipo_proyecto_ids' => [], 'ambientes' => [], 'instalacion' => [], 'estilo' => []];
+            }
+
+            // Recolectar tipo_proyecto_ids primero (necesarios para resolver ambientes)
+            foreach ($cabecera as $i => $clave) {
+                if ($i === 0 || !$isTrue($valores[$i] ?? '')) continue;
+                if (str_starts_with($clave, '__tp:')) {
+                    $tpNombre = substr($clave, 5);
+                    if (isset($this->tiposProyecto[$tpNombre])) {
+                        $tpId = $this->tiposProyecto[$tpNombre];
+                        if (!in_array($tpId, $acumulado[$codigo]['tipo_proyecto_ids'])) {
+                            $acumulado[$codigo]['tipo_proyecto_ids'][] = $tpId;
+                        }
+                    }
+                }
+            }
+
+            // Procesar resto de columnas
+            $usoKeys = ['interior', 'exterior', 'alumbrado_publico', 'piscina'];
+
+            foreach ($cabecera as $i => $clave) {
+                if ($i === 0 || !$isTrue($valores[$i] ?? '')) continue;
+
+                if (str_starts_with($clave, '__tp:')) {
+                    continue; // ya procesado
+                } elseif (str_starts_with($clave, '__amb:')) {
+                    $slug = substr($clave, 6);
+                    // Buscar bajo los tipo_proyecto_ids ya encontrados; si ninguno, buscar en todos
+                    $tpIds = $acumulado[$codigo]['tipo_proyecto_ids'] ?: array_keys($this->espaciosProyecto);
+                    foreach ($tpIds as $tpId) {
+                        if (isset($this->espaciosProyecto[$tpId][$slug])) {
+                            $espId = $this->espaciosProyecto[$tpId][$slug];
+                            if (!in_array($espId, $acumulado[$codigo]['ambientes'])) {
+                                $acumulado[$codigo]['ambientes'][] = $espId;
+                            }
+                            break;
+                        }
+                    }
+                } elseif (in_array($clave, $usoKeys)) {
+                    if (!in_array($clave, $acumulado[$codigo]['usos'])) {
+                        $acumulado[$codigo]['usos'][] = $clave;
+                    }
+                    if (isset($this->clasificaciones[$clave])) {
+                        $clfId = $this->clasificaciones[$clave];
+                        if (!in_array($clfId, $acumulado[$codigo]['clasificacion_ids'])) {
+                            $acumulado[$codigo]['clasificacion_ids'][] = $clfId;
+                        }
+                    }
+                } elseif ($clave !== '') {
+                    // Instalación o estilo
+                    $estilosSugeridos = ['Clásico','Clásico-Moderno','Moderno','Contemporáneo','Minimalista','Rústico','Náutico','Vintage','Industrial','Tech','Nórdico','Inglés'];
+                    if (in_array($clave, $estilosSugeridos)) {
+                        if (!in_array($clave, $acumulado[$codigo]['estilo'])) {
+                            $acumulado[$codigo]['estilo'][] = $clave;
+                        }
+                    } else {
+                        if (!in_array($clave, $acumulado[$codigo]['instalacion'])) {
+                            $acumulado[$codigo]['instalacion'][] = $clave;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Persistir — misma lógica que procesarHojaClasificaciones
+        foreach (array_chunk($acumulado, self::CHUNK_SIZE, true) as $chunk) {
+            DB::transaction(function () use ($chunk, $mapa) {
+                foreach ($chunk as $codigo => $datos) {
+                    try {
+                        $productoId = $mapa[$codigo];
+                        $producto   = Producto::find($productoId);
+                        if (!$producto) continue;
+
+                        $producto->clasificacion()->updateOrCreate(
+                            ['producto_id' => $producto->id],
+                            [
+                                'usos'             => $datos['usos'],
+                                'ambientes'        => $datos['ambientes'],
+                                'tipo_instalacion' => $datos['instalacion'],
+                                'estilo'           => $datos['estilo'],
+                            ]
+                        );
+
+                        if (!empty($datos['tipo_proyecto_ids'])) {
+                            $producto->tiposProyecto()->syncWithoutDetaching($datos['tipo_proyecto_ids']);
+                        }
+                        if (!empty($datos['clasificacion_ids'])) {
+                            $producto->clasificaciones()->syncWithoutDetaching($datos['clasificacion_ids']);
+                        }
+
+                        $this->exitosas++;
+                    } catch (\Throwable $e) {
+                        $this->registrarError("CLASIFICACIONES_PROYECTO — '{$codigo}': " . $e->getMessage());
+                    }
+                    $this->procesadas++;
+                }
+            });
+            $this->importacion->actualizarProgreso($this->procesadas, $this->exitosas);
+        }
+    }
+
+    private function traducirCabecerasClasifMatriz(array $fila2, array $fila1): array
+    {
+        // Propagar nombre de grupo de izquierda a derecha (celdas fusionadas)
+        $groupPerCol  = [];
+        $currentGroup = '';
+        foreach ($fila1 as $i => $val) {
+            if ($val !== '') $currentGroup = strtolower(trim(Str::ascii($val)));
+            $groupPerCol[$i] = $currentGroup;
+        }
+
+        // tpMap: clave ascii+lowercase → __tp:nombre_original
+        $tpMap = [];
+        foreach ($this->tiposProyecto as $nombre => $id) {
+            $tpMap[strtolower(trim(Str::ascii($nombre)))] = '__tp:' . $nombre;
+        }
+
+        // Claves en ASCII puro (sin tildes) — el label ya viene normalizado con Str::ascii()
+        $staticMap = [
+            'interiores'             => 'interior',
+            'exteriores'             => 'exterior',
+            'alumbrado publico'      => 'alumbrado_publico',
+            'piscina'                => 'piscina',
+            'colgante'               => 'colgante',
+            'colgante doble altura'  => 'colgante_doble_altura',
+            'plafon'                 => 'plafon',
+            'aplique'                => 'aplique',
+            'sobre mesa'             => 'sobre_mesa',
+            'pie'                    => 'pie',
+            'escritorio'             => 'escritorio',
+            'lectura'                => 'lectura',
+            'empotrado de techo'     => 'empotrado_techo',
+            'empotrado de piso'      => 'empotrado_piso',
+            'empotrado sobre muro'   => 'empotrado_muro',
+            'ventilador'             => 'ventilador',
+            'estacas'                => 'estacas',
+            'balizas'                => 'balizas',
+            'empotrado sumergible'   => 'empotrado_sumergible',
+            'empotrados sumergibles' => 'empotrado_sumergible',
+            'luminarias portatiles'  => 'portatil',
+            'proyectores'            => 'proyector',
+            'sistema de riel'        => 'riel',
+            'tiras led'              => 'tira_led',
+            'postes'                 => 'poste',
+            'luz guia'               => 'luz_guia',
+            'clasico'                => 'Clásico',
+            'clasico-moderno'        => 'Clásico-Moderno',
+            'moderno'                => 'Moderno',
+            'contemporaneo'          => 'Contemporáneo',
+            'minimalista'            => 'Minimalista',
+            'rustico'                => 'Rústico',
+            'nautico'                => 'Náutico',
+            'vintage'                => 'Vintage',
+            'industrial'             => 'Industrial',
+            'tech'                   => 'Tech',
+            'nordico'                => 'Nórdico',
+            'ingles'                 => 'Inglés',
+        ];
+
+        $result = [];
+        foreach ($fila2 as $i => $label) {
+            if ($i === 0) { $result[] = 'codigo_fabrica'; continue; }
+
+            $labelNorm = strtolower(trim(Str::ascii($label)));
+            $group     = strtolower(Str::ascii($groupPerCol[$i] ?? ''));
+
+            if (str_contains($group, 'ambiente')) {
+                $result[] = '__amb:' . Str::slug($label, '_');
+            } elseif (str_contains($group, 'tipo de proyecto') || isset($tpMap[$labelNorm])) {
+                $result[] = $tpMap[$labelNorm] ?? '__tp:' . $labelNorm;
+            } else {
+                $result[] = $staticMap[$labelNorm] ?? $labelNorm;
+            }
+        }
+
+        return $result;
     }
 
     // ── Hoja COMPONENTES (BOM) ────────────────────────────────────────────────
