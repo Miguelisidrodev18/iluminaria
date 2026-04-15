@@ -5,23 +5,20 @@ namespace App\Services;
 use App\Models\Empresa;
 use App\Models\GuiaRemision;
 use App\Models\SerieComprobante;
-use App\Models\Sucursal;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class GuiaRemisionService
 {
-    protected Empresa $empresa;
+    protected ?Empresa $empresa = null;
 
     public function __construct()
     {
-        $this->empresa = Empresa::instancia() ?? new Empresa();
+        $this->empresa = Empresa::query()->first();
     }
 
-    // ── Correlativo ──────────────────────────────────────────────────
-
     /**
-     * Obtener la serie de Guía de Remisión activa para una sucursal.
+     * Obtener la serie activa de guia para una sucursal.
      */
     public function serieGuia(int $sucursalId): ?SerieComprobante
     {
@@ -32,22 +29,37 @@ class GuiaRemisionService
     }
 
     /**
-     * Asignar correlativo y guardar la guía con numero definitivo.
+     * Reservar el siguiente correlativo de una serie dentro de una transaccion.
+     */
+    public function reservarCorrelativo(int $serieComprobanteId): int
+    {
+        $serie = SerieComprobante::query()->lockForUpdate()->find($serieComprobanteId);
+
+        if (!$serie) {
+            throw new \RuntimeException('No se encontro la serie de comprobante.');
+        }
+
+        $correlativo = $serie->correlativo_actual;
+        $serie->increment('correlativo_actual');
+
+        return $correlativo;
+    }
+
+    /**
+     * Asignar correlativo y guardar la guia con numero definitivo.
      */
     public function asignarCorrelativo(GuiaRemision $guia): void
     {
-        $serie = $guia->serieComprobante;
-        if (!$serie) {
-            throw new \RuntimeException('No se encontró la serie de comprobante.');
+        if (!$guia->serie_comprobante_id) {
+            throw new \RuntimeException('No se encontro la serie de comprobante.');
         }
-        $guia->correlativo = $serie->siguienteCorrelativo();
+
+        $guia->correlativo = $this->reservarCorrelativo($guia->serie_comprobante_id);
         $guia->save();
     }
 
-    // ── Envío SUNAT ──────────────────────────────────────────────────
-
     /**
-     * Enviar guía a SUNAT vía API externa configurada en la empresa.
+     * Enviar guia a SUNAT via API externa configurada en la empresa.
      */
     public function enviarASunat(GuiaRemision $guia): array
     {
@@ -58,7 +70,7 @@ class GuiaRemisionService
         $apiUrl = rtrim($this->empresa->api_url ?? '', '/');
         $apiKey = $this->empresa->api_key ?? '';
 
-        if (empty($apiUrl) || empty($apiKey)) {
+        if ($apiUrl === '' || $apiKey === '') {
             return ['success' => false, 'message' => 'API URL o API Key no configurados en la empresa.'];
         }
 
@@ -68,8 +80,8 @@ class GuiaRemisionService
             $response = Http::timeout(30)
                 ->withHeaders([
                     'Authorization' => 'Bearer ' . $apiKey,
-                    'Accept'        => 'application/json',
-                    'Content-Type'  => 'application/json',
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
                 ])
                 ->post($apiUrl . '/guia', $payload);
 
@@ -77,61 +89,61 @@ class GuiaRemisionService
 
             if ($response->successful() && ($data['aceptada'] ?? false)) {
                 $guia->update([
-                    'estado'           => 'aceptado',
-                    'sunat_respuesta'  => $data,
-                    'sunat_hash'       => $data['hash']        ?? null,
+                    'estado' => 'aceptado',
+                    'sunat_respuesta' => $data,
+                    'sunat_hash' => $data['hash'] ?? null,
                     'sunat_enlace_pdf' => $data['enlace_del_pdf'] ?? null,
                     'sunat_enlace_xml' => $data['enlace_del_xml'] ?? null,
                     'sunat_enlace_cdr' => $data['enlace_del_cdr'] ?? null,
                 ]);
 
                 return [
-                    'success'  => true,
-                    'message'  => 'Guía enviada y aceptada por SUNAT.',
-                    'data'     => $data,
+                    'success' => true,
+                    'message' => 'Guia enviada y aceptada por SUNAT.',
+                    'data' => $data,
                 ];
             }
 
-            // Rechazado o error de negocio
             $mensaje = $data['errors'][0] ?? ($data['message'] ?? 'Respuesta inesperada de SUNAT.');
             $guia->update([
-                'estado'          => 'rechazado',
+                'estado' => 'rechazado',
                 'sunat_respuesta' => $data,
             ]);
 
             return ['success' => false, 'message' => $mensaje, 'data' => $data];
-
         } catch (\Throwable $e) {
             Log::error('GuiaRemisionService::enviarASunat', [
                 'guia_id' => $guia->id,
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
-            return ['success' => false, 'message' => 'Error de conexión con la API: ' . $e->getMessage()];
+
+            return ['success' => false, 'message' => 'Error de conexion con la API: ' . $e->getMessage()];
         }
     }
 
     /**
-     * Construir el payload para la API de facturación electrónica.
-     * Formato compatible con APIs tipo Nubefact / apigo.kodevo.
+     * Construir el payload para la API de facturacion electronica.
      */
     public function buildPayload(GuiaRemision $guia): array
     {
         $guia->load(['serieComprobante', 'detalles.producto', 'cliente']);
 
+        if (!$this->empresa) {
+            throw new \RuntimeException('No hay empresa configurada.');
+        }
+
         $empresa = $this->empresa;
 
-        // Determinar tipo y número de doc del destinatario
         $destTipoDoc = $guia->destinatario_tipo_doc ?? '1';
-        $destNumDoc  = $guia->destinatario_num_doc  ?? '';
-        $destNombre  = $guia->destinatario_nombre   ?? '';
+        $destNumDoc = $guia->destinatario_num_doc ?? '';
+        $destNombre = $guia->destinatario_nombre ?? '';
 
-        // Si hay cliente vinculado y no hay destinatario manual, usar datos del cliente
         if ($guia->cliente && empty($destNumDoc)) {
-            $destTipoDoc = match($guia->cliente->tipo_documento ?? 'DNI') {
-                'RUC'   => '6',
-                'DNI'   => '1',
-                'CE'    => '4',
-                'PAS'   => '7',
+            $destTipoDoc = match ($guia->cliente->tipo_documento ?? 'DNI') {
+                'RUC' => '6',
+                'DNI' => '1',
+                'CE' => '4',
+                'PAS' => '7',
                 default => '1',
             };
             $destNumDoc = $guia->cliente->numero_documento ?? '';
@@ -139,98 +151,79 @@ class GuiaRemisionService
         }
 
         $payload = [
-            'operacion'                   => 'generar_guia',
-            'tipo_de_comprobante'         => 9,
-            'serie'                       => $guia->serieComprobante->serie,
-            'numero'                      => $guia->correlativo,
-            'sunat_transaction'           => 1,
-
-            // Emisor
-            'emisor_tipo_de_documento'    => 6,
-            'emisor_numero_de_documento'  => $empresa->ruc,
-            'emisor_denominacion'         => $empresa->razon_social,
-            'emisor_direccion'            => $empresa->direccion,
-            'emisor_ubigeo'               => $empresa->ubigeo,
-
-            // Destinatario
-            'cliente_tipo_de_documento'   => (int) $destTipoDoc,
+            'operacion' => 'generar_guia',
+            'tipo_de_comprobante' => 9,
+            'serie' => $guia->serieComprobante->serie,
+            'numero' => $guia->correlativo,
+            'sunat_transaction' => 1,
+            'emisor_tipo_de_documento' => 6,
+            'emisor_numero_de_documento' => $empresa->ruc,
+            'emisor_denominacion' => $empresa->razon_social,
+            'emisor_direccion' => $empresa->direccion,
+            'emisor_ubigeo' => $empresa->ubigeo,
+            'cliente_tipo_de_documento' => ctype_digit((string) $destTipoDoc) ? (int) $destTipoDoc : $destTipoDoc,
             'cliente_numero_de_documento' => $destNumDoc,
-            'cliente_denominacion'        => $destNombre,
-            'cliente_direccion'           => $guia->destinatario_direccion ?? '',
-
-            // Fechas
-            'fecha_de_emision'            => $guia->fecha_emision->format('Y-m-d'),
-            'fecha_de_traslado'           => $guia->fecha_traslado->format('Y-m-d'),
-
-            // Datos de traslado
-            'motivo_de_traslado'          => $guia->motivo_traslado,
+            'cliente_denominacion' => $destNombre,
+            'cliente_direccion' => $guia->destinatario_direccion ?? '',
+            'fecha_de_emision' => $guia->fecha_emision->format('Y-m-d'),
+            'fecha_de_traslado' => $guia->fecha_traslado->format('Y-m-d'),
+            'motivo_de_traslado' => $guia->motivo_traslado,
             'descripcion_motivo_traslado' => GuiaRemision::MOTIVOS[$guia->motivo_traslado] ?? '',
-            'modalidad_de_transporte'     => $guia->modalidad_transporte,
-            'peso_bruto_total'            => (float) ($guia->peso_bruto ?? 0),
-            'numero_de_bultos'            => (int)   ($guia->numero_bultos ?? 1),
-
-            // Puntos
+            'modalidad_de_transporte' => $guia->modalidad_transporte,
+            'peso_bruto_total' => (float) ($guia->peso_bruto ?? 0),
+            'numero_de_bultos' => (int) ($guia->numero_bultos ?? 1),
             'punto_de_partida' => [
-                'ubigeo'    => $guia->partida_ubigeo ?? '',
+                'ubigeo' => $guia->partida_ubigeo ?? '',
                 'direccion' => $guia->partida_direccion ?? '',
             ],
             'punto_de_llegada' => [
-                'ubigeo'    => $guia->llegada_ubigeo ?? '',
+                'ubigeo' => $guia->llegada_ubigeo ?? '',
                 'direccion' => $guia->llegada_direccion ?? '',
             ],
-
-            // Observaciones
             'observaciones' => $guia->observaciones ?? '',
-
-            // Items
             'items' => $guia->detalles->map(function ($detalle) {
                 return [
                     'unidad_de_medida' => $detalle->unidad_medida,
-                    'codigo'           => $detalle->codigo ?? ($detalle->producto->sku ?? ''),
-                    'descripcion'      => $detalle->descripcion,
-                    'cantidad'         => (float) $detalle->cantidad,
+                    'codigo' => $detalle->codigo ?? ($detalle->producto->codigo ?? ''),
+                    'descripcion' => $detalle->descripcion,
+                    'cantidad' => (float) $detalle->cantidad,
                 ];
             })->values()->toArray(),
         ];
 
-        // Transportista según modalidad
         if ($guia->modalidad_transporte === '01') {
-            // Privado: datos del conductor/vehículo
             $payload['transportista'] = [
-                'tipo_de_documento'  => (int) ($guia->conductor_tipo_doc ?? 1),
-                'numero_de_documento'=> $guia->conductor_num_doc ?? '',
-                'denominacion'       => $guia->conductor_nombre ?? '',
+                'tipo_de_documento' => (int) ($guia->conductor_tipo_doc ?? 1),
+                'numero_de_documento' => $guia->conductor_num_doc ?? '',
+                'denominacion' => $guia->conductor_nombre ?? '',
                 'placa_del_vehiculo' => $guia->placa_vehiculo ?? '',
                 'numero_de_licencia' => $guia->conductor_licencia ?? '',
             ];
         } else {
-            // Público: empresa transportista
             $payload['transportista'] = [
-                'tipo_de_documento'  => 6,
-                'numero_de_documento'=> $guia->transportista_ruc ?? '',
-                'denominacion'       => $guia->transportista_nombre ?? '',
+                'tipo_de_documento' => 6,
+                'numero_de_documento' => $guia->transportista_ruc ?? '',
+                'denominacion' => $guia->transportista_nombre ?? '',
             ];
         }
 
         return $payload;
     }
 
-    // ── Anulación ────────────────────────────────────────────────────
-
     /**
-     * Anular guía localmente (SUNAT requiere proceso diferente para guías ya aceptadas).
+     * Anular guia localmente.
      */
     public function anular(GuiaRemision $guia, string $motivo = ''): array
     {
         if (!$guia->puede_anularse) {
-            return ['success' => false, 'message' => 'La guía no se puede anular en su estado actual.'];
+            return ['success' => false, 'message' => 'La guia no se puede anular en su estado actual.'];
         }
 
         $guia->update([
-            'estado'       => 'anulado',
-            'observaciones'=> ($guia->observaciones ? $guia->observaciones . ' | ' : '') . 'ANULADO: ' . $motivo,
+            'estado' => 'anulado',
+            'observaciones' => ($guia->observaciones ? $guia->observaciones . ' | ' : '') . 'ANULADO: ' . $motivo,
         ]);
 
-        return ['success' => true, 'message' => 'Guía anulada correctamente.'];
+        return ['success' => true, 'message' => 'Guia anulada correctamente.'];
     }
 }

@@ -66,7 +66,7 @@ class GuiaRemisionController extends Controller
 
         // Serie de guías para la sucursal del usuario
         $sucursalId = $user->sucursal_id ?? Sucursal::first()?->id;
-        $serie = $this->service->serieGuia($sucursalId);
+        $serie = $sucursalId ? $this->service->serieGuia($sucursalId) : null;
 
         // Datos de la empresa como punto de partida por defecto
         $partidaDefecto = [
@@ -139,17 +139,21 @@ class GuiaRemisionController extends Controller
 
             $sucursalId = $user->sucursal_id ?? Sucursal::first()?->id;
 
+            if (!$sucursalId) {
+                throw new \RuntimeException('No hay una sucursal asociada al usuario para emitir la guia.');
+            }
+
+            $correlativo = $this->service->reservarCorrelativo((int) $validated['serie_comprobante_id']);
+
             $guia = GuiaRemision::create(array_merge(
                 $validated,
                 [
+                    'correlativo' => $correlativo,
                     'user_id'    => $user->id,
                     'sucursal_id'=> $sucursalId,
                     'estado'     => 'borrador',
                 ]
             ));
-
-            // Asignar correlativo
-            $this->service->asignarCorrelativo($guia);
 
             // Guardar detalles
             foreach ($validated['detalles'] as $item) {
@@ -189,7 +193,10 @@ class GuiaRemisionController extends Controller
         $guiaRemision->load('detalles.producto');
         $empresa   = Empresa::instancia();
         $clientes  = Cliente::orderBy('nombre')->get(['id', 'nombre', 'tipo_documento', 'numero_documento', 'direccion']);
-        $productos = Producto::where('estado', 'activo')->orderBy('nombre')->get(['id', 'nombre', 'sku', 'unidad_medida']);
+        $productos = Producto::where('estado', 'activo')
+            ->orderBy('nombre')
+            ->with('unidadMedida:id,abreviatura')
+            ->get(['id', 'nombre', 'codigo', 'unidad_medida_id']);
         $serie     = $guiaRemision->serieComprobante;
         $partidaDefecto = [
             'ubigeo'    => $empresa?->ubigeo ?? '',

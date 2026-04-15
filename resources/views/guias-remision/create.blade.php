@@ -11,6 +11,7 @@
 </head>
 <body class="bg-gray-50">
     <x-sidebar :role="auth()->user()->role->nombre" />
+    @php($guiaRemision = $guiaRemision ?? null)
 
     <div class="md:ml-64 p-4 md:p-8" x-data="guiaForm()">
 
@@ -428,7 +429,7 @@
 
                     {{-- Botones --}}
                     <div class="flex flex-col gap-3">
-                        <button type="submit" :disabled="!serie"
+                        <button type="submit" {{ !$serie ? 'disabled' : '' }}
                                 class="w-full bg-[#2B2E2C] text-white py-3 rounded-xl font-semibold text-sm hover:bg-[#3d4140] transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
                             <i class="fas fa-save"></i>
                             {{ isset($guiaRemision) ? 'Actualizar Guía' : 'Guardar Guía' }}

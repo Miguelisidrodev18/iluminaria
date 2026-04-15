@@ -478,7 +478,7 @@ class VentaController extends Controller
 
             $guia = GuiaRemision::create([
                 'serie_comprobante_id'  => $serie->id,
-                'correlativo'           => 0, // temporal, se asigna en siguienteCorrelativo
+                'correlativo'           => $guiaService->reservarCorrelativo($serie->id),
                 'cliente_id'            => $venta->cliente_id,
                 'venta_id'              => $venta->id,
                 'sucursal_id'           => $sucursalId,
@@ -511,18 +511,15 @@ class VentaController extends Controller
                 'estado'                => 'borrador',
             ]);
 
-            // Asignar correlativo real
-            $guiaService->asignarCorrelativo($guia);
-
             // Crear ítems desde los detalles de la venta
-            $venta->load('detalles.producto');
+            $venta->load('detalles.producto.unidadMedida');
             foreach ($venta->detalles as $detalle) {
                 DetalleGuiaRemision::create([
                     'guia_remision_id' => $guia->id,
                     'producto_id'      => $detalle->producto_id,
-                    'codigo'           => $detalle->producto?->sku ?? $detalle->producto?->codigo ?? null,
+                    'codigo'           => $detalle->producto?->codigo ?? null,
                     'descripcion'      => $detalle->producto?->nombre ?? 'Producto',
-                    'unidad_medida'    => $detalle->producto?->unidad_medida ?? 'NIU',
+                    'unidad_medida'    => $detalle->producto?->unidadMedida?->abreviatura ?? 'NIU',
                     'cantidad'         => $detalle->cantidad,
                 ]);
             }
