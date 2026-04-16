@@ -440,6 +440,37 @@
                         <p class="text-sm text-gray-700">{{ $compra->observaciones }}</p>
                     </div>
                     @endif
+                    @if($compra->documento_adjunto)
+                    <div class="px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            <i class="fas fa-paperclip mr-1"></i>Documento adjunto
+                        </p>
+                        @php
+                            $ext = strtolower(pathinfo($compra->documento_adjunto, PATHINFO_EXTENSION));
+                            $url = asset('storage/' . $compra->documento_adjunto);
+                        @endphp
+                        <div class="flex items-center gap-3">
+                            @if($ext === 'pdf')
+                                <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
+                            @else
+                                <i class="fas fa-file-image text-blue-500 text-2xl"></i>
+                            @endif
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-700 truncate">
+                                    {{ basename($compra->documento_adjunto) }}
+                                </p>
+                            </div>
+                            <a href="{{ $url }}" target="_blank"
+                               class="inline-flex items-center gap-1.5 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg transition-colors">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
+                            <a href="{{ $url }}" download
+                               class="inline-flex items-center gap-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors">
+                                <i class="fas fa-download"></i> Descargar
+                            </a>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- IMEIs (si los hay) -->

@@ -109,6 +109,9 @@ class CompraController extends Controller
             'monto_adicional' => 'nullable|numeric|min:0',
             'concepto_adicional' => 'nullable|string|max:255',
             
+            // Documento adjunto (PDF/imagen de la factura)
+            'documento_adjunto' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+
             // Datos de envío
             'guia_remision' => 'nullable|string|max:50',
             'transportista' => 'nullable|string|max:255',
@@ -228,7 +231,14 @@ class CompraController extends Controller
                 'flete' => $flete,
                 'seguro' => $seguro,
                 'otros_gastos' => $otrosGastos,
+                'documento_adjunto' => null,
             ];
+
+            // Subir documento adjunto si se proporcionó
+            if ($request->hasFile('documento_adjunto')) {
+                $datosCompra['documento_adjunto'] = $request->file('documento_adjunto')
+                    ->store('compras/documentos', 'public');
+            }
 
             // Registrar la compra usando el servicio
             $compra = $this->compraService->registrarCompra($datosCompra, $validated['detalles']);

@@ -48,9 +48,10 @@
         <div class="border-b border-gray-200">
             <nav class="flex overflow-x-auto -mb-px">
                 @foreach([
-                    ['key'=>'info',   'label'=>'Info Sucursal / Almacén', 'icon'=>'store'],
-                    ['key'=>'series', 'label'=>'Series / Correlativos',   'icon'=>'list-ol'],
-                    ['key'=>'pagos',  'label'=>'Yape / Plin / Pagos',     'icon'=>'qrcode'],
+                    ['key'=>'info',      'label'=>'Info Sucursal',           'icon'=>'store'],
+                    ['key'=>'almacenes', 'label'=>'Almacenes',               'icon'=>'warehouse'],
+                    ['key'=>'series',    'label'=>'Series / Correlativos',   'icon'=>'list-ol'],
+                    ['key'=>'pagos',     'label'=>'Yape / Plin / Pagos',     'icon'=>'qrcode'],
                 ] as $t)
                     <button @click="tab = '{{ $t['key'] }}'"
                         :class="tab === '{{ $t['key'] }}' ? 'border-[#F7D600] text-[#2B2E2C] bg-[#2B2E2C]/10/50' : 'border-transparent text-gray-500 hover:text-gray-700'"
@@ -111,18 +112,14 @@
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Almacén vinculado</label>
-                        <select name="almacen_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#F7D600]">
-                            <option value="">— Sin almacén —</option>
-                            @foreach($almacenes as $alm)
-                                <option value="{{ $alm->id }}" {{ old('almacen_id', $sucursal->almacen_id) == $alm->id ? 'selected' : '' }}>
-                                    {{ $alm->nombre }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @if($sucursal->almacen)
-                            <p class="text-xs text-gray-400 mt-1">Vinculado: <strong>{{ $sucursal->almacen->nombre }}</strong></p>
-                        @endif
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Almacén principal</label>
+                        <div class="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-sm text-gray-700 flex items-center gap-2">
+                            <i class="fas fa-warehouse text-gray-400"></i>
+                            {{ $sucursal->almacen?->nombre ?? 'Sin almacén principal' }}
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Gestiona los almacenes en la pestaña <strong>Almacenes</strong>.
+                        </p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
@@ -145,6 +142,101 @@
                     </button>
                 </div>
             </form>
+        </div>
+
+        {{-- ─── TAB: ALMACENES ──────────────────────────────────────────────── --}}
+        <div x-show="tab === 'almacenes'" x-cloak class="p-6">
+            <h3 class="font-semibold text-gray-800 flex items-center gap-2 mb-5">
+                <i class="fas fa-warehouse text-[#2B2E2C]"></i> Almacenes de la Sucursal
+            </h3>
+
+            {{-- Listado de almacenes actuales --}}
+            @if($sucursal->almacenes->isEmpty())
+                <div class="text-center py-8 text-gray-400">
+                    <i class="fas fa-warehouse text-4xl mb-3 block"></i>
+                    <p>Esta sucursal no tiene almacenes vinculados aún.</p>
+                </div>
+            @else
+                <div class="space-y-3 mb-6">
+                    @foreach($sucursal->almacenes->sortBy('nombre') as $alm)
+                    <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg flex items-center justify-center
+                                {{ $alm->id === $sucursal->almacen_id ? 'bg-yellow-100' : 'bg-gray-100' }}">
+                                <i class="fas fa-warehouse text-sm
+                                    {{ $alm->id === $sucursal->almacen_id ? 'text-yellow-600' : 'text-gray-500' }}"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">
+                                    {{ $alm->nombre }}
+                                    @if($alm->id === $sucursal->almacen_id)
+                                        <span class="ml-2 text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Principal</span>
+                                    @endif
+                                </p>
+                                <p class="text-xs text-gray-400">{{ $alm->codigo }} · {{ ucfirst($alm->tipo) }} · {{ ucfirst($alm->estado) }}</p>
+                                @if($alm->direccion)
+                                    <p class="text-xs text-gray-400">{{ $alm->direccion }}</p>
+                                @endif
+                            </div>
+                        </div>
+                        @if($alm->id !== $sucursal->almacen_id)
+                        <form action="{{ route('admin.sucursales.almacenes.destroy', [$sucursal, $alm]) }}" method="POST"
+                              onsubmit="return confirm('¿Eliminar este almacén? Solo es posible si no tiene movimientos.')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="text-red-400 hover:text-red-600 transition p-2 rounded-lg hover:bg-red-50">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </form>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- Formulario para agregar almacén --}}
+            <div class="border border-dashed border-gray-300 rounded-xl p-5">
+                <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <i class="fas fa-plus-circle text-green-500"></i> Agregar otro almacén
+                </h4>
+                <form action="{{ route('admin.sucursales.almacenes.store', $sucursal) }}" method="POST">
+                    @csrf
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Nombre *</label>
+                            <input type="text" name="nombre" required maxlength="100"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600] focus:border-[#F7D600]"
+                                   placeholder="Ej: Almacén Piso 2, Depósito Norte…">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Tipo</label>
+                            <select name="tipo" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
+                                <option value="sucursal">Sucursal</option>
+                                <option value="temporal">Temporal</option>
+                                <option value="principal">Principal</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Estado</label>
+                            <select name="estado" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]">
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Dirección</label>
+                            <input type="text" name="direccion" maxlength="300"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#F7D600]"
+                                   placeholder="Dirección del almacén">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button type="submit"
+                                class="bg-[#2B2E2C] text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-[#3d4140] transition">
+                            <i class="fas fa-plus mr-2"></i> Agregar Almacén
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         {{-- ─── TAB: SERIES ──────────────────────────────────────────────────── --}}
@@ -320,6 +412,34 @@
             </form>
         </div>
     </div>
+
+    {{-- Zona de peligro: Eliminar sucursal --}}
+    @if(!$sucursal->es_principal)
+    <div class="mt-6 bg-white rounded-2xl shadow border border-red-100">
+        <div class="px-6 py-4 border-b border-red-100">
+            <h3 class="text-sm font-semibold text-red-600 flex items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i> Zona de peligro
+            </h3>
+        </div>
+        <div class="px-6 py-4 flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-800">Eliminar esta sucursal</p>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    Solo es posible si no hay ventas, compras ni guías de remisión asociadas.
+                    Los almacenes vinculados quedarán sin sucursal asignada.
+                </p>
+            </div>
+            <form action="{{ route('admin.sucursales.destroy', $sucursal) }}" method="POST"
+                  onsubmit="return confirm('¿Está seguro de eliminar la sucursal {{ $sucursal->nombre }}? Esta acción no se puede deshacer.')">
+                @csrf @method('DELETE')
+                <button type="submit"
+                        class="ml-6 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap">
+                    <i class="fas fa-trash"></i> Eliminar Sucursal
+                </button>
+            </form>
+        </div>
+    </div>
+    @endif
 </div>
 
 <style>[x-cloak] { display: none !important; }</style>

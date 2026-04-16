@@ -46,6 +46,7 @@ class Compra extends Model
         'fecha_anulacion',
         'motivo_anulacion',
         'observaciones',
+        'documento_adjunto',
     ];
 
     protected $casts = [

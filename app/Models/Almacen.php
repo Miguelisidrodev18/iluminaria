@@ -22,6 +22,7 @@ class Almacen extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'sucursal_id',
         'nombre',
         'codigo',
         'direccion',
@@ -50,11 +51,11 @@ class Almacen extends Model
     }
 
     /**
-     * Relación inversa: sucursal que tiene este almacén asignado
+     * Sucursal a la que pertenece este almacén.
      */
     public function sucursal()
     {
-        return $this->hasOne(Sucursal::class, 'almacen_id');
+        return $this->belongsTo(Sucursal::class);
     }
 
     /**

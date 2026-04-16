@@ -25,12 +25,13 @@ class SucursalService
             // 2. Crear sucursal (sin almacen_id aún)
             $sucursal = Sucursal::create($datos);
 
-            // 3. Crear almacén automático
+            // 3. Crear almacén automático vinculado a la sucursal
             $almacen = Almacen::create([
-                'nombre'    => 'Almacén ' . $sucursal->nombre,
-                'codigo'    => 'ALM-' . $sucursal->codigo,
-                'direccion' => $sucursal->direccion,
-                'estado'    => 'activo',
+                'sucursal_id' => $sucursal->id,
+                'nombre'      => 'Almacén ' . $sucursal->nombre,
+                'codigo'      => 'ALM-' . $sucursal->codigo,
+                'direccion'   => $sucursal->direccion,
+                'estado'      => 'activo',
             ]);
 
             // 4. Vincular almacén a sucursal

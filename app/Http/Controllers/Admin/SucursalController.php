@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Almacen;
+use App\Models\Compra;
 use App\Models\ConfiguracionPagosSucursal;
+use App\Models\GuiaRemision;
 use App\Models\SerieComprobante;
 use App\Models\Sucursal;
+use App\Models\Venta;
 use App\Services\SucursalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -65,6 +68,7 @@ class SucursalController extends Controller
     {
         $sucursal->load([
             'almacen',
+            'almacenes',
             'series' => fn($q) => $q->orderBy('tipo_comprobante'),
             'pagos',
         ]);
@@ -102,9 +106,83 @@ class SucursalController extends Controller
         if ($sucursal->es_principal) {
             return back()->with('error', 'No se puede eliminar la sucursal principal.');
         }
-        $sucursal->delete();
+
+        // Verificar documentos relacionados
+        $tieneVentas   = Venta::where('sucursal_id', $sucursal->id)->exists();
+        $tieneGuias    = GuiaRemision::where('sucursal_id', $sucursal->id)->exists();
+        $almacenIds    = $sucursal->almacenes()->pluck('id');
+        $tieneCompras  = $almacenIds->isNotEmpty()
+            ? Compra::whereIn('almacen_id', $almacenIds)->exists()
+            : false;
+
+        if ($tieneVentas || $tieneGuias || $tieneCompras) {
+            $docs = collect([
+                $tieneVentas  ? 'ventas'  : null,
+                $tieneCompras ? 'compras' : null,
+                $tieneGuias   ? 'guías de remisión' : null,
+            ])->filter()->implode(', ');
+
+            return back()->with('error',
+                "No se puede eliminar la sucursal porque tiene {$docs} registradas."
+            );
+        }
+
+        DB::transaction(function () use ($sucursal) {
+            // Desvincular almacenes (no los elimina, solo rompe el vínculo)
+            $sucursal->almacenes()->update(['sucursal_id' => null]);
+            $sucursal->series()->delete();
+            $sucursal->pagos()->delete();
+            $sucursal->delete();
+        });
+
         return redirect()->route('admin.sucursales.index')
-            ->with('success', 'Sucursal eliminada.');
+            ->with('success', 'Sucursal eliminada correctamente.');
+    }
+
+    // ── Almacenes de una sucursal ──────────────────────────────────────────────
+
+    public function storeAlmacen(Request $request, Sucursal $sucursal)
+    {
+        $validated = $request->validate([
+            'nombre'    => 'required|string|max:100',
+            'direccion' => 'nullable|string|max:300',
+            'tipo'      => 'required|in:principal,sucursal,temporal',
+            'estado'    => 'required|in:activo,inactivo',
+        ]);
+
+        $codigo = 'ALM-' . $sucursal->codigo . '-' .
+                  strtoupper(substr(preg_replace('/\s+/', '', $validated['nombre']), 0, 5)) .
+                  rand(10, 99);
+
+        Almacen::create(array_merge($validated, [
+            'sucursal_id' => $sucursal->id,
+            'codigo'      => $codigo,
+        ]));
+
+        return redirect()->route('admin.sucursales.edit', $sucursal)
+            ->with('success', 'Almacén agregado a la sucursal.')
+            ->with('_tab', 'almacenes');
+    }
+
+    public function destroyAlmacen(Sucursal $sucursal, Almacen $almacen)
+    {
+        if ($almacen->sucursal_id !== $sucursal->id) {
+            return back()->with('error', 'El almacén no pertenece a esta sucursal.');
+        }
+
+        if ($sucursal->almacen_id === $almacen->id) {
+            return back()->with('error', 'No se puede eliminar el almacén principal de la sucursal.');
+        }
+
+        try {
+            $almacen->delete(); // boot() lanza excepción si tiene movimientos
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('admin.sucursales.edit', $sucursal)
+            ->with('success', 'Almacén eliminado.')
+            ->with('_tab', 'almacenes');
     }
 
     // ── HU-03: Series de comprobantes ──────────────────────────────────────────

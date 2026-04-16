@@ -512,6 +512,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/sucursales/{sucursal}/comprobantes', [SucursalController::class, 'comprobantes'])->name('sucursales.comprobantes');
         Route::post('/sucursales/{sucursal}/generar-series', [SucursalController::class, 'generarSeries'])->name('sucursales.generar-series');
 
+        // Almacenes de una sucursal
+        Route::post('/sucursales/{sucursal}/almacenes', [SucursalController::class, 'storeAlmacen'])->name('sucursales.almacenes.store');
+        Route::delete('/sucursales/{sucursal}/almacenes/{almacen}', [SucursalController::class, 'destroyAlmacen'])->name('sucursales.almacenes.destroy');
+
         // Series de comprobantes de una sucursal
         Route::put('/sucursales/{sucursal}/series/{serie}', [SucursalController::class, 'updateSerie'])->name('sucursales.series.update');
         Route::post('/sucursales/{sucursal}/series', [SucursalController::class, 'storeSerie'])->name('sucursales.series.store');

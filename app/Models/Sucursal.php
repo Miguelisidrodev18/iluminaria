@@ -20,9 +20,20 @@ class Sucursal extends Model
 
     // ── Relaciones ────────────────────────────────────────────
 
+    /**
+     * Almacén principal (FK legacy en sucursales.almacen_id).
+     */
     public function almacen()
     {
         return $this->belongsTo(Almacen::class);
+    }
+
+    /**
+     * Todos los almacenes que pertenecen a esta sucursal.
+     */
+    public function almacenes()
+    {
+        return $this->hasMany(Almacen::class);
     }
 
     public function series()

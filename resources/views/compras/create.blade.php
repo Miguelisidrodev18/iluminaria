@@ -68,7 +68,7 @@
                 </h2>
             </div>
 
-            <form action="{{ route('compras.store') }}" method="POST" id="compraForm" class="p-8">
+            <form action="{{ route('compras.store') }}" method="POST" id="compraForm" class="p-8" enctype="multipart/form-data">
                 @csrf
 
                 <!-- TIPO DE COMPRA -->
@@ -614,6 +614,52 @@
                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#F7D600] focus:ring-2 focus:ring-[#F7D600]/30"
                               placeholder="Notas adicionales sobre la compra...">{{ old('observaciones') }}</textarea>
                 </div>
+
+                {{-- Documento adjunto --}}
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
+                            <i class="fas fa-paperclip text-blue-600 text-sm"></i>
+                        </span>
+                        Documento adjunto <span class="text-sm font-normal text-gray-400 ml-2">(opcional)</span>
+                    </h3>
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#F7D600] hover:bg-yellow-50 transition-colors"
+                           id="dropzone-label">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6" id="dropzone-placeholder">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-sm text-gray-500">Arrastra o <span class="font-semibold text-[#2B2E2C]">haz clic para subir</span></p>
+                            <p class="text-xs text-gray-400 mt-1">PDF, JPG, PNG — máx. 5 MB</p>
+                        </div>
+                        <div class="hidden items-center gap-3 py-4" id="dropzone-preview">
+                            <i class="fas fa-file-alt text-2xl text-blue-500"></i>
+                            <span class="text-sm font-medium text-gray-700" id="dropzone-filename"></span>
+                            <button type="button" onclick="limpiarAdjunto()" class="text-red-400 hover:text-red-600 ml-2">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+                        <input type="file" name="documento_adjunto" id="documento_adjunto" class="hidden"
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               onchange="mostrarAdjunto(this)">
+                    </label>
+                    @error('documento_adjunto')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <script>
+                    function mostrarAdjunto(input) {
+                        if (!input.files.length) return;
+                        document.getElementById('dropzone-placeholder').classList.add('hidden');
+                        document.getElementById('dropzone-preview').classList.remove('hidden');
+                        document.getElementById('dropzone-preview').classList.add('flex');
+                        document.getElementById('dropzone-filename').textContent = input.files[0].name;
+                    }
+                    function limpiarAdjunto() {
+                        document.getElementById('documento_adjunto').value = '';
+                        document.getElementById('dropzone-placeholder').classList.remove('hidden');
+                        document.getElementById('dropzone-preview').classList.add('hidden');
+                        document.getElementById('dropzone-preview').classList.remove('flex');
+                    }
+                </script>
 
                 <!-- Botones de acción -->
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t-2 border-gray-100">
