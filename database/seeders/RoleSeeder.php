@@ -41,6 +41,26 @@ class RoleSeeder extends Seeder
                 'nombre'      => 'Tienda',
                 'descripcion' => 'Punto de venta. Registra ventas al público y gestiona clientes en tienda física.',
             ],
+            [
+                'nombre'      => 'Logística',
+                'descripcion' => 'Gestión de fábricas y proveedores. Crea y aprueba órdenes de compra, gestiona proveedores y controla el flujo de abastecimiento.',
+            ],
+            [
+                'nombre'      => 'Cliente',
+                'descripcion' => 'Acceso externo para clientes. Puede realizar pedidos y hacer seguimiento al estado de arribo (en tránsito, en aduanas, en almacén, listo para entrega).',
+            ],
+            [
+                'nombre'      => 'Administración',
+                'descripcion' => 'Acceso administrativo completo: inventario, facturación, pagos, caja y reportes. Sin gestión de usuarios ni roles.',
+            ],
+            [
+                'nombre'      => 'Operaciones',
+                'descripcion' => 'Programación de tareas internas y externas (instalaciones). Coordina proyectos, clientes y logística de campo.',
+            ],
+            [
+                'nombre'      => 'Contador',
+                'descripcion' => 'Acceso a información financiera: boletas, facturas, pagos, cuentas por pagar y reportes contables.',
+            ],
         ];
 
         foreach ($roles as $rol) {
@@ -50,6 +70,6 @@ class RoleSeeder extends Seeder
             );
         }
 
-        $this->command->info('✅ Roles verificados/creados: Administrador, Supervisor, Vendedor, Almacenero, Compras, Proveedor, Tienda.');
+        $this->command->info('✅ Roles verificados/creados: Administrador, Supervisor, Vendedor, Almacenero, Compras, Proveedor, Tienda, Logística, Cliente, Administración, Operaciones, Contador.');
     }
 }

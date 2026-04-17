@@ -769,6 +769,265 @@
                             <i class="fas fa-file-invoice mr-3"></i>Mis Pedidos
                         </a>
                     </li>
+
+                @elseif($role == 'Logística')
+                    <li>
+                        <a href="{{ route('logistica.dashboard') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('logistica.dashboard') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                        </a>
+                    </li>
+
+                    <li>
+                        <button @click="comprasOpen = !comprasOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('compras.*') || request()->routeIs('proveedores.*') || request()->routeIs('pedidos.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-shopping-bag mr-3"></i>Compras</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': comprasOpen }"></i>
+                        </button>
+                        <ul x-show="comprasOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li>
+                                <a href="{{ route('proveedores.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-truck mr-3 text-sm"></i>Proveedores
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('compras.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('compras.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-file-invoice mr-3 text-sm"></i>Registrar Compras
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('pedidos.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('pedidos.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-clipboard-list mr-3 text-sm"></i>Pedidos a Proveedor
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('cuentas-por-pagar.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('cuentas-por-pagar.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-credit-card mr-3 text-sm"></i>Cuentas por Pagar
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <button @click="inventarioOpen = !inventarioOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-boxes mr-3"></i>Inventario</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': inventarioOpen }"></i>
+                        </button>
+                        <ul x-show="inventarioOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li>
+                                <a href="{{ route('inventario.productos.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.productos.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-box mr-3 text-sm"></i>Productos
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('inventario.almacenes.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.almacenes.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-warehouse mr-3 text-sm"></i>Almacenes
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('inventario.movimientos.index') }}"
+                                    class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.movimientos.*') ? 'bg-[#484E4A]' : '' }}">
+                                    <i class="fas fa-exchange-alt mr-3 text-sm"></i>Movimientos
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                @elseif($role == 'Cliente')
+                    <li>
+                        <a href="{{ route('cliente.dashboard') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('cliente.dashboard') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                        </a>
+                    </li>
+
+                    <li class="px-4 py-2 mt-2"><div class="border-t border-[#3A3E3B]"></div></li>
+                    <li class="px-4 text-xs font-semibold text-[#F7D600] uppercase tracking-wider">Mis Pedidos</li>
+
+                    <li>
+                        <a href="{{ route('ventas.create') }}"
+                            class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors ml-4 {{ request()->routeIs('ventas.create') ? 'bg-[#484E4A]' : '' }}">
+                            <i class="fas fa-plus-circle mr-3 text-sm w-4"></i>Hacer un Pedido
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('ventas.index') }}"
+                            class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors ml-4 {{ request()->routeIs('ventas.index') || request()->routeIs('ventas.show') ? 'bg-[#484E4A]' : '' }}">
+                            <i class="fas fa-map-marker-alt mr-3 text-sm w-4"></i>Seguimiento
+                        </a>
+                    </li>
+
+                    <li class="px-4 py-2 mt-2"><div class="border-t border-[#3A3E3B]"></div></li>
+                    <li class="px-4 text-xs font-semibold text-[#F7D600] uppercase tracking-wider">Catálogo</li>
+
+                    <li>
+                        <a href="{{ route('inventario.productos.index') }}"
+                            class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors ml-4 {{ request()->routeIs('inventario.productos.*') ? 'bg-[#484E4A]' : '' }}">
+                            <i class="fas fa-box mr-3 text-sm w-4"></i>Ver Productos
+                        </a>
+                    </li>
+
+                @elseif($role == 'Administración')
+                    <li>
+                        <a href="{{ route('administracion.dashboard') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('administracion.dashboard') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                        </a>
+                    </li>
+
+                    <li>
+                        <button @click="ventasOpen = !ventasOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.*') || request()->routeIs('clientes.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-cash-register mr-3"></i>Ventas</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': ventasOpen }"></i>
+                        </button>
+                        <ul x-show="ventasOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li><a href="{{ route('clientes.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('clientes.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-users mr-3 text-sm"></i>Clientes</a></li>
+                            <li><a href="{{ route('ventas.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.index') || request()->routeIs('ventas.show') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-receipt mr-3 text-sm"></i>Registrar Ventas</a></li>
+                            <li><a href="{{ route('ventas.cotizaciones') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.cotizaciones') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-file-contract mr-3 text-sm"></i>Cotizaciones</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <button @click="comprasOpen = !comprasOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('compras.*') || request()->routeIs('proveedores.*') || request()->routeIs('cuentas-por-pagar.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-shopping-bag mr-3"></i>Compras</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': comprasOpen }"></i>
+                        </button>
+                        <ul x-show="comprasOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li><a href="{{ route('proveedores.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-truck mr-3 text-sm"></i>Proveedores</a></li>
+                            <li><a href="{{ route('compras.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('compras.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-file-invoice mr-3 text-sm"></i>Registrar Compras</a></li>
+                            <li><a href="{{ route('cuentas-por-pagar.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('cuentas-por-pagar.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-credit-card mr-3 text-sm"></i>Cuentas por Pagar</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <button @click="inventarioOpen = !inventarioOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-boxes mr-3"></i>Inventario</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': inventarioOpen }"></i>
+                        </button>
+                        <ul x-show="inventarioOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li><a href="{{ route('inventario.productos.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.productos.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-box mr-3 text-sm"></i>Productos</a></li>
+                            <li><a href="{{ route('inventario.almacenes.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.almacenes.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-warehouse mr-3 text-sm"></i>Almacenes</a></li>
+                            <li><a href="{{ route('inventario.movimientos.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.movimientos.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-exchange-alt mr-3 text-sm"></i>Movimientos</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <button @click="cajaOpen = !cajaOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('caja.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-cash-register mr-3"></i>Caja</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': cajaOpen }"></i>
+                        </button>
+                        <ul x-show="cajaOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li><a href="{{ route('caja.actual') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('caja.actual') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-door-open mr-3 text-sm"></i>Caja Activa</a></li>
+                            <li><a href="{{ route('caja.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('caja.index') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-history mr-3 text-sm"></i>Historial de Cajas</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('reportes.ventas') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('reportes.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-chart-line mr-3"></i>Reportes
+                        </a>
+                    </li>
+
+                @elseif($role == 'Operaciones')
+                    <li>
+                        <a href="{{ route('operaciones.dashboard') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('operaciones.dashboard') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('clientes.index') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('clientes.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-users mr-3"></i>Clientes
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('proyectos.index') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proyectos.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-project-diagram mr-3"></i>Proyectos
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('ventas.index') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-receipt mr-3"></i>Ventas
+                        </a>
+                    </li>
+
+                    <li>
+                        <button @click="inventarioOpen = !inventarioOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-boxes mr-3"></i>Inventario</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': inventarioOpen }"></i>
+                        </button>
+                        <ul x-show="inventarioOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li><a href="{{ route('inventario.productos.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.productos.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-box mr-3 text-sm"></i>Productos</a></li>
+                            <li><a href="{{ route('inventario.almacenes.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.almacenes.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-warehouse mr-3 text-sm"></i>Almacenes</a></li>
+                            <li><a href="{{ route('traslados.pendientes') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('traslados.pendientes') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-truck-loading mr-3 text-sm"></i>Traslados</a></li>
+                        </ul>
+                    </li>
+
+                @elseif($role == 'Contador')
+                    <li>
+                        <a href="{{ route('contador.dashboard') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('contador.dashboard') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                        </a>
+                    </li>
+
+                    <li>
+                        <button @click="ventasOpen = !ventasOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-file-invoice-dollar mr-3"></i>Facturación</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': ventasOpen }"></i>
+                        </button>
+                        <ul x-show="ventasOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li><a href="{{ route('ventas.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('ventas.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-receipt mr-3 text-sm"></i>Boletas y Facturas</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <button @click="comprasOpen = !comprasOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('compras.*') || request()->routeIs('proveedores.*') || request()->routeIs('cuentas-por-pagar.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <span class="flex items-center"><i class="fas fa-shopping-bag mr-3"></i>Compras</span>
+                            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': comprasOpen }"></i>
+                        </button>
+                        <ul x-show="comprasOpen" x-transition class="ml-4 mt-2 space-y-1">
+                            <li><a href="{{ route('compras.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('compras.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-file-invoice mr-3 text-sm"></i>Órdenes de Compra</a></li>
+                            <li><a href="{{ route('proveedores.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('proveedores.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-truck mr-3 text-sm"></i>Proveedores</a></li>
+                            <li><a href="{{ route('cuentas-por-pagar.index') }}" class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('cuentas-por-pagar.*') ? 'bg-[#484E4A]' : '' }}"><i class="fas fa-credit-card mr-3 text-sm"></i>Cuentas por Pagar</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('reportes.ventas') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('reportes.*') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-chart-line mr-3"></i>Reportes
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('inventario.reportes.stock-valorizado') }}"
+                            class="flex items-center px-4 py-3 text-sm rounded-lg hover:bg-[#3A3E3B] transition-colors {{ request()->routeIs('inventario.reportes.stock-valorizado') ? 'bg-[#3A3E3B]' : '' }}">
+                            <i class="fas fa-coins mr-3"></i>Stock Valorizado
+                        </a>
+                    </li>
+
                 @endif
             </ul>
         </nav>

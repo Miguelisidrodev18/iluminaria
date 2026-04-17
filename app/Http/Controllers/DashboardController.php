@@ -26,11 +26,16 @@ class DashboardController extends Controller
     $rol = $user->role->nombre;
     
     return match($rol) {
-        'Administrador' => redirect()->route('admin.dashboard'),
-        'Almacenero' => redirect()->route('almacenero.dashboard'),
-        'Tienda' => redirect()->route('tienda.dashboard'), // CAMBIAR DE 'Cajero'
-        'Vendedor' => redirect()->route('vendedor.dashboard'),
-        'Proveedor' => redirect()->route('proveedor.dashboard'),
+        'Administrador'  => redirect()->route('admin.dashboard'),
+        'Almacenero'     => redirect()->route('almacenero.dashboard'),
+        'Tienda'         => redirect()->route('tienda.dashboard'),
+        'Vendedor'       => redirect()->route('vendedor.dashboard'),
+        'Proveedor'      => redirect()->route('proveedor.dashboard'),
+        'Logística'      => redirect()->route('logistica.dashboard'),
+        'Cliente'        => redirect()->route('cliente.dashboard'),
+        'Administración' => redirect()->route('administracion.dashboard'),
+        'Operaciones'    => redirect()->route('operaciones.dashboard'),
+        'Contador'       => redirect()->route('contador.dashboard'),
         default => abort(403, 'Rol no autorizado'),
     };
 }
@@ -294,6 +299,102 @@ class DashboardController extends Controller
      * Dashboard del Tienda
      */
     
+    public function logistica(): View
+    {
+        $proveedores_activos = Proveedor::where('activo', true)->count();
+        $compras_mes = Compra::where('estado', '!=', 'anulado')
+            ->whereMonth('fecha', now()->month)
+            ->whereYear('fecha', now()->year)
+            ->count();
+        $compras_pendientes = Compra::where('estado', 'pendiente')->count();
+        $compras_recientes = Compra::with('proveedor')
+            ->orderBy('created_at', 'desc')
+            ->limit(8)
+            ->get();
+
+        return view('dashboards.logistica', compact(
+            'proveedores_activos', 'compras_mes', 'compras_pendientes', 'compras_recientes'
+        ));
+    }
+
+    public function clienteDashboard(): View
+    {
+        $user = auth()->user();
+        $mis_pedidos = Venta::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+        $pedidos_pendientes = Venta::where('user_id', $user->id)
+            ->where('estado_pago', 'pendiente')
+            ->count();
+        $pedidos_completados = Venta::where('user_id', $user->id)
+            ->where('estado_pago', 'pagado')
+            ->count();
+
+        return view('dashboards.cliente', compact(
+            'mis_pedidos', 'pedidos_pendientes', 'pedidos_completados'
+        ));
+    }
+
+    public function administracion(): View
+    {
+        $ventas_mes = Venta::where('estado_pago', 'pagado')
+            ->whereMonth('fecha', now()->month)
+            ->whereYear('fecha', now()->year)
+            ->sum('total');
+        $compras_mes = Compra::where('estado', '!=', 'anulado')
+            ->whereMonth('fecha', now()->month)
+            ->whereYear('fecha', now()->year)
+            ->sum('total_pen');
+        $total_clientes = Cliente::count();
+        $productos_bajo_stock = Producto::where('tipo_inventario', 'cantidad')
+            ->whereColumn('stock_actual', '<=', 'stock_minimo')
+            ->where('estado', 'activo')
+            ->count();
+        $notif_cuotas = Cuota::where('estado', 'pendiente')
+            ->where('fecha_vencimiento', '<=', now()->addDays(7))
+            ->count();
+
+        return view('dashboards.administracion', compact(
+            'ventas_mes', 'compras_mes', 'total_clientes', 'productos_bajo_stock', 'notif_cuotas'
+        ));
+    }
+
+    public function operaciones(): View
+    {
+        $clientes_activos = Cliente::count();
+        $ventas_pendientes = Venta::where('estado_pago', 'pendiente')->count();
+        $traslados_pendientes = MovimientoInventario::where('tipo_movimiento', 'transferencia')
+            ->where('estado', 'pendiente')
+            ->count();
+
+        return view('dashboards.operaciones', compact(
+            'clientes_activos', 'ventas_pendientes', 'traslados_pendientes'
+        ));
+    }
+
+    public function contador(): View
+    {
+        $ventas_mes = Venta::where('estado_pago', 'pagado')
+            ->whereMonth('fecha', now()->month)
+            ->whereYear('fecha', now()->year)
+            ->sum('total');
+        $compras_mes = Compra::where('estado', '!=', 'anulado')
+            ->whereMonth('fecha', now()->month)
+            ->whereYear('fecha', now()->year)
+            ->sum('total_pen');
+        $cuotas_vencidas = Cuota::where('estado', 'pendiente')
+            ->where('fecha_vencimiento', '<', now())
+            ->count();
+        $cuotas_por_vencer = Cuota::where('estado', 'pendiente')
+            ->whereBetween('fecha_vencimiento', [now(), now()->addDays(7)])
+            ->count();
+
+        return view('dashboards.contador', compact(
+            'ventas_mes', 'compras_mes', 'cuotas_vencidas', 'cuotas_por_vencer'
+        ));
+    }
+
 public function tienda()
 {
     $user = auth()->user();

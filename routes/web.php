@@ -64,11 +64,16 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     $role = auth()->user()->role->nombre ?? null;
         return match ($role) {
-        'Administrador' => redirect()->route('admin.dashboard'),
-        'Almacenero'    => redirect()->route('almacenero.dashboard'),
-        'Vendedor'      => redirect()->route('vendedor.dashboard'),
-        'Tienda'        => redirect()->route('tienda.dashboard'),
-        default         => redirect()->route('login'),
+        'Administrador'  => redirect()->route('admin.dashboard'),
+        'Almacenero'     => redirect()->route('almacenero.dashboard'),
+        'Vendedor'       => redirect()->route('vendedor.dashboard'),
+        'Tienda'         => redirect()->route('tienda.dashboard'),
+        'Logística'      => redirect()->route('logistica.dashboard'),
+        'Cliente'        => redirect()->route('cliente.dashboard'),
+        'Administración' => redirect()->route('administracion.dashboard'),
+        'Operaciones'    => redirect()->route('operaciones.dashboard'),
+        'Contador'       => redirect()->route('contador.dashboard'),
+        default          => redirect()->route('login'),
     };
 })->name('dashboard')->middleware('auth');
 
@@ -165,6 +170,26 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:Proveedor')->prefix('proveedor')->name('proveedor.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'proveedor'])->name('dashboard');
+    });
+
+    Route::middleware('role:Logística')->prefix('logistica')->name('logistica.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'logistica'])->name('dashboard');
+    });
+
+    Route::middleware('role:Cliente')->prefix('cliente')->name('cliente.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'clienteDashboard'])->name('dashboard');
+    });
+
+    Route::middleware('role:Administración')->prefix('administracion')->name('administracion.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'administracion'])->name('dashboard');
+    });
+
+    Route::middleware('role:Operaciones')->prefix('operaciones')->name('operaciones.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'operaciones'])->name('dashboard');
+    });
+
+    Route::middleware('role:Contador')->prefix('contador')->name('contador.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'contador'])->name('dashboard');
     });
 
     // ========================================

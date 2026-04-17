@@ -26,6 +26,11 @@ use App\Models\Role;
  *   Vendedor      → Ventas, clientes, consulta de inventario
  *   Tienda        → Ventas al público, consulta básica
  *   Proveedor     → Solo consulta catálogo
+ *   Logística     → Gestión completa de proveedores/fábricas y compras
+ *   Cliente       → Pedidos propios y seguimiento de estado
+ *   Administración→ Todo excepto usuarios/roles
+ *   Operaciones   → Coordinación de proyectos e instalaciones
+ *   Contador      → Información financiera: ventas, compras, reportes
  *
  * Idempotente: se puede ejecutar múltiples veces sin duplicar ni perder datos.
  * Usa firstOrCreate para permisos y syncWithoutDetaching para asignaciones.
@@ -185,6 +190,59 @@ class PermisoSeeder extends Seeder
             'Proveedor' => [
                 // Acceso de solo lectura al catálogo
                 'ver_productos',
+            ],
+
+            'Logística' => [
+                // Productos: consulta y carga básica
+                'ver_productos', 'crear_producto', 'editar_producto',
+                // Inventario: consulta
+                'ver_inventario', 'ver_movimientos', 'ver_almacenes', 'realizar_traslados',
+                // Compras completo (gestión de fábricas/proveedores)
+                'ver_compras', 'crear_compra', 'editar_compra', 'aprobar_compra',
+                'gestionar_proveedores', 'ver_costos',
+            ],
+
+            'Cliente' => [
+                // Catálogo y pedidos propios
+                'ver_productos',
+                'ver_ventas', 'crear_venta', 'gestionar_clientes',
+            ],
+
+            'Administración' => [
+                // Productos completo (sin eliminar)
+                'ver_productos', 'crear_producto', 'editar_producto', 'aprobar_producto',
+                'importar_productos', 'gestionar_bom', 'gestionar_variantes', 'gestionar_precios',
+                // Inventario completo
+                'ver_inventario', 'gestionar_stock', 'ver_movimientos', 'crear_movimiento', 'ajustar_inventario',
+                // Compras completo
+                'ver_compras', 'crear_compra', 'editar_compra', 'aprobar_compra', 'gestionar_proveedores', 'ver_costos',
+                // Ventas completo
+                'ver_ventas', 'crear_venta', 'editar_venta', 'anular_venta',
+                'gestionar_clientes', 'editar_precios', 'aplicar_descuentos',
+                // Almacén completo
+                'ver_almacenes', 'gestionar_almacenes', 'gestionar_ubicaciones', 'realizar_traslados',
+                // Catálogo completo
+                'gestionar_categorias', 'gestionar_marcas', 'gestionar_atributos',
+                // Admin (sin gestionar usuarios/roles)
+                'ver_reportes', 'configurar_empresa', 'ver_auditorias',
+            ],
+
+            'Operaciones' => [
+                // Consulta productos e inventario para planificar instalaciones
+                'ver_productos', 'ver_inventario', 'ver_movimientos', 'ver_almacenes', 'realizar_traslados',
+                // Ventas y clientes para coordinar proyectos
+                'ver_ventas', 'gestionar_clientes',
+            ],
+
+            'Contador' => [
+                // Ventas y facturación
+                'ver_ventas', 'ver_productos',
+                // Compras y costos
+                'ver_compras', 'ver_costos', 'gestionar_proveedores',
+                // Inventario básico
+                'ver_inventario', 'ver_movimientos',
+                // Reportes y auditorías
+                'ver_reportes', 'ver_auditorias',
             ],
         ];
 
