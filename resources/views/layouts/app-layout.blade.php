@@ -76,6 +76,37 @@
             </div>
         </nav>
 
+        <!-- Banner periodo de prueba -->
+        @if(isset($trialDiasRestantes))
+            @if($trialDiasRestantes <= 2)
+                <div class="w-full bg-red-600 text-white text-sm font-semibold text-center py-2 px-4 flex items-center justify-center gap-2">
+                    <i class="fas fa-exclamation-triangle animate-pulse"></i>
+                    @if($trialDiasRestantes == 0)
+                        ¡Tu periodo de prueba vence HOY! Contacta a Estelar Software para activar tu licencia.
+                    @elseif($trialDiasRestantes == 1)
+                        ¡Te queda 1 día de prueba! Contacta a Estelar Software para activar tu licencia.
+                    @else
+                        ¡Te quedan {{ $trialDiasRestantes }} días de prueba! Contacta a Estelar Software para activar tu licencia.
+                    @endif
+                    <span class="mx-2">|</span>
+                    <a href="mailto:{{ env('TRIAL_CONTACT_EMAIL') }}" class="underline hover:text-red-200">
+                        {{ env('TRIAL_CONTACT_EMAIL') }}
+                    </a>
+                    <span class="mx-1">·</span>
+                    <span>{{ env('TRIAL_CONTACT_PHONE') }}</span>
+                </div>
+            @elseif($trialDiasRestantes <= 7)
+                <div class="w-full bg-yellow-500 text-yellow-900 text-sm font-semibold text-center py-2 px-4 flex items-center justify-center gap-2">
+                    <i class="fas fa-clock"></i>
+                    Te quedan <strong class="mx-1">{{ $trialDiasRestantes }} días</strong> de periodo de prueba.
+                    Contacta a Estelar Software:
+                    <a href="mailto:{{ env('TRIAL_CONTACT_EMAIL') }}" class="underline ml-1">{{ env('TRIAL_CONTACT_EMAIL') }}</a>
+                    <span class="mx-1">·</span>
+                    <span>{{ env('TRIAL_CONTACT_PHONE') }}</span>
+                </div>
+            @endif
+        @endif
+
         <!-- Page Content -->
         <main class="py-6">
             <!-- Alertas -->

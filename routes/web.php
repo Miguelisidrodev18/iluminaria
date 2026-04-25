@@ -56,6 +56,15 @@ use App\Http\Middleware\VerifyMasterPassword;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+/*
+|--------------------------------------------------------------------------
+| PERIODO DE PRUEBA — acceso bloqueado (no requiere auth para evitar loop)
+|--------------------------------------------------------------------------
+*/
+Route::get('/acceso-bloqueado', function () {
+    return view('trial_bloqueado');
+})->name('trial.bloqueado');
 /*
 |--------------------------------------------------------------------------
 | RUTA PRINCIPAL

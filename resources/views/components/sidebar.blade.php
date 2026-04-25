@@ -1,5 +1,48 @@
 @props(['role'])
 
+@php
+    $trialEnabled = env('TRIAL_ENABLED', true);
+    $trialDias    = null;
+    if (!$trialEnabled) {
+        $trialDias = -1; // fuerza bloqueo
+    } else {
+        $expiry    = \Illuminate\Support\Carbon::parse(env('TRIAL_EXPIRY_DATE'))->endOfDay();
+        $trialDias = (int) \Illuminate\Support\Carbon::now()->diffInDays($expiry, false);
+    }
+@endphp
+
+{{-- ── Banner periodo de prueba (fixed bottom, full width) ── --}}
+@if($trialDias !== null)
+    @if($trialDias < 0)
+        {{-- Bloqueado: redirige via JS como fallback al middleware --}}
+        <script>window.location.href = "{{ route('trial.bloqueado') }}";</script>
+    @elseif($trialDias <= 2)
+        <div class="fixed bottom-0 left-0 right-0 z-[9999] bg-red-600 text-white text-sm font-semibold py-2 px-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 shadow-lg">
+            <i class="fas fa-exclamation-triangle animate-pulse"></i>
+            @if($trialDias == 0)
+                <span>¡Tu periodo de prueba vence <strong>HOY</strong>!</span>
+            @elseif($trialDias == 1)
+                <span>¡Te queda <strong>1 día</strong> de periodo de prueba!</span>
+            @else
+                <span>¡Te quedan <strong>{{ $trialDias }} días</strong> de periodo de prueba!</span>
+            @endif
+            <span class="hidden sm:inline">Contacta a <strong>Estelar Software</strong> para activar tu licencia.</span>
+            <a href="mailto:{{ env('TRIAL_CONTACT_EMAIL') }}" class="underline hover:text-red-200">{{ env('TRIAL_CONTACT_EMAIL') }}</a>
+            <span>·</span>
+            <span>{{ env('TRIAL_CONTACT_PHONE') }}</span>
+        </div>
+    @elseif($trialDias <= 7)
+        <div class="fixed bottom-0 left-0 right-0 z-[9999] bg-yellow-400 text-yellow-900 text-sm font-semibold py-2 px-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 shadow-lg">
+            <i class="fas fa-clock"></i>
+            <span>Te quedan <strong>{{ $trialDias }} días</strong> de periodo de prueba.</span>
+            <span class="hidden sm:inline">Contacta a <strong>Estelar Software</strong>:</span>
+            <a href="mailto:{{ env('TRIAL_CONTACT_EMAIL') }}" class="underline">{{ env('TRIAL_CONTACT_EMAIL') }}</a>
+            <span>·</span>
+            <span>{{ env('TRIAL_CONTACT_PHONE') }}</span>
+        </div>
+    @endif
+@endif
+
 {{-- Mobile hamburger button --}}
 <div x-data="{ sidebarOpen: false }">
     <button @click="sidebarOpen = true"
